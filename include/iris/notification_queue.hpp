@@ -1,24 +1,26 @@
 #pragma once
+#include <condition_variable>
 #include <deque>
-#include <mutex>
+#include <functional>
 #include <iris/operation.hpp>
 
 namespace iris {
 
 using lock_t = std::unique_lock<std::mutex>;
+using operation_t = std::variant<operation::void_argument, operation::string_argument>;
 
 class notification_queue {
-  std::deque<operation> queue_;
+  std::deque<operation_t> queue_;
   bool done_{false};
   std::mutex mutex_;
   std::condition_variable ready_;
 
 public:
-  bool try_pop(operation &op) {
-    lock_t lock{_mutex, std::try_to_lock};
+  bool try_pop(operation_t &op) {
+    lock_t lock{mutex_, std::try_to_lock};
     if (!lock || queue_.empty())
       return false;
-    op = std::move(_q.front());
+    op = std::move(queue_.front());
     queue_.pop_front();
     return true;
   }
@@ -37,19 +39,19 @@ public:
 
   void done() {
     {
-      lock_t lock{_mutex};
+      lock_t lock{mutex_};
       done_ = true;
     }
     ready_.notify_all();
   }
 
-  bool pop(operation &op) {
+  bool pop(operation_t &op) {
     lock_t lock{mutex_};
     while (queue_.empty())
       ready_.wait(lock);
     if (queue_.empty())
       return false;
-    x = std::move(queue_.front());
+    op = std::move(queue_.front());
     queue_.pop_front();
     return true;
   }
