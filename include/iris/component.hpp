@@ -39,11 +39,11 @@ namespace iris {
       publishers_.insert(std::make_pair(std::move(name), std::move(p)));
     }
 
-    void add_subscriber(std::string name, std::vector<std::string> endpoints, std::string filter,
+    void add_subscriber(std::string name, std::vector<std::string> endpoints,
 			std::function<void(std::string)> fn) {
       auto s = std::make_shared<subscriber>(context_,
 					    std::move(endpoints),
-					    std::move(filter),
+					    "",
 					    operation::string_argument{.fn = fn},
 					    executor_);
       subscribers_.insert(std::make_pair(std::move(name), std::move(s)));
