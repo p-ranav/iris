@@ -1,14 +1,16 @@
 #pragma once
 #include <iris/task_system.hpp>
 #include <iris/timer.hpp>
-#include <vector>
+#include <map>
 #include <memory>
+#include <zmq.hpp>
 
 namespace iris {
 
   class component {
     task_system executor_;
-    std::vector<std::unique_ptr<timer>> timers_;
+    std::map<std::string, std::shared_ptr<timer>> timers_;
+    zmq::context_t context_{zmq::context_t(1)};
 
   public:
 
@@ -19,16 +21,22 @@ namespace iris {
 	thread.join();      
     }
     
-    void add_timer(long long period, std::function<void()> fn) {
-      auto t = std::make_unique<timer>(period,
+    void add_timer(std::string name, unsigned int period, std::function<void()> fn) {
+      auto t = std::make_shared<timer>(period,
 				       operation::void_argument{.fn = fn},
 				       executor_);
-      timers_.push_back(std::move(t));
+      timers_.insert(std::make_pair(std::move(name), std::move(t)));
+    }
+
+    template <typename T>
+    typename std::enable_if<std::is_same<T, timer>::value, std::weak_ptr<timer>>::type
+    get(std::string name) {
+      return timers_[std::move(name)];
     }
 
     void start() {
-      for (auto &t : timers_) {
-	t->start();
+      for (auto &[_, v] : timers_) {
+	v->start();
       }
     }
   };
