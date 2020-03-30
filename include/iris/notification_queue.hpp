@@ -1,15 +1,11 @@
 #pragma once
 #include <deque>
-#include <functional>
 #include <mutex>
-#include <string>
-#include <variant>
+#include <iris/operation.hpp>
 
 namespace iris {
 
 using lock_t = std::unique_lock<std::mutex>;
-using operation = std::variant<std::function<void()>,
-                               std::function<void(const std::string &)>>;
 
 class notification_queue {
   std::deque<operation> queue_;
