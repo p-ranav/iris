@@ -7,7 +7,6 @@
 #include <thread>
 #include <iris/operation.hpp>
 #include <iris/task_system.hpp>
-#include <iostream>
 
 namespace iris {
 
@@ -26,7 +25,6 @@ namespace iris {
 	execute_(false), thread_({}) {}
 
     ~timer() {
-      std::cout << "Timer Destructed\n";
       if(execute_.load(std::memory_order_acquire)) {
 	stop();
       };
@@ -42,11 +40,9 @@ namespace iris {
       if(execute_.load(std::memory_order_acquire)) {
 	stop();
       };
-      std::cout << "Started timer\n";
       execute_.store(true, std::memory_order_release);
       thread_ = std::thread([this]() {
 			   while (execute_.load(std::memory_order_acquire)) {
-			     std::cout << "Calling fn\n";
 			     executor_.get().async_(fn_);                   
 			     std::this_thread::sleep_for(period_);
 			   }

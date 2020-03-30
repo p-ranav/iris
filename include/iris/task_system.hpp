@@ -4,7 +4,6 @@
 #include <iris/operation.hpp>
 #include <thread>
 #include <vector>
-#include <iostream>
 
 namespace iris {
 
@@ -52,12 +51,10 @@ public:
   }
 
   ~task_system() {
-    std::cout << "Task system destructor called\n";
     for (auto &queue : queue_)
       queue.done();
     for (auto &thread : threads_)
       thread.join();
-    std::cout << "Task system destructed!\n";
   }
 
   template <typename F> void async_(F &&f) {

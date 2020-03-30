@@ -17,11 +17,9 @@ namespace iris {
 	queue.done();
       for (auto &thread : executor_.threads_)
 	thread.join();      
-      std::cout << "Component destructed\n";
     }
     
     void add_timer(long long period, std::function<void()> fn) {
-      std::cout << "Adding timer\n";
       auto t = std::make_unique<timer>(period,
 				       operation::void_argument{.fn = fn},
 				       executor_);
@@ -30,7 +28,6 @@ namespace iris {
 
     void start() {
       for (auto &t : timers_) {
-	std::cout << "Calling timer start\n";
 	t->start();
       }
     }
