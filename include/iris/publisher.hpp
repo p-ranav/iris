@@ -15,9 +15,9 @@ namespace iris {
 
   public:
 
-    publisher(zmq::context_t &context, const std::vector<std::string> &endpoints,
+    publisher(zmq::context_t &context, std::vector<std::string> endpoints,
 	      task_system &executor)
-      : context_(context), endpoints_(endpoints), executor_(executor) {
+      : context_(context), endpoints_(std::move(endpoints)), executor_(executor) {
       socket_ = std::make_unique<zmq::socket_t>(context_, ZMQ_PUB);
       for (auto& e : endpoints_)
 	socket_->bind(e);

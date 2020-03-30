@@ -43,7 +43,7 @@ namespace iris {
       execute_.store(true, std::memory_order_release);
       thread_ = std::thread([this]() {
 			   while (execute_.load(std::memory_order_acquire)) {
-			     executor_.get().async_(fn_);                   
+			     executor_.get().async_(fn_);
 			     std::this_thread::sleep_for(period_);
 			   }
 			 });
