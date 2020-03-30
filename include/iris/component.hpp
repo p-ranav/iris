@@ -1,6 +1,7 @@
 #pragma once
 #include <iris/task_system.hpp>
 #include <iris/timer.hpp>
+#include <iris/publisher.hpp>
 #include <map>
 #include <memory>
 #include <zmq.hpp>
@@ -10,6 +11,7 @@ namespace iris {
   class component {
     task_system executor_;
     std::map<std::string, std::shared_ptr<timer>> timers_;
+    std::map<std::string, std::shared_ptr<publisher>> publishers_;    
     zmq::context_t context_{zmq::context_t(1)};
 
   public:
@@ -28,11 +30,24 @@ namespace iris {
       timers_.insert(std::make_pair(std::move(name), std::move(t)));
     }
 
+    void add_publisher(std::string name, std::vector<std::string> endpoints) {
+      auto p = std::make_shared<publisher>(context_,
+					   std::move(endpoints),
+					   executor_);
+      publishers_.insert(std::make_pair(std::move(name), std::move(p)));
+    }
+
     template <typename T>
     typename std::enable_if<std::is_same<T, timer>::value, std::weak_ptr<timer>>::type
     get(std::string name) {
       return timers_[std::move(name)];
     }
+
+    template <typename T>
+    typename std::enable_if<std::is_same<T, publisher>::value, std::weak_ptr<publisher>>::type
+    get(std::string name) {
+      return publishers_[std::move(name)];
+    }    
 
     void start() {
       for (auto &[_, v] : timers_) {
