@@ -21,7 +21,7 @@ namespace iris {
   public:
 
     timer(unsigned int period, const operation::void_argument& fn, task_system &executor)
-      : period_(std::chrono::milliseconds(period)), fn_(fn), executor_(executor),
+      : period_(std::chrono::milliseconds(std::move(period))), fn_(fn), executor_(executor),
 	execute_(false), thread_({}) {}
 
     ~timer() {

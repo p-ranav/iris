@@ -45,7 +45,7 @@ class task_system {
   }
 
 public:
-  task_system() {
+  task_system(const unsigned count) : count_(count) {
     for (unsigned n = 0; n != count_; ++n) {
       threads_.emplace_back([&, n] { run(n); });
     }

@@ -18,6 +18,9 @@ namespace iris {
 
   public:
 
+    component(const unsigned n = std::thread::hardware_concurrency())
+      : executor_(task_system(n)) {}
+
     ~component() {
       subscribers_.clear();
       publishers_.clear();
@@ -25,7 +28,7 @@ namespace iris {
     }
 
     void add_timer(std::string name, unsigned int period, std::function<void()> fn) {
-      auto t = std::make_shared<timer>(period,
+      auto t = std::make_shared<timer>(std::move(period),
 				       operation::void_argument{.fn = fn},
 				       executor_);
       timers_.insert(std::make_pair(std::move(name), std::move(t)));

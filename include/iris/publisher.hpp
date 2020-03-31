@@ -30,7 +30,7 @@ namespace iris {
     void send(const std::string &message) {
       zmq::message_t message_struct(message.length());
       memcpy(message_struct.data(), message.c_str(), message.length());
-      socket_->send(message_struct);
+      socket_->send(std::move(message_struct));
     }    
   };
   
