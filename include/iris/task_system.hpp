@@ -28,29 +28,30 @@ class task_system {
         (*void_op).fn();
       else if (auto string_op = std::get_if<operation::string_argument>(&op))
         (*string_op).fn(std::move((*string_op).arg));
-    }    
+    }
   }
 
   bool valid_operation(operation_t &op) {
     if (std::holds_alternative<operation::void_argument>(op)) {
       if (std::get<operation::void_argument>(op).fn) {
         return true;
-      } else return false;
-    }
-    else if (std::holds_alternative<operation::string_argument>(op)) {
+      } else
+        return false;
+    } else if (std::holds_alternative<operation::string_argument>(op)) {
       if (std::get<operation::string_argument>(op).fn)
         return true;
-      else return false;
-    } else return false;
+      else
+        return false;
+    } else
+      return false;
   }
 
 public:
-  task_system(const unsigned count) : count_(count) {
-  }
+  task_system(const unsigned count) : count_(count) {}
 
   ~task_system() {
     for (auto &queue : queue_)
-      queue.done();      
+      queue.done();
   }
 
   void start() {
@@ -60,14 +61,15 @@ public:
   }
 
   template <typename F> void async_(F &&f) {
-    if (done_) return;
+    if (done_)
+      return;
     auto i = index_++;
     for (unsigned n = 0; n != count_; ++n) {
       if (queue_[(i + n) % count_].try_push(std::forward<F>(f)))
         return;
     }
     queue_[i % count_].try_push(std::forward<F>(f));
-  }  
+  }
 };
 
-}
+} // namespace iris

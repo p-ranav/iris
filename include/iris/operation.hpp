@@ -5,16 +5,16 @@
 
 namespace iris {
 
-  namespace operation {
+namespace operation {
 
-    struct void_argument {
-      std::function<void()> fn;
-    };
-    
-    struct string_argument {
-      std::function<void(std::string)> fn;
-      std::string arg;
-    };
+struct void_argument {
+  std::function<void()> fn;
+};
 
-  }  
-}
+struct string_argument {
+  std::function<void(std::string)> fn;
+  std::string arg;
+};
+
+} // namespace operation
+} // namespace iris

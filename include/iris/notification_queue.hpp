@@ -7,7 +7,8 @@
 namespace iris {
 
 using lock_t = std::unique_lock<std::mutex>;
-using operation_t = std::variant<operation::void_argument, operation::string_argument>;
+using operation_t =
+    std::variant<operation::void_argument, operation::string_argument>;
 
 class notification_queue {
   std::deque<operation_t> queue_;
@@ -25,8 +26,7 @@ public:
     return true;
   }
 
-  template <typename Function>
-  bool try_push(Function &&fn) {
+  template <typename Function> bool try_push(Function &&fn) {
     {
       lock_t lock{mutex_, std::try_to_lock};
       if (!lock)
@@ -56,8 +56,7 @@ public:
     return true;
   }
 
-  template <typename Function>
-  void push(Function &&fn) {
+  template <typename Function> void push(Function &&fn) {
     {
       lock_t lock{mutex_};
       queue_.emplace_back(std::function<Function>(fn));
@@ -66,4 +65,4 @@ public:
   }
 };
 
-}
+} // namespace iris
