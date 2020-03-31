@@ -11,7 +11,7 @@
 namespace iris {
 
 class timer {
-  unsigned int period_;
+  unsigned int period_ms_;
   operation::void_argument fn_;
   std::reference_wrapper<task_system> executor_;
 
@@ -19,9 +19,9 @@ class timer {
   std::thread thread_;
 
 public:
-  timer(unsigned int period, const operation::void_argument &fn,
+  timer(unsigned int period_ms, const operation::void_argument &fn,
         task_system &executor)
-      : period_(period), fn_(fn), executor_(executor), execute_(false),
+      : period_ms_(period_ms), fn_(fn), executor_(executor), execute_(false),
         thread_({}) {}
 
   ~timer() {
@@ -51,7 +51,7 @@ public:
     thread_ = std::thread([this]() {
       while (execute_) {
         executor_.get().async_(fn_);
-        sleep_for(period_);
+        sleep_for(period_ms_);
       }
     });
   }

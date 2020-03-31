@@ -29,10 +29,10 @@ public:
     timers_.clear();
   }
 
-  void add_timer(std::string name, unsigned int period,
+  void add_timer(std::string name, unsigned int period_ms,
                  std::function<void()> fn) {
     lock_t lock{timers_mutex_};
-    auto t = std::make_unique<timer>(period, operation::void_argument{.fn = fn},
+    auto t = std::make_unique<timer>(period_ms, operation::void_argument{.fn = fn},
                                      executor_);
     timers_.insert(std::make_pair(std::move(name), std::move(t)));
   }
