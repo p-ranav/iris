@@ -32,8 +32,8 @@ public:
   void add_timer(std::string name, unsigned int period,
                  std::function<void()> fn) {
     lock_t lock{timers_mutex_};
-    auto t = std::make_unique<timer>(
-        period, operation::void_argument{.fn = fn}, executor_);
+    auto t = std::make_unique<timer>(period, operation::void_argument{.fn = fn},
+                                     executor_);
     timers_.insert(std::make_pair(std::move(name), std::move(t)));
   }
 
@@ -59,9 +59,9 @@ public:
                       std::vector<std::string> endpoints,
                       std::function<void(std::string)> fn) {
     lock_t lock{subscribers_mutex_};
-    auto s = std::make_unique<subscriber>(context_, std::move(endpoints), "",
-                                          operation::string_argument{.fn = fn},
-                                          executor_);
+    auto s = std::make_unique<subscriber>(
+        context_, std::move(endpoints), /* filter */ "",
+        operation::string_argument{.fn = fn}, executor_);
     subscribers_.insert(
         std::make_pair(std::move(subscriber_name), std::move(s)));
   }
