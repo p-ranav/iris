@@ -41,7 +41,7 @@ class task_system {
       if (std::get<operation::string_argument>(op).fn)
         return true;
       else return false;
-    }
+    } else return false;
   }
 
 public:
