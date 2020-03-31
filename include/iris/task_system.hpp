@@ -46,14 +46,17 @@ class task_system {
 
 public:
   task_system(const unsigned count) : count_(count) {
-    for (unsigned n = 0; n != count_; ++n) {
-      threads_.emplace_back([&, n] { run(n); });
-    }
   }
 
   ~task_system() {
     for (auto &queue : queue_)
       queue.done();      
+  }
+
+  void start() {
+    for (unsigned n = 0; n != count_; ++n) {
+      threads_.emplace_back([&, n] { run(n); });
+    }
   }
 
   template <typename F> void async_(F &&f) {

@@ -73,6 +73,7 @@ namespace iris {
     }    
 
     void start() {
+      executor_.start();
       for (auto &[_, v] : subscribers_) {
 	interface_threads_.push_back(v->start());
       }            
