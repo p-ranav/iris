@@ -1,3 +1,0 @@
-[submodule "ext/libnop"]
-	path = ext/libnop
-	url = https://github.com/google/libnop
