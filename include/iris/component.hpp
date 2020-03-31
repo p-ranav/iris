@@ -24,6 +24,11 @@ public:
       : executor_(task_system(n)) {}
 
   ~component() {
+    for (auto &thread : interface_threads_)
+      thread->join();
+
+    for (auto &thread : executor_.threads_)
+      thread.join();
     subscribers_.clear();
     publishers_.clear();
     timers_.clear();
@@ -79,12 +84,6 @@ public:
     for (auto &[_, v] : timers_) {
       v->start();
     }
-
-    for (auto &thread : interface_threads_)
-      thread->join();
-
-    for (auto &thread : executor_.threads_)
-      thread.join();
   }
 
   void stop() {
