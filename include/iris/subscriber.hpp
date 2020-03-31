@@ -1,4 +1,5 @@
 #pragma once
+#include <atomic>
 #include <zmq.hpp>
 #include <functional>
 #include <iris/operation.hpp>
@@ -17,6 +18,8 @@ namespace iris {
     std::vector<std::string> endpoints_;
     std::string filter_;
     operation::string_argument fn_;
+    std::thread thread_;
+    std::atomic<bool> done_{false};
 
   public:
     subscriber(zmq::context_t &context, std::vector<std::string> endpoints,
@@ -36,7 +39,7 @@ namespace iris {
     }
 
     void recv() {
-      while(true) {
+      while(!done_) {
 	zmq::message_t received_message;
 	socket_->recv(&received_message);
 	std::string message = std::string(static_cast<char*>(received_message.data()),
@@ -48,12 +51,13 @@ namespace iris {
       }
     }
 
-    std::thread spawn() {
-      return std::thread(&subscriber::recv, this);
+    std::thread * start() {
+      thread_ = std::thread(&subscriber::recv, this);
+      return &thread_;
     }
-    
-    void start() {
-      spawn().detach();
+
+    void stop() {
+      done_ = true;
     }
 
   };

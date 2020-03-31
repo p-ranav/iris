@@ -6,15 +6,18 @@
 #include <map>
 #include <memory>
 #include <zmq.hpp>
+#include <vector>
 
 namespace iris {
 
   class component {
     task_system executor_;
-    std::map<std::string, std::shared_ptr<timer>> timers_;
-    std::map<std::string, std::shared_ptr<publisher>> publishers_;
-    std::map<std::string, std::shared_ptr<subscriber>> subscribers_;        
+    std::map<std::string, std::unique_ptr<timer>> timers_;
+    std::map<std::string, std::unique_ptr<publisher>> publishers_;
+    std::map<std::string, std::unique_ptr<subscriber>> subscribers_;
     zmq::context_t context_{zmq::context_t(1)};
+    std::mutex mutex_;
+    std::vector<std::thread *> threads_;
 
   public:
 
@@ -28,48 +31,54 @@ namespace iris {
     }
 
     void add_timer(std::string name, unsigned int period, std::function<void()> fn) {
-      auto t = std::make_shared<timer>(std::move(period),
+      auto t = std::make_unique<timer>(std::move(period),
 				       operation::void_argument{.fn = fn},
 				       executor_);
       timers_.insert(std::make_pair(std::move(name), std::move(t)));
     }
 
-    void add_publisher(std::string name, std::vector<std::string> endpoints) {
-      auto p = std::make_shared<publisher>(context_,
-					   std::move(endpoints),
-					   executor_);
-      publishers_.insert(std::make_pair(std::move(name), std::move(p)));
+    void stop_timer(std::string timer_name) {
+      lock_t lock{mutex_};
+      timers_[std::move(timer_name)]->stop();
     }
 
-    void add_subscriber(std::string name, std::vector<std::string> endpoints,
+    void add_publisher(std::string publisher_name, std::vector<std::string> endpoints) {
+      auto p = std::make_unique<publisher>(context_,
+					   std::move(endpoints),
+					   executor_);
+      publishers_.insert(std::make_pair(std::move(publisher_name), std::move(p)));
+    }
+
+    void publish(std::string publisher_name, std::string message) {
+      lock_t lock{mutex_};
+      publishers_[std::move(publisher_name)]->send(std::move(message));
+    }
+
+    void add_subscriber(std::string subscriber_name, std::vector<std::string> endpoints,
 			std::function<void(std::string)> fn) {
-      auto s = std::make_shared<subscriber>(context_,
+      auto s = std::make_unique<subscriber>(context_,
 					    std::move(endpoints),
 					    "",
 					    operation::string_argument{.fn = fn},
 					    executor_);
-      subscribers_.insert(std::make_pair(std::move(name), std::move(s)));
+      subscribers_.insert(std::make_pair(std::move(subscriber_name), std::move(s)));
+    }
+
+    void stop_subscriber(std::string subscriber_name) {
+      lock_t lock{mutex_};
+      subscribers_[std::move(subscriber_name)]->stop();
     }    
-
-    template <typename T>
-    typename std::enable_if<std::is_same<T, timer>::value, std::weak_ptr<timer>>::type
-    get(std::string name) {
-      return timers_[std::move(name)];
-    }
-
-    template <typename T>
-    typename std::enable_if<std::is_same<T, publisher>::value, std::weak_ptr<publisher>>::type
-    get(std::string name) {
-      return publishers_[std::move(name)];
-    }
 
     void start() {
       for (auto &[_, v] : subscribers_) {
-	v->start();
+	threads_.push_back(v->start());
       }            
       for (auto &[_, v] : timers_) {
 	v->start();
       }
+
+      for (auto &thread : threads_)
+	thread->join();
 
       for (auto &thread : executor_.threads_)
 	thread.join();
@@ -77,6 +86,12 @@ namespace iris {
 
     void stop() {
       executor_.done_ = true;
+      for (auto &[_, v] : subscribers_) {
+	v->stop();
+      }            
+      for (auto &[_, v] : timers_) {
+	v->stop();
+      }      
     }
     
   };
