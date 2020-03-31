@@ -16,8 +16,8 @@ namespace iris {
     std::map<std::string, std::unique_ptr<publisher>> publishers_;
     std::map<std::string, std::unique_ptr<subscriber>> subscribers_;
     zmq::context_t context_{zmq::context_t(1)};
-    std::mutex mutex_;
-    std::vector<std::thread *> threads_;
+    std::mutex timers_mutex_, publishers_mutex_, subscribers_mutex_;
+    std::vector<std::thread *> interface_threads_;
 
   public:
 
@@ -31,6 +31,7 @@ namespace iris {
     }
 
     void add_timer(std::string name, unsigned int period, std::function<void()> fn) {
+      lock_t lock{timers_mutex_};
       auto t = std::make_unique<timer>(std::move(period),
 				       operation::void_argument{.fn = fn},
 				       executor_);
@@ -38,11 +39,12 @@ namespace iris {
     }
 
     void stop_timer(std::string timer_name) {
-      lock_t lock{mutex_};
+      lock_t lock{timers_mutex_};
       timers_[std::move(timer_name)]->stop();
     }
 
     void add_publisher(std::string publisher_name, std::vector<std::string> endpoints) {
+      lock_t lock{publishers_mutex_};
       auto p = std::make_unique<publisher>(context_,
 					   std::move(endpoints),
 					   executor_);
@@ -50,12 +52,13 @@ namespace iris {
     }
 
     void publish(std::string publisher_name, std::string message) {
-      lock_t lock{mutex_};
+      lock_t lock{publishers_mutex_};
       publishers_[std::move(publisher_name)]->send(std::move(message));
     }
 
     void add_subscriber(std::string subscriber_name, std::vector<std::string> endpoints,
 			std::function<void(std::string)> fn) {
+      lock_t lock{subscribers_mutex_};
       auto s = std::make_unique<subscriber>(context_,
 					    std::move(endpoints),
 					    "",
@@ -65,19 +68,19 @@ namespace iris {
     }
 
     void stop_subscriber(std::string subscriber_name) {
-      lock_t lock{mutex_};
+      lock_t lock{subscribers_mutex_};
       subscribers_[std::move(subscriber_name)]->stop();
     }    
 
     void start() {
       for (auto &[_, v] : subscribers_) {
-	threads_.push_back(v->start());
+	interface_threads_.push_back(v->start());
       }            
       for (auto &[_, v] : timers_) {
 	v->start();
       }
 
-      for (auto &thread : threads_)
+      for (auto &thread : interface_threads_)
 	thread->join();
 
       for (auto &thread : executor_.threads_)
