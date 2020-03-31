@@ -19,12 +19,11 @@ namespace iris {
   public:
 
     ~component() {
-      for (auto &queue : executor_.queue_)
-	queue.done();
-      for (auto &thread : executor_.threads_)
-	thread.join();
+      subscribers_.clear();
+      publishers_.clear();
+      timers_.clear();      
     }
-    
+
     void add_timer(std::string name, unsigned int period, std::function<void()> fn) {
       auto t = std::make_shared<timer>(period,
 				       operation::void_argument{.fn = fn},
@@ -68,7 +67,15 @@ namespace iris {
       for (auto &[_, v] : timers_) {
 	v->start();
       }
+
+      for (auto &thread : executor_.threads_)
+	thread.join();
     }
+
+    void stop() {
+      executor_.done_ = true;
+    }
+    
   };
 
 }

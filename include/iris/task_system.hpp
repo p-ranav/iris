@@ -12,7 +12,24 @@ class task_system {
   std::vector<std::thread> threads_;
   std::vector<notification_queue> queue_{count_};
   std::atomic<unsigned> index_{0};
+  std::atomic<bool> done_{0};
   friend class component;
+
+  void run(unsigned i) {
+    while (!done_) {
+      operation_t op;
+      for (unsigned n = 0; n != count_; ++n) {
+        if (queue_[(i + n) % count_].try_pop(op))
+          continue;
+      }
+      if (!valid_operation(op) && !queue_[i].try_pop(op))
+        continue;
+      if (auto void_op = std::get_if<operation::void_argument>(&op))
+        (*void_op).fn();
+      else if (auto string_op = std::get_if<operation::string_argument>(&op))
+        (*string_op).fn(std::move((*string_op).arg));
+    }    
+  }
 
   bool valid_operation(operation_t &op) {
     if (std::holds_alternative<operation::void_argument>(op)) {
@@ -27,22 +44,6 @@ class task_system {
     }
   }
 
-  void run(unsigned i) {
-    while (true) {
-      operation_t op;
-      for (unsigned n = 0; n != count_; ++n) {
-        if (queue_[(i + n) % count_].try_pop(op))
-          continue; // break;
-      }
-      if (!valid_operation(op) && !queue_[i].try_pop(op))
-        continue; // break;
-      if (auto void_op = std::get_if<operation::void_argument>(&op))
-        (*void_op).fn();
-      else if (auto string_op = std::get_if<operation::string_argument>(&op))
-        (*string_op).fn(std::move((*string_op).arg));
-    }    
-  }
-
 public:
   task_system() {
     for (unsigned n = 0; n != count_; ++n) {
@@ -52,12 +53,11 @@ public:
 
   ~task_system() {
     for (auto &queue : queue_)
-      queue.done();
-    for (auto &thread : threads_)
-      thread.join();
+      queue.done();      
   }
 
   template <typename F> void async_(F &&f) {
+    if (done_) return;
     auto i = index_++;
     for (unsigned n = 0; n != count_; ++n) {
       if (queue_[(i + n) % count_].try_push(std::forward<F>(f)))
