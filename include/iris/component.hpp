@@ -55,9 +55,10 @@ public:
     publishers_.insert(std::make_pair(std::move(publisher_name), std::move(p)));
   }
 
-  void publish(std::string publisher_name, std::string message) {
+  template <typename Message>
+  void publish(std::string publisher_name, Message message) {
     lock_t lock{publishers_mutex_};
-    publishers_[std::move(publisher_name)]->send(std::move(message));
+    publishers_[std::move(publisher_name)]->send(std::forward<Message>(message));
   }
 
   void add_subscriber(std::string subscriber_name,

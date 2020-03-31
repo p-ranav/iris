@@ -25,7 +25,8 @@ public:
 
   ~publisher() { socket_->close(); }
 
-  void send(std::string &&message) {
+  template <typename Message>
+  void send(Message &&message) {
     zmq::message_t message_struct(message.length());
     memcpy(message_struct.data(), message.c_str(), message.length());
     socket_->send(std::move(message_struct));
