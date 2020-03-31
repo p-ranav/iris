@@ -60,6 +60,10 @@ public:
     }
   }
 
+  void stop() {
+    done_ = true;
+  }
+
   template <typename F> void async_(F &&f) {
     if (done_)
       return;

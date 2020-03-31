@@ -33,7 +33,7 @@ public:
                  std::function<void()> fn) {
     lock_t lock{timers_mutex_};
     auto t = std::make_unique<timer>(
-        std::move(period), operation::void_argument{.fn = fn}, executor_);
+        period, operation::void_argument{.fn = fn}, executor_);
     timers_.insert(std::make_pair(std::move(name), std::move(t)));
   }
 
@@ -88,7 +88,7 @@ public:
   }
 
   void stop() {
-    executor_.done_ = true;
+    executor_.stop();
     for (auto &[_, v] : subscribers_) {
       v->stop();
     }

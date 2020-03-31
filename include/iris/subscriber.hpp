@@ -40,7 +40,7 @@ public:
     while (!done_) {
       zmq::message_t received_message;
       socket_->recv(&received_message);
-      std::string message =
+      const auto message =
           std::string(static_cast<char *>(received_message.data()),
                       received_message.size());
       if (message.length() > 0) {
