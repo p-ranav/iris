@@ -56,7 +56,7 @@ public:
   }
 
   template <typename Message>
-  void publish(std::string publisher_name, Message message) {
+  void publish(std::string publisher_name, Message &&message) {
     lock_t lock{publishers_mutex_};
     publishers_[std::move(publisher_name)]->send(std::forward<Message>(message));
   }
