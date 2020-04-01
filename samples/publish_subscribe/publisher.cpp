@@ -10,7 +10,6 @@ class sender : public iris::component {
 public:
   sender() {
     publisher_ = create_publisher({"tcp://*:5555"});
-
     set_interval(50, [this]() { publisher_.send("Hello, World!"); });
   }
 };
