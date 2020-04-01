@@ -1,6 +1,6 @@
 #pragma once
+#include <iris/interval_timer.hpp>
 #include <iris/task_system.hpp>
-#include <iris/timer.hpp>
 #include <iris/zmq_publisher.hpp>
 #include <iris/zmq_subscriber.hpp>
 #include <memory>
@@ -12,16 +12,23 @@ namespace iris {
 
 class component {
   task_system executor_;
-  std::unordered_map<std::string, std::unique_ptr<timer>> timers_;
+  std::unordered_map<std::uint8_t, std::unique_ptr<interval_timer>>
+      interval_timers_;
   std::unordered_map<std::uint8_t, std::unique_ptr<zmq_publisher>> publishers_;
   std::unordered_map<std::uint8_t, std::unique_ptr<zmq_subscriber>>
       subscribers_;
   zmq::context_t context_{zmq::context_t(1)};
   std::mutex timers_mutex_, publishers_mutex_, subscribers_mutex_;
 
+  friend class timer;
+  std::atomic_uint8_t timer_count_{0};
+  void stop_timer(std::uint8_t timer_id) {
+    lock_t lock{timers_mutex_};
+    interval_timers_[timer_id]->stop();
+  }
+
   friend class publisher;
   std::atomic_uint8_t publisher_count_{0};
-
   template <typename Message>
   void publish(std::uint8_t publisher_id, Message &&message) {
     lock_t lock{publishers_mutex_};
@@ -44,21 +51,10 @@ public:
       thread.join();
     subscribers_.clear();
     publishers_.clear();
-    timers_.clear();
+    interval_timers_.clear();
   }
 
-  void create_timer(std::string name, unsigned int period_ms,
-                    std::function<void()> fn) {
-    lock_t lock{timers_mutex_};
-    auto t = std::make_unique<timer>(
-        period_ms, operation::void_argument{.fn = fn}, executor_);
-    timers_.insert(std::make_pair(std::move(name), std::move(t)));
-  }
-
-  void stop_timer(std::string timer_name) {
-    lock_t lock{timers_mutex_};
-    timers_[std::move(timer_name)]->stop();
-  }
+  class timer set_interval(unsigned int period_ms, std::function<void()> fn);
 
   class publisher create_publisher(std::vector<std::string> endpoints);
 
@@ -70,7 +66,7 @@ public:
     for (auto &[_, v] : subscribers_) {
       v->start();
     }
-    for (auto &[_, v] : timers_) {
+    for (auto &[_, v] : interval_timers_) {
       v->start();
     }
   }
@@ -81,7 +77,7 @@ public:
       if (v)
         v->stop();
     }
-    for (auto &[_, v] : timers_) {
+    for (auto &[_, v] : interval_timers_) {
       if (v)
         v->stop();
     }
