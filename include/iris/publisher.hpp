@@ -1,43 +1,32 @@
 #pragma once
-#include <functional>
-#include <iris/operation.hpp>
-#include <iris/task_system.hpp>
-#include <memory>
-#include <zmq.hpp>
+#include <iostream>
+#include <iris/component.hpp>
 
 namespace iris {
 
 class publisher {
-  std::reference_wrapper<zmq::context_t> context_;
-  std::reference_wrapper<task_system> executor_;
-  std::unique_ptr<zmq::socket_t> socket_;
-  std::vector<std::string> endpoints_;
+  friend component;
+  std::uint8_t id_;
+  component *component_;
+
+  publisher(std::uint8_t id, component *component)
+      : id_(id), component_(component) {}
 
 public:
-  publisher(zmq::context_t &context, std::vector<std::string> endpoints,
-            task_system &executor)
-      : context_(context), endpoints_(std::move(endpoints)),
-        executor_(executor) {
-    socket_ = std::make_unique<zmq::socket_t>(context_, ZMQ_PUB);
-    for (auto &e : endpoints_)
-      socket_->bind(e);
+  publisher() = default;
+
+  template <typename Message> void send(Message &&message) {
+    component_->publish(id_, std::forward<Message>(message));
   }
-
-  ~publisher() { socket_->close(); }
-
-  template <typename Message>
-  void send(Message &&message) {
-    zmq::message_t message_struct(message.length());
-    memcpy(message_struct.data(), message.c_str(), message.length());
-    socket_->send(std::move(message_struct));
-  }
-
-  void send(const char * message) {
-    zmq::message_t message_struct(strlen(message));
-    memcpy(message_struct.data(), message, strlen(message));
-    socket_->send(std::move(message_struct));    
-  }
-
 };
+
+inline publisher
+component::create_publisher(std::vector<std::string> endpoints) {
+  lock_t lock{publishers_mutex_};
+  auto p = std::make_unique<zmq_publisher>(context_, std::move(endpoints),
+                                           executor_);
+  publishers_.insert(std::make_pair(publisher_count_.load(), std::move(p)));
+  return publisher(publisher_count_++, this);
+}
 
 } // namespace iris

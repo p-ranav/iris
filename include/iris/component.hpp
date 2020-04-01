@@ -1,8 +1,8 @@
 #pragma once
-#include <iris/publisher.hpp>
-#include <iris/subscriber.hpp>
 #include <iris/task_system.hpp>
 #include <iris/timer.hpp>
+#include <iris/zmq_publisher.hpp>
+#include <iris/zmq_subscriber.hpp>
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -13,10 +13,27 @@ namespace iris {
 class component {
   task_system executor_;
   std::unordered_map<std::string, std::unique_ptr<timer>> timers_;
-  std::unordered_map<std::string, std::unique_ptr<publisher>> publishers_;
-  std::unordered_map<std::string, std::unique_ptr<subscriber>> subscribers_;
+  std::unordered_map<std::uint8_t, std::unique_ptr<zmq_publisher>> publishers_;
+  std::unordered_map<std::uint8_t, std::unique_ptr<zmq_subscriber>>
+      subscribers_;
   zmq::context_t context_{zmq::context_t(1)};
   std::mutex timers_mutex_, publishers_mutex_, subscribers_mutex_;
+
+  friend class publisher;
+  std::atomic_uint8_t publisher_count_{0};
+
+  template <typename Message>
+  void publish(std::uint8_t publisher_id, Message &&message) {
+    lock_t lock{publishers_mutex_};
+    publishers_[publisher_id]->send(std::forward<Message>(message));
+  }
+
+  friend class subscriber;
+  std::atomic_uint8_t subscriber_count_{0};
+  void stop_subscriber(std::uint8_t subscriber_id) {
+    lock_t lock{subscribers_mutex_};
+    subscribers_[subscriber_id]->stop();
+  }
 
 public:
   component(const unsigned n = std::thread::hardware_concurrency())
@@ -30,8 +47,8 @@ public:
     timers_.clear();
   }
 
-  void add_timer(std::string name, unsigned int period_ms,
-                 std::function<void()> fn) {
+  void create_timer(std::string name, unsigned int period_ms,
+                    std::function<void()> fn) {
     lock_t lock{timers_mutex_};
     auto t = std::make_unique<timer>(
         period_ms, operation::void_argument{.fn = fn}, executor_);
@@ -43,36 +60,10 @@ public:
     timers_[std::move(timer_name)]->stop();
   }
 
-  void add_publisher(std::string publisher_name,
-                     std::vector<std::string> endpoints) {
-    lock_t lock{publishers_mutex_};
-    auto p =
-        std::make_unique<publisher>(context_, std::move(endpoints), executor_);
-    publishers_.insert(std::make_pair(std::move(publisher_name), std::move(p)));
-  }
+  class publisher create_publisher(std::vector<std::string> endpoints);
 
-  template <typename Message>
-  void publish(std::string publisher_name, Message &&message) {
-    lock_t lock{publishers_mutex_};
-    publishers_[std::move(publisher_name)]->send(
-        std::forward<Message>(message));
-  }
-
-  void add_subscriber(std::string subscriber_name,
-                      std::vector<std::string> endpoints,
-                      std::function<void(std::string)> fn) {
-    lock_t lock{subscribers_mutex_};
-    auto s = std::make_unique<subscriber>(
-        context_, std::move(endpoints), /* filter */ "",
-        operation::string_argument{.fn = fn}, executor_);
-    subscribers_.insert(
-        std::make_pair(std::move(subscriber_name), std::move(s)));
-  }
-
-  void stop_subscriber(std::string subscriber_name) {
-    lock_t lock{subscribers_mutex_};
-    subscribers_[std::move(subscriber_name)]->stop();
-  }
+  class subscriber create_subscriber(std::vector<std::string> endpoints,
+                                     std::function<void(std::string)> fn);
 
   void start() {
     executor_.start();

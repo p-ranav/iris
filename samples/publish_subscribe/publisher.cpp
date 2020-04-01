@@ -1,16 +1,17 @@
 #include <iostream>
 #include <iris/component.hpp>
+#include <iris/publisher.hpp>
 
 class publisher : public iris::component {
-  std::string message_;
+  iris::publisher pub_;
 
 public:
-  publisher() : message_("Ping") {
-    add_timer("timer_1", 50, std::bind(&publisher::on_timer_expiry, this));
-    add_publisher("/my_data", {"tcp://*:5555"});
+  publisher() {
+    create_timer("timer_1", 50, std::bind(&publisher::on_timer_expiry, this));
+    pub_ = create_publisher({"tcp://*:5555"});
   }
 
-  void on_timer_expiry() { publish("/my_data", "Hello"); }
+  void on_timer_expiry() { pub_.send("Hello"); }
 };
 
 int main() {
