@@ -3,7 +3,7 @@
 #include <iris/subscriber.hpp>
 #include <iris/task_system.hpp>
 #include <iris/timer.hpp>
-#include <map>
+#include <unordered_map>
 #include <memory>
 #include <vector>
 #include <zmq.hpp>
@@ -12,21 +12,17 @@ namespace iris {
 
 class component {
   task_system executor_;
-  std::map<std::string, std::unique_ptr<timer>> timers_;
-  std::map<std::string, std::unique_ptr<publisher>> publishers_;
-  std::map<std::string, std::unique_ptr<subscriber>> subscribers_;
+  std::unordered_map<std::string, std::unique_ptr<timer>> timers_;
+  std::unordered_map<std::string, std::unique_ptr<publisher>> publishers_;
+  std::unordered_map<std::string, std::unique_ptr<subscriber>> subscribers_;
   zmq::context_t context_{zmq::context_t(1)};
   std::mutex timers_mutex_, publishers_mutex_, subscribers_mutex_;
-  std::vector<std::thread *> interface_threads_;
 
 public:
   component(const unsigned n = std::thread::hardware_concurrency())
       : executor_(task_system(n)) {}
 
   ~component() {
-    for (auto &thread : interface_threads_)
-      thread->join();
-
     for (auto &thread : executor_.threads_)
       thread.join();
     subscribers_.clear();
@@ -80,7 +76,7 @@ public:
   void start() {
     executor_.start();
     for (auto &[_, v] : subscribers_) {
-      interface_threads_.push_back(v->start());
+      v->start();
     }
     for (auto &[_, v] : timers_) {
       v->start();
@@ -90,10 +86,10 @@ public:
   void stop() {
     executor_.stop();
     for (auto &[_, v] : subscribers_) {
-      v->stop();
+      if (v) v->stop();
     }
     for (auto &[_, v] : timers_) {
-      v->stop();
+      if(v) v->stop();
     }
   }
 };

@@ -32,9 +32,13 @@ public:
       socket_->connect(e);
     }
     socket_->setsockopt(ZMQ_SUBSCRIBE, filter_.c_str(), filter_.length());
+    socket_->setsockopt(ZMQ_RCVTIMEO, 0);
   }
 
-  ~subscriber() { socket_->close(); }
+  ~subscriber() { 
+    thread_.join();
+    socket_->close();
+  }
 
   void recv() {
     while (!done_) {
@@ -50,9 +54,8 @@ public:
     }
   }
 
-  std::thread *start() {
+  void start() {
     thread_ = std::thread(&subscriber::recv, this);
-    return &thread_;
   }
 
   void stop() { done_ = true; }
