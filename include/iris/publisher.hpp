@@ -31,6 +31,13 @@ public:
     memcpy(message_struct.data(), message.c_str(), message.length());
     socket_->send(std::move(message_struct));
   }
+
+  void send(const char * message) {
+    zmq::message_t message_struct(strlen(message));
+    memcpy(message_struct.data(), message, strlen(message));
+    socket_->send(std::move(message_struct));    
+  }
+
 };
 
 } // namespace iris

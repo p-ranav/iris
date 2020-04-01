@@ -3,8 +3,8 @@
 #include <iris/subscriber.hpp>
 #include <iris/task_system.hpp>
 #include <iris/timer.hpp>
-#include <unordered_map>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 #include <zmq.hpp>
 
@@ -33,8 +33,8 @@ public:
   void add_timer(std::string name, unsigned int period_ms,
                  std::function<void()> fn) {
     lock_t lock{timers_mutex_};
-    auto t = std::make_unique<timer>(period_ms, operation::void_argument{.fn = fn},
-                                     executor_);
+    auto t = std::make_unique<timer>(
+        period_ms, operation::void_argument{.fn = fn}, executor_);
     timers_.insert(std::make_pair(std::move(name), std::move(t)));
   }
 
@@ -54,7 +54,8 @@ public:
   template <typename Message>
   void publish(std::string publisher_name, Message &&message) {
     lock_t lock{publishers_mutex_};
-    publishers_[std::move(publisher_name)]->send(std::forward<Message>(message));
+    publishers_[std::move(publisher_name)]->send(
+        std::forward<Message>(message));
   }
 
   void add_subscriber(std::string subscriber_name,
@@ -86,10 +87,12 @@ public:
   void stop() {
     executor_.stop();
     for (auto &[_, v] : subscribers_) {
-      if (v) v->stop();
+      if (v)
+        v->stop();
     }
     for (auto &[_, v] : timers_) {
-      if(v) v->stop();
+      if (v)
+        v->stop();
     }
   }
 };
