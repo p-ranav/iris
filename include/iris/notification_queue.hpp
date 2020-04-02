@@ -8,7 +8,7 @@ namespace iris {
 
 using lock_t = std::unique_lock<std::mutex>;
 using operation_t =
-    std::variant<operation::void_argument, operation::string_argument>;
+    std::variant<operation::void_argument, operation::subscriber_operation>;
 
 class notification_queue {
   std::deque<operation_t> queue_;

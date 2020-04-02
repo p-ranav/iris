@@ -2,6 +2,7 @@
 #include <functional>
 #include <string>
 #include <variant>
+#include <iris/subscriber_message.hpp>
 
 namespace iris {
 
@@ -11,9 +12,9 @@ struct void_argument {
   std::function<void()> fn;
 };
 
-struct string_argument {
-  std::function<void(std::string)> fn;
-  std::string arg;
+struct subscriber_operation {
+  std::function<void(subscriber_message)> fn;
+  subscriber_message arg;
 };
 
 } // namespace operation

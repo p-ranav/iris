@@ -3,6 +3,7 @@
 #include <iris/kwargs.hpp>
 #include <iris/operation.hpp>
 #include <iris/task_system.hpp>
+#include <iris/cereal/archives/portable_binary.hpp>
 #include <memory>
 #include <zmq.hpp>
 
@@ -28,9 +29,18 @@ public:
   ~zmq_publisher() { socket_->close(); }
 
   template <typename Message> void send(Message &&message) {
-    zmq::message_t message_struct(message.length());
-    memcpy(message_struct.data(), message.c_str(), message.length());
+    std::stringstream stream;
+    cereal::PortableBinaryOutputArchive archive(stream);
+    archive(message);
+    auto message_str = stream.str();
+
+    zmq::message_t message_struct(message_str.length());
+    memcpy(message_struct.data(), message_str.c_str(), message_str.length());
     socket_->send(std::move(message_struct));
+  }
+
+  void send(std::string message) {
+    send(message.c_str());
   }
 
   void send(const char *message) {

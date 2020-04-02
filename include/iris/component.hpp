@@ -5,10 +5,12 @@
 #include <iris/task_system.hpp>
 #include <iris/zmq_publisher.hpp>
 #include <iris/zmq_subscriber.hpp>
+#include <iris/cereal/archives/portable_binary.hpp>
 #include <memory>
 #include <unordered_map>
 #include <vector>
 #include <zmq.hpp>
+#include <sstream>
 
 namespace iris {
 
@@ -42,6 +44,13 @@ class component {
   void stop_subscriber(std::uint8_t subscriber_id) {
     lock_t lock{subscribers_mutex_};
     subscribers_[subscriber_id]->stop();
+  }
+
+  friend class subscriber_message;
+  template <typename T, typename U = std::string>
+  T deserialize(std::uint8_t subscriber_id, U&& message) {
+    lock_t lock{subscribers_mutex_};
+    return subscribers_[subscriber_id]->deserialize<T>(std::forward<U>(message));
   }
 
 public:

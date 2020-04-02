@@ -1,41 +1,28 @@
 #include <iostream>
 #include <iris/component.hpp>
 #include <iris/publisher.hpp>
+#include <iris/subscriber.hpp>
 #include <iris/timer.hpp>
 #include <sstream>
-#include <iris/cereal/archives/json.hpp>
 
 struct Foo {
-  int value_{15};
+  uint64_t value_{15};
   template <class Archive>
   void save(Archive & ar) const {
-    ar(value_);
-  }
-      
-  template <class Archive>
-  void load(Archive & ar) {
     ar(value_);
   }
 };
 
 int main() {
+  Foo foo;
 
-  std::stringstream stream;
-  {
-    cereal::JSONOutputArchive archive(stream);
-    Foo bar;
-    bar.value_ = 10;
-    archive(bar);
-    std::cout << stream.str() << std::endl;
-  }
+  iris::component sender;
+  auto p = sender.create_publisher(endpoints = {"tcp://*:5555"});
+  sender.set_interval(500, [&p, &foo] { p.send(foo); });
+  sender.start();
 
-  {
-    std::stringstream test;
-    test << "{ \"value0\": { \"value0\": 10 } }"; 
-    Foo baz;
-    cereal::JSONInputArchive input_archive(test);
-    input_archive(baz);
-    std::cout << baz.value_ << std::endl;
-  }
-
+  iris::component str_sender;
+  auto p2 = str_sender.create_publisher(endpoints = {"tcp://*:5556"});
+  str_sender.set_interval(500, [&p2] { p2.send(std::string{"Hello World"}); });
+  str_sender.start();
 }

@@ -26,8 +26,8 @@ class task_system {
         continue;
       if (auto void_op = std::get_if<operation::void_argument>(&op))
         (*void_op).fn();
-      else if (auto string_op = std::get_if<operation::string_argument>(&op))
-        (*string_op).fn(std::move((*string_op).arg));
+      else if (auto subscriber_op = std::get_if<operation::subscriber_operation>(&op))
+        (*subscriber_op).fn(std::move((*subscriber_op).arg));
     }
   }
 
@@ -37,8 +37,8 @@ class task_system {
         return true;
       } else
         return false;
-    } else if (std::holds_alternative<operation::string_argument>(op)) {
-      if (std::get<operation::string_argument>(op).fn)
+    } else if (std::holds_alternative<operation::subscriber_operation>(op)) {
+      if (std::get<operation::subscriber_operation>(op).fn)
         return true;
       else
         return false;

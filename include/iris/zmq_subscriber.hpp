@@ -3,6 +3,7 @@
 #include <functional>
 #include <iris/operation.hpp>
 #include <iris/task_system.hpp>
+#include <iris/cereal/archives/portable_binary.hpp>
 #include <memory>
 #include <queue>
 #include <string>
@@ -12,49 +13,45 @@
 namespace iris {
 
 class zmq_subscriber {
+  std::uint8_t id_;
+  class component *component_;
   std::reference_wrapper<zmq::context_t> context_;
   std::reference_wrapper<task_system> executor_;
   std::unique_ptr<zmq::socket_t> socket_;
   Endpoints endpoints_;
   std::string filter_;
-  operation::string_argument fn_;
+  operation::subscriber_operation fn_;
   std::thread thread_;
-  std::atomic<bool> done_{false};
+  std::atomic_bool started_{false};
+  std::atomic_bool done_{false};
+
+  // Member variables for deserialization
+  std::stringstream stream_;
 
 public:
-  zmq_subscriber(zmq::context_t &context, Endpoints endpoints,
-                 std::string filter, const operation::string_argument &fn,
-                 task_system &executor)
-      : context_(context), endpoints_(std::move(endpoints)),
-        filter_(std::move(filter)), fn_(fn), executor_(executor) {
-    socket_ = std::make_unique<zmq::socket_t>(context, ZMQ_SUB);
-    for (auto &e : endpoints_) {
-      socket_->connect(e);
-    }
-    socket_->setsockopt(ZMQ_SUBSCRIBE, filter_.c_str(), filter_.length());
-    socket_->setsockopt(ZMQ_RCVTIMEO, 0);
-  }
+  zmq_subscriber(std::uint8_t id, component * parent, zmq::context_t &context, Endpoints endpoints,
+                 std::string filter, const operation::subscriber_operation &fn,
+                 task_system &executor);
 
   ~zmq_subscriber() {
-    thread_.join();
+    if (started_)
+      thread_.join();
     socket_->close();
+    started_ = false;
   }
 
-  void recv() {
-    while (!done_) {
-      zmq::message_t received_message;
-      socket_->recv(&received_message);
-      const auto message =
-          std::string(static_cast<char *>(received_message.data()),
-                      received_message.size());
-      if (message.length() > 0) {
-        fn_.arg = std::move(message);
-        executor_.get().async_(fn_);
-      }
-    }
+  template <typename T, typename U = std::string>
+  T deserialize(U&& message) {
+    stream_ << message;
+    cereal::PortableBinaryInputArchive archive(stream_);
+    T result;
+    archive(result);
+    return std::move(result);
   }
 
-  void start() { thread_ = std::thread(&zmq_subscriber::recv, this); }
+  void recv();
+
+  void start();
 
   void stop() { done_ = true; }
 };
