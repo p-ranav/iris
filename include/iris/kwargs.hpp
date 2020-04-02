@@ -2,6 +2,9 @@
 #include <functional>
 #include <iris/named_type/named_type.hpp>
 
+using Threads = fluent::NamedType<unsigned, struct ThreadsTag>;
+static const Threads::argument threads;
+
 using PeriodMs = fluent::NamedType<unsigned int, struct PeriodMsTag>;
 static const PeriodMs::argument period;
 

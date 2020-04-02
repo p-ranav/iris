@@ -45,8 +45,8 @@ class component {
   }
 
 public:
-  component(const unsigned n = std::thread::hardware_concurrency())
-      : executor_(task_system(n)) {}
+  component(const Threads n = Threads(std::thread::hardware_concurrency()))
+      : executor_(task_system(n.get())) {}
 
   ~component() {
     for (auto &thread : executor_.threads_)
