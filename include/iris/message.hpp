@@ -4,7 +4,7 @@
 
 namespace iris {
 
-class subscriber_message {
+class Message {
     std::string payload_;
     class Component * component_;
     std::uint8_t subscriber_id_;
@@ -15,7 +15,7 @@ public:
 };
 
 template <>
-inline std::string subscriber_message::deserialize() {
+inline std::string Message::deserialize() {
     return payload_;
 }
 

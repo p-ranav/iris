@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include <iris/component.hpp>
-#include <iris/subscriber_message.hpp>
+#include <iris/message.hpp>
 
 namespace iris {
 
@@ -53,7 +53,7 @@ inline
           std::string(static_cast<char *>(received_message.data()),
                       received_message.size());
       if (message.length() > 0) {
-        subscriber_message payload;
+        Message payload;
         payload.payload_ = std::move(message);
         payload.subscriber_id_ = id_;
         payload.component_ = component_;
@@ -70,7 +70,7 @@ inline
   }
  
     template <typename T>
-    inline T subscriber_message::deserialize() {
+    inline T Message::deserialize() {
         return component_->deserialize<T>(subscriber_id_, payload_);
     }
 
