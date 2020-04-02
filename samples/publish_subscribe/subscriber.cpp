@@ -4,8 +4,9 @@
 
 int main() {
   iris::component receiver;
-  receiver.create_subscriber({"tcp://localhost:5555"}, [](auto msg) {
-    std::cout << "Received " << msg << "\n";
-  });
+  receiver.create_subscriber(
+    {"tcp://localhost:5555"}, 
+    on_receive = [](auto msg) { std::cout << "Received " << msg << "\n";}
+  );
   receiver.start();
 }

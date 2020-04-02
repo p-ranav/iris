@@ -61,7 +61,7 @@ public:
   class publisher create_publisher(std::vector<std::string> endpoints);
 
   class subscriber create_subscriber(std::vector<std::string> endpoints,
-                                     std::function<void(std::string)> fn);
+                                     SubscriberFunction fn);
 
   void start() {
     executor_.start();

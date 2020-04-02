@@ -20,11 +20,11 @@ public:
 
 inline subscriber
 component::create_subscriber(std::vector<std::string> endpoints,
-                             std::function<void(std::string)> fn) {
+                             SubscriberFunction fn) {
   lock_t lock{subscribers_mutex_};
   auto s = std::make_unique<zmq_subscriber>(
       context_, std::move(endpoints), /* filter */ "",
-      operation::string_argument{.fn = fn}, executor_);
+      operation::string_argument{.fn = fn.get()}, executor_);
   subscribers_.insert(std::make_pair(subscriber_count_.load(), std::move(s)));
   return subscriber(subscriber_count_++, this);
 }
