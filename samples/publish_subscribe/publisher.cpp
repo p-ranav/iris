@@ -1,9 +1,5 @@
 #include <iostream>
-#include <iris/component.hpp>
-#include <iris/publisher.hpp>
-#include <iris/subscriber.hpp>
-#include <iris/timer.hpp>
-#include <sstream>
+#include <iris/iris.hpp>
 
 struct Foo {
   uint64_t value_{15};

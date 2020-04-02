@@ -1,6 +1,5 @@
 #include <iostream>
-#include <iris/component.hpp>
-#include <iris/subscriber.hpp>
+#include <iris/iris.hpp>
 
 struct Foo {
   uint64_t value_{15};   
