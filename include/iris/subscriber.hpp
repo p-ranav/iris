@@ -18,13 +18,13 @@ public:
   void stop() { component_->stop_subscriber(id_); }
 };
 
-inline subscriber
-component::create_subscriber(std::vector<std::string> endpoints,
-                             SubscriberFunction fn) {
+template <typename E, typename S>
+inline subscriber component::create_subscriber(E &&endpoints, S &&fn) {
   lock_t lock{subscribers_mutex_};
   auto s = std::make_unique<zmq_subscriber>(
-      context_, std::move(endpoints), /* filter */ "",
-      operation::string_argument{.fn = fn.get()}, executor_);
+      context_, std::forward<Endpoints>(Endpoints(endpoints)), /* filter */ "",
+      operation::string_argument{.fn = SubscriberFunction(fn).get()},
+      executor_);
   subscribers_.insert(std::make_pair(subscriber_count_.load(), std::move(s)));
   return subscriber(subscriber_count_++, this);
 }

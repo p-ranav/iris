@@ -1,10 +1,10 @@
 #pragma once
+#include <initializer_list>
 #include <iris/interval_timer.hpp>
 #include <iris/kwargs.hpp>
 #include <iris/task_system.hpp>
 #include <iris/zmq_publisher.hpp>
 #include <iris/zmq_subscriber.hpp>
-#include <initializer_list>
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -56,12 +56,13 @@ public:
     interval_timers_.clear();
   }
 
-  class timer set_interval(PeriodMs period_ms, TimerFunction fn);
+  template <typename P, typename T>
+  class timer set_interval(P &&period_ms, T &&fn);
 
-  class publisher create_publisher(std::vector<std::string> endpoints);
+  template <typename E> class publisher create_publisher(E &&endpoints);
 
-  class subscriber create_subscriber(std::vector<std::string> endpoints,
-                                     SubscriberFunction fn);
+  template <typename E, typename S>
+  class subscriber create_subscriber(E &&endpoints, S &&fn);
 
   void start() {
     executor_.start();

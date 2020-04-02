@@ -18,11 +18,12 @@ public:
   void stop() { component_->stop_timer(id_); }
 };
 
-inline timer component::set_interval(PeriodMs period_ms,
-                                     TimerFunction fn) {
+template <typename P, typename T>
+inline timer component::set_interval(P &&period_ms, T &&fn) {
   lock_t lock{timers_mutex_};
   auto t = std::make_unique<interval_timer>(
-      period_ms, operation::void_argument{.fn = fn.get()}, executor_);
+      std::forward<PeriodMs>(PeriodMs(period_ms)),
+      operation::void_argument{.fn = TimerFunction(fn).get()}, executor_);
   interval_timers_.insert(std::make_pair(timer_count_.load(), std::move(t)));
   return timer(timer_count_++, this);
 }

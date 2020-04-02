@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <iris/component.hpp>
+#include <iris/kwargs.hpp>
 
 namespace iris {
 
@@ -20,11 +21,11 @@ public:
   }
 };
 
-inline publisher
-component::create_publisher(std::vector<std::string> endpoints) {
+template <typename E>
+inline publisher component::create_publisher(E &&endpoints) {
   lock_t lock{publishers_mutex_};
-  auto p = std::make_unique<zmq_publisher>(context_, std::move(endpoints),
-                                           executor_);
+  auto p = std::make_unique<zmq_publisher>(
+      context_, std::forward<Endpoints>(Endpoints(endpoints)), executor_);
   publishers_.insert(std::make_pair(publisher_count_.load(), std::move(p)));
   return publisher(publisher_count_++, this);
 }

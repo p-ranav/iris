@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include <iris/kwargs.hpp>
 #include <iris/operation.hpp>
 #include <iris/task_system.hpp>
 #include <memory>
@@ -11,10 +12,10 @@ class zmq_publisher {
   std::reference_wrapper<zmq::context_t> context_;
   std::reference_wrapper<task_system> executor_;
   std::unique_ptr<zmq::socket_t> socket_;
-  std::vector<std::string> endpoints_;
+  Endpoints endpoints_;
 
 public:
-  zmq_publisher(zmq::context_t &context, std::vector<std::string> endpoints,
+  zmq_publisher(zmq::context_t &context, Endpoints endpoints,
                 task_system &executor)
       : context_(context), endpoints_(std::move(endpoints)),
         executor_(executor) {

@@ -15,14 +15,14 @@ class zmq_subscriber {
   std::reference_wrapper<zmq::context_t> context_;
   std::reference_wrapper<task_system> executor_;
   std::unique_ptr<zmq::socket_t> socket_;
-  std::vector<std::string> endpoints_;
+  Endpoints endpoints_;
   std::string filter_;
   operation::string_argument fn_;
   std::thread thread_;
   std::atomic<bool> done_{false};
 
 public:
-  zmq_subscriber(zmq::context_t &context, std::vector<std::string> endpoints,
+  zmq_subscriber(zmq::context_t &context, Endpoints endpoints,
                  std::string filter, const operation::string_argument &fn,
                  task_system &executor)
       : context_(context), endpoints_(std::move(endpoints)),

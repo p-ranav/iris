@@ -1,12 +1,17 @@
 #pragma once
-#include <iris/named_type.hpp>
 #include <functional>
+#include <iris/named_type.hpp>
 
 using PeriodMs = fluent::NamedType<unsigned int, struct PeriodMsTag>;
 static const PeriodMs::argument period;
 
-using TimerFunction = fluent::NamedType<std::function<void()>, struct TimerFunctionTag>;
+using TimerFunction =
+    fluent::NamedType<std::function<void()>, struct TimerFunctionTag>;
 static const TimerFunction::argument on_expiry;
 
-using SubscriberFunction = fluent::NamedType<std::function<void(std::string)>, struct SubscriberFunctionTag>;
+using Endpoints = std::vector<std::string>;
+static Endpoints endpoints;
+
+using SubscriberFunction = fluent::NamedType<std::function<void(std::string)>,
+                                             struct SubscriberFunctionTag>;
 static const SubscriberFunction::argument on_receive;
