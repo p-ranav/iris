@@ -31,7 +31,7 @@ class Component {
     interval_timers_[timer_id]->stop();
   }
 
-  friend class publisher;
+  friend class Publisher;
   std::atomic_uint8_t publisher_count_{0};
   template <typename Message>
   void publish(std::uint8_t publisher_id, Message &&message) {
@@ -70,7 +70,7 @@ public:
   template <typename P, typename T>
   class timer set_interval(P &&period_ms, T &&fn);
 
-  template <typename E> class publisher create_publisher(E &&endpoints);
+  template <typename E> class Publisher create_publisher(E &&endpoints);
 
   template <typename E, typename S>
   class subscriber create_subscriber(E &&endpoints, S &&fn);

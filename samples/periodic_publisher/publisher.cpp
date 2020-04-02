@@ -5,7 +5,7 @@
 
 class my_publisher: public iris::Component {
   std::atomic_uint8_t count_{0};
-  iris::publisher pub_;
+  iris::Publisher pub_;
 public:
   my_publisher() {
     pub_ = create_publisher(endpoints = {"tcp://*:5555"});
