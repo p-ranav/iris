@@ -3,11 +3,11 @@
 #include <iostream>
 
 int main() {
-  iris::component timers;
-  timers.set_interval(period =  250, []() { std::cout << "Timer_1\n"; });
-  timers.set_interval(period =  500, []() { std::cout << "Timer_2\n"; });
-  timers.set_interval(period = 1000, []() { std::cout << "Timer_3\n"; });
-  timers.set_interval(period = 2000, []() { std::cout << "Timer_4\n"; });
-  timers.set_interval(period = 5000, []() { std::cout << "Timer_5\n"; });
-  timers.start();
+  iris::component c;
+  c.set_interval(period =  250, on_expiry = []() { std::cout << "Timer_1\n"; });
+  c.set_interval(period =  500, on_expiry = []() { std::cout << "Timer_2\n"; });
+  c.set_interval(period = 1000, on_expiry = []() { std::cout << "Timer_3\n"; });
+  c.set_interval(period = 2000, on_expiry = []() { std::cout << "Timer_4\n"; });
+  c.set_interval(period = 5000, on_expiry = []() { std::cout << "Timer_5\n"; });
+  c.start();
 }

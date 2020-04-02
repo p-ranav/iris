@@ -7,6 +7,6 @@ int main() {
   iris::component sender;
   auto p = sender.create_publisher({"tcp://*:5555"});
   sender.set_interval(period = 50, 
-                      [&p] { p.send("Hello, World!"); });
+                      on_expiry = [&p] { p.send("Hello, World!"); });
   sender.start();
 }

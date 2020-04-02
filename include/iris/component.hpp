@@ -56,8 +56,7 @@ public:
     interval_timers_.clear();
   }
 
-  class timer set_interval(unsigned int period_ms, std::function<void()> fn);
-  class timer set_interval(PeriodMs period_ms, std::function<void()> fn);
+  class timer set_interval(PeriodMs period_ms, TimerFunction fn);
 
   class publisher create_publisher(std::vector<std::string> endpoints);
 
