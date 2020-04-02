@@ -14,7 +14,7 @@ namespace iris {
 
 class zmq_subscriber {
   std::uint8_t id_;
-  class component *component_;
+  class Component *component_;
   std::reference_wrapper<zmq::context_t> context_;
   std::reference_wrapper<task_system> executor_;
   std::unique_ptr<zmq::socket_t> socket_;
@@ -29,7 +29,7 @@ class zmq_subscriber {
   std::stringstream stream_;
 
 public:
-  zmq_subscriber(std::uint8_t id, component * parent, zmq::context_t &context, Endpoints endpoints,
+  zmq_subscriber(std::uint8_t id, Component * parent, zmq::context_t &context, Endpoints endpoints,
                  std::string filter, const operation::subscriber_operation &fn,
                  task_system &executor);
 

@@ -6,11 +6,11 @@
 namespace iris {
 
 class publisher {
-  friend component;
+  friend Component;
   std::uint8_t id_;
-  component *component_;
+  Component *component_;
 
-  publisher(std::uint8_t id, component *component)
+  publisher(std::uint8_t id, Component *component)
       : id_(id), component_(component) {}
 
 public:
@@ -22,7 +22,7 @@ public:
 };
 
 template <typename E>
-inline publisher component::create_publisher(E &&endpoints) {
+inline publisher Component::create_publisher(E &&endpoints) {
   lock_t lock{publishers_mutex_};
   auto p = std::make_unique<zmq_publisher>(
       context_, std::forward<Endpoints>(Endpoints(endpoints)), executor_);

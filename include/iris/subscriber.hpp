@@ -6,11 +6,11 @@
 namespace iris {
 
 class subscriber {
-  friend component;
+  friend Component;
   std::uint8_t id_;
-  component *component_;
+  Component *component_;
 
-  subscriber(std::uint8_t id, component *component)
+  subscriber(std::uint8_t id, Component *component)
       : id_(id), component_(component) {}
 
 public:
@@ -20,7 +20,7 @@ public:
 };
 
 template <typename E, typename S>
-inline subscriber component::create_subscriber(E &&endpoints, S &&fn) {
+inline subscriber Component::create_subscriber(E &&endpoints, S &&fn) {
   lock_t lock{subscribers_mutex_};
   auto s = std::make_unique<zmq_subscriber>(
       subscriber_count_.load(), this, context_, std::forward<Endpoints>(Endpoints(endpoints)), /* filter */ "",
@@ -31,7 +31,7 @@ inline subscriber component::create_subscriber(E &&endpoints, S &&fn) {
 }
 
 inline 
-zmq_subscriber::zmq_subscriber(std::uint8_t id, component * parent, zmq::context_t &context, Endpoints endpoints,
+zmq_subscriber::zmq_subscriber(std::uint8_t id, Component * parent, zmq::context_t &context, Endpoints endpoints,
                  std::string filter, const operation::subscriber_operation &fn,
                  task_system &executor)
       : id_(id), component_(parent), context_(context), endpoints_(std::move(endpoints)),

@@ -14,7 +14,7 @@
 
 namespace iris {
 
-class component {
+class Component {
   task_system executor_;
   std::unordered_map<std::uint8_t, std::unique_ptr<interval_timer>>
       interval_timers_;
@@ -54,12 +54,12 @@ class component {
   }
 
 public:
-  component() : executor_(task_system(std::thread::hardware_concurrency())) {}
+  Component() : executor_(task_system(std::thread::hardware_concurrency())) {}
 
   template <typename T>
-  component(T &&n) : executor_(task_system(Threads(n).get())) {}
+  Component(T &&n) : executor_(task_system(Threads(n).get())) {}
 
-  ~component() {
+  ~Component() {
     for (auto &thread : executor_.threads_)
       thread.join();
     subscribers_.clear();

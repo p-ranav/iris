@@ -13,7 +13,7 @@ class task_system {
   std::vector<notification_queue> queue_{count_};
   std::atomic<unsigned> index_{0};
   std::atomic<bool> done_{0};
-  friend class component;
+  friend class Component;
 
   void run(unsigned i) {
     while (!done_) {

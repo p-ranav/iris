@@ -5,11 +5,11 @@
 namespace iris {
 
 class timer {
-  friend component;
+  friend Component;
   std::uint8_t id_;
-  component *component_;
+  Component *component_;
 
-  timer(std::uint8_t id, component *component)
+  timer(std::uint8_t id, Component *component)
       : id_(id), component_(component) {}
 
 public:
@@ -19,7 +19,7 @@ public:
 };
 
 template <typename P, typename T>
-inline timer component::set_interval(P &&period_ms, T &&fn) {
+inline timer Component::set_interval(P &&period_ms, T &&fn) {
   lock_t lock{timers_mutex_};
   auto t = std::make_unique<interval_timer>(
       std::forward<PeriodMs>(PeriodMs(period_ms)),

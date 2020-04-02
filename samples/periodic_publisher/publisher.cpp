@@ -3,7 +3,7 @@
 #include <iris/publisher.hpp>
 #include <iris/timer.hpp>
 
-class my_publisher: public iris::component {
+class my_publisher: public iris::Component {
   std::atomic_uint8_t count_{0};
   iris::publisher pub_;
 public:

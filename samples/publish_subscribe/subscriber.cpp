@@ -10,7 +10,7 @@ struct Foo {
 };
 
 int main() {
-  iris::component receiver(threads = 2);
+  iris::Component receiver(threads = 2);
   receiver.create_subscriber(
       endpoints = {"tcp://localhost:5555"},
       on_receive = [&](iris::subscriber_message msg) { 
@@ -21,7 +21,7 @@ int main() {
       });
   receiver.start();
 
-  iris::component receiver2(threads = 2);
+  iris::Component receiver2(threads = 2);
   receiver2.create_subscriber(
       endpoints = {"tcp://localhost:5556"},
       on_receive = [&](iris::subscriber_message msg) { 

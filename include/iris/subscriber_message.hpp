@@ -6,7 +6,7 @@ namespace iris {
 
 class subscriber_message {
     std::string payload_;
-    class component * component_;
+    class Component * component_;
     std::uint8_t subscriber_id_;
     friend class zmq_subscriber;
 public:
