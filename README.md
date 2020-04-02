@@ -11,8 +11,8 @@
 
 int main() {
   iris::component sender;
-  auto p = sender.create_publisher({"tcp://*:5555"});
-  sender.set_interval(period = 50, 
+  auto p = sender.create_publisher(endpoints = {"tcp://*:5555"});
+  sender.set_interval(period = 50,
                       on_expiry = [&p] { p.send("Hello, World!"); });
   sender.start();
 }
@@ -27,8 +27,9 @@ int main() {
 
 int main() {
   iris::component receiver;
-  receiver.create_subscriber({"tcp://localhost:5555"}, 
-                             on_receive = [](auto msg) { std::cout << "Received " << msg << "\n"; });
+  receiver.create_subscriber(
+      endpoints = {"tcp://localhost:5555"},
+      on_receive = [](auto msg) { std::cout << "Received " << msg << "\n"; });
   receiver.start();
 }
 ```
