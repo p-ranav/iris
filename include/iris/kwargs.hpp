@@ -1,6 +1,6 @@
 #pragma once
 #include <functional>
-#include <iris/named_type.hpp>
+#include <iris/named_type/named_type.hpp>
 
 using PeriodMs = fluent::NamedType<unsigned int, struct PeriodMsTag>;
 static const PeriodMs::argument period;
