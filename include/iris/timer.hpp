@@ -20,6 +20,11 @@ public:
 
 inline timer component::set_interval(unsigned int period_ms,
                                      std::function<void()> fn) {
+  return set_interval(PeriodMs(period_ms), fn);
+}
+
+inline timer component::set_interval(PeriodMs period_ms,
+                                     std::function<void()> fn) {
   lock_t lock{timers_mutex_};
   auto t = std::make_unique<interval_timer>(
       period_ms, operation::void_argument{.fn = fn}, executor_);

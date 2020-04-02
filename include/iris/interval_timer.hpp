@@ -2,6 +2,7 @@
 #include <atomic>
 #include <chrono>
 #include <functional>
+#include <iris/kwargs.hpp>
 #include <iris/operation.hpp>
 #include <iris/task_system.hpp>
 #include <mutex>
@@ -11,7 +12,7 @@
 namespace iris {
 
 class interval_timer {
-  unsigned int period_ms_;
+  PeriodMs period_ms_;
   operation::void_argument fn_;
   std::reference_wrapper<task_system> executor_;
 
@@ -19,7 +20,7 @@ class interval_timer {
   std::thread thread_;
 
 public:
-  interval_timer(unsigned int period_ms, const operation::void_argument &fn,
+  interval_timer(PeriodMs period_ms, const operation::void_argument &fn,
                  task_system &executor)
       : period_ms_(period_ms), fn_(fn), executor_(executor), execute_(false),
         thread_({}) {}
@@ -51,7 +52,7 @@ public:
     thread_ = std::thread([this]() {
       while (execute_) {
         executor_.get().async_(fn_);
-        sleep_for(period_ms_);
+        sleep_for(period_ms_.get());
       }
     });
   }

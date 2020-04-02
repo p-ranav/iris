@@ -1,8 +1,10 @@
 #pragma once
 #include <iris/interval_timer.hpp>
+#include <iris/kwargs.hpp>
 #include <iris/task_system.hpp>
 #include <iris/zmq_publisher.hpp>
 #include <iris/zmq_subscriber.hpp>
+#include <initializer_list>
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -55,6 +57,7 @@ public:
   }
 
   class timer set_interval(unsigned int period_ms, std::function<void()> fn);
+  class timer set_interval(PeriodMs period_ms, std::function<void()> fn);
 
   class publisher create_publisher(std::vector<std::string> endpoints);
 
