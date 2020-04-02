@@ -7,9 +7,7 @@ Here's a simple publish-subscribe example:
 ```cpp
 // sender.cpp
 #include <iostream>
-#include <iris/component.hpp>
-#include <iris/publisher.hpp>
-#include <iris/timer.hpp>
+#include <iris/iris.hpp>
 
 int main() {
   iris::component sender;
@@ -24,8 +22,7 @@ int main() {
 ```cpp
 // receiver.cpp
 #include <iostream>
-#include <iris/component.hpp>
-#include <iris/subscriber.hpp>
+#include <iris/iris.hpp>
 
 int main() {
   iris::component receiver(threads = 2);
