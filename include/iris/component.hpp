@@ -45,8 +45,10 @@ class component {
   }
 
 public:
-  component(const Threads n = Threads(std::thread::hardware_concurrency()))
-      : executor_(task_system(n.get())) {}
+  component() : executor_(task_system(std::thread::hardware_concurrency())) {}
+
+  template <typename T>
+  component(T &&n) : executor_(task_system(Threads(n).get())) {}
 
   ~component() {
     for (auto &thread : executor_.threads_)
