@@ -1,6 +1,6 @@
 # iris
 
-`iris` is a lightweight `C++17` header-only library that provides a component model and messaging framework based on [ZeroMQ](https://zeromq.org/). `iris` enables component-based software engineering ([CBSE](https://en.wikipedia.org/wiki/Component-based_software_engineering)): large and complex systems can be built by composing small, tested component building blocks. 
+`iris` is a lightweight `C++17` header-only library that provides a [component model](https://en.wikipedia.org/wiki/Component-based_software_engineering) and messaging framework based on [ZeroMQ](https://zeromq.org/). 
 
 Here's a simple publish-subscribe example:
 
