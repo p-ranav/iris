@@ -80,7 +80,7 @@ struct Mouse {
 };
 ```
 
-`iris` uses [Cereal](https://github.com/USCiLab/cereal) library for serialization and deserialization of user-defined structures. Currently, `iris` uses the `cereal::PortalBinary{Input/Output}Archive` for serialization and deserialization. To enable serialization of `Mouse` objects, write a save method like below:
+`iris` uses [Cereal](https://github.com/USCiLab/cereal) library for serialization and deserialization of user-defined structures. To enable serialization of `Mouse` objects, write a save method like below:
 
 ```cpp
 struct Mouse {
@@ -94,7 +94,7 @@ struct Mouse {
 };
 ```
 
-Now we can create an `iris::Publisher` using `component.create_publisher` and publish periodically.
+Now we can create an `iris::Publisher` using `component.create_publisher`. Publish periodically by creating a periodic timer and publishing mouse objects using `publisher.send`.
 
 ```cpp
 // publisher.cpp
