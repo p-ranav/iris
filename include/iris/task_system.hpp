@@ -20,7 +20,7 @@ class TaskSystem {
       operation_t op;
       for (unsigned n = 0; n != count_; ++n) {
         if (queue_[(i + n) % count_].try_pop(op))
-          continue;
+          break;
       }
       if (!valid_operation(op) && !queue_[i].try_pop(op))
         continue;
