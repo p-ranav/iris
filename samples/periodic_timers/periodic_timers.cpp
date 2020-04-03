@@ -1,6 +1,5 @@
 #include <iostream>
-#include <iris/component.hpp>
-#include <iris/timer.hpp>
+#include <iris/iris.hpp>
 
 int main() {
   iris::Component c;

@@ -1,17 +1,15 @@
 #include <iostream>
-#include <iris/component.hpp>
-#include <iris/publisher.hpp>
-#include <iris/timer.hpp>
+#include <iris/iris.hpp>
 
-class my_publisher : public iris::Component {
+class MyPublisher : public iris::Component {
   std::atomic_uint8_t count_{0};
   iris::Publisher pub_;
 
 public:
-  my_publisher() {
+  MyPublisher() {
     pub_ = create_publisher(endpoints = {"tcp://*:5555"});
     set_interval(period = 50,
-                 on_expiry = std::bind(&my_publisher::publish, this));
+                 on_expiry = std::bind(&MyPublisher::publish, this));
   }
 
   void publish() {
@@ -22,6 +20,6 @@ public:
 };
 
 int main() {
-  my_publisher p;
+  MyPublisher p;
   p.start();
 }
