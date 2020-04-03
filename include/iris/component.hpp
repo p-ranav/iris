@@ -74,8 +74,8 @@ public:
 
   template <typename E> class Publisher create_publisher(E &&endpoints);
 
-  template <typename E, typename S>
-  class Subscriber create_subscriber(E &&endpoints, S &&fn);
+  template <typename E, typename T, typename S>
+  class Subscriber create_subscriber(E &&endpoints, T && timeout, S &&fn);
 
   void start() {
     executor_.start();

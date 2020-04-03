@@ -24,6 +24,11 @@ namespace iris {
 static Endpoints endpoints;
 }
 
+using TimeoutMs = fluent::NamedType<unsigned int, struct TimeoutMsTag>;
+namespace iris {
+static const TimeoutMs::argument timeout;
+}
+
 using SubscriberFunction = fluent::NamedType<std::function<void(iris::Message)>,
                                              struct SubscriberFunctionTag>;
 namespace iris {

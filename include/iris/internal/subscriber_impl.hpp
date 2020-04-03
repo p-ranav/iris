@@ -33,6 +33,7 @@ class SubscriberImpl {
 public:
   SubscriberImpl(std::uint8_t id, Component *parent, zmq::context_t &context,
                  Endpoints endpoints, std::string filter,
+                 TimeoutMs timeout,
                  const operation::SubscriberOperation &fn,
                  TaskSystem &executor);
 
