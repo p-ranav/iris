@@ -5,22 +5,22 @@
 
 namespace iris {
 
-class subscriber {
+class Subscriber {
   friend Component;
   std::uint8_t id_;
   Component *component_;
 
-  subscriber(std::uint8_t id, Component *component)
+  Subscriber(std::uint8_t id, Component *component)
       : id_(id), component_(component) {}
 
 public:
-  subscriber() = default;
+  Subscriber() = default;
 
   void stop() { component_->stop_subscriber(id_); }
 };
 
 template <typename E, typename S>
-inline subscriber Component::create_subscriber(E &&endpoints, S &&fn) {
+inline Subscriber Component::create_subscriber(E &&endpoints, S &&fn) {
   lock_t lock{subscribers_mutex_};
   auto s = std::make_unique<internal::SubscriberImpl>(
       subscriber_count_.load(), this, context_,
@@ -28,7 +28,7 @@ inline subscriber Component::create_subscriber(E &&endpoints, S &&fn) {
       operation::SubscriberOperation{.fn = SubscriberFunction(fn).get()},
       executor_);
   subscribers_.insert(std::make_pair(subscriber_count_.load(), std::move(s)));
-  return subscriber(subscriber_count_++, this);
+  return Subscriber(subscriber_count_++, this);
 }
 
 inline internal::SubscriberImpl::SubscriberImpl(

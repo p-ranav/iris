@@ -138,7 +138,7 @@ struct PolymorphicCasters {
 #define UNREGISTERED_POLYMORPHIC_CAST_EXCEPTION(LoadSave)                      \
   throw cereal::Exception(                                                     \
       "Trying to " #LoadSave " a registered polymorphic type with an "         \
-                             "unregistered polymorphic cast.\n"                \
+      "unregistered polymorphic cast.\n"                                       \
       "Could not find a path to a base class (" +                              \
       util::demangle(baseInfo.name()) +                                        \
       ") for type: " + ::cereal::util::demangledName<Derived>() +              \

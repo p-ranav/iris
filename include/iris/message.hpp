@@ -3,7 +3,9 @@
 
 namespace iris {
 
-namespace internal { class SubscriberImpl; }
+namespace internal {
+class SubscriberImpl;
+}
 
 class Message {
   std::string payload_;

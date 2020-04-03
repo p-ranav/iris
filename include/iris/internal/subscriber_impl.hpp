@@ -58,6 +58,6 @@ public:
   void stop() { done_ = true; }
 };
 
-}
+} // namespace internal
 
 } // namespace iris

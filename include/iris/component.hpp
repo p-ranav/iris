@@ -1,11 +1,11 @@
 #pragma once
 #include <initializer_list>
 #include <iris/cereal/archives/portable_binary.hpp>
-#include <iris/kwargs.hpp>
-#include <iris/task_system.hpp>
 #include <iris/internal/periodic_timer_impl.hpp>
 #include <iris/internal/publisher_impl.hpp>
 #include <iris/internal/subscriber_impl.hpp>
+#include <iris/kwargs.hpp>
+#include <iris/task_system.hpp>
 #include <memory>
 #include <sstream>
 #include <unordered_map>
@@ -25,7 +25,7 @@ class Component {
   zmq::context_t context_{zmq::context_t(1)};
   std::mutex timers_mutex_, publishers_mutex_, subscribers_mutex_;
 
-  friend class timer;
+  friend class PeriodicTimer;
   std::atomic_uint8_t timer_count_{0};
   void stop_timer(std::uint8_t timer_id) {
     lock_t lock{timers_mutex_};
@@ -40,7 +40,7 @@ class Component {
     publishers_[publisher_id]->send(std::forward<Message>(message));
   }
 
-  friend class subscriber;
+  friend class Subscriber;
   std::atomic_uint8_t subscriber_count_{0};
   void stop_subscriber(std::uint8_t subscriber_id) {
     lock_t lock{subscribers_mutex_};
@@ -70,12 +70,12 @@ public:
   }
 
   template <typename P, typename T>
-  class timer set_interval(P &&period_ms, T &&fn);
+  class PeriodicTimer set_interval(P &&period_ms, T &&fn);
 
   template <typename E> class Publisher create_publisher(E &&endpoints);
 
   template <typename E, typename S>
-  class subscriber create_subscriber(E &&endpoints, S &&fn);
+  class Subscriber create_subscriber(E &&endpoints, S &&fn);
 
   void start() {
     executor_.start();
