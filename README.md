@@ -79,7 +79,7 @@ iris::Component my_component(threads = 2);
 my_component.set_interval(500, [] { std::cout << "Timer fired!\n"; });
 ```
 
-`iris` uses [NamedType](https://github.com/joboccara/NamedType) to provide named parameters. If you like being explicit, you can create this timer like so:
+`iris` uses [NamedTypes](https://github.com/joboccara/NamedType) to provide named parameters. If you like being explicit, you can create this timer like so:
 
 ```cpp
 my_component.set_interval(period = 500,
