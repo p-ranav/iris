@@ -158,7 +158,7 @@ struct Mouse {
 int main() {
   Component receiver(threads = 2);
   receiver.create_subscriber(endpoints = {"tcp://localhost:5555"},
-    timeout = 5000, // timeout after 5 seconds and check again
+    timeout = 100, // timeout after 100ms and check again
     on_receive = [](Message msg) {
       auto position = msg.get<Mouse>();
       std::cout << "Received (" << position.x << ", " << position.y << ")\n";

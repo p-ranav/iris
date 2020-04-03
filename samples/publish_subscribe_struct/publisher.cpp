@@ -16,8 +16,7 @@ struct Mouse {
 int main() {
   std::random_device rd; // obtain a random number from hardware
   std::mt19937 eng(rd()); // seed the generator
-  std::uniform_int_distribution<> x_dist(0, 1920);
-  std::uniform_int_distribution<> y_dist(0, 1080);
+  std::uniform_int_distribution<> x_dist(0, 1920), y_dist(0, 1080);
 
   Component sender(threads = 1);
   auto p = sender.create_publisher(endpoints = {"tcp://*:5555"});
