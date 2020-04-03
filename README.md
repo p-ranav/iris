@@ -4,8 +4,6 @@
 
 `iris` is a `C++17` header-only library that provides a [component model](https://en.wikipedia.org/wiki/Component-based_software_engineering) and messaging framework based on [ZeroMQ](https://zeromq.org/). 
 
-`iris` supports time-triggered operations, publish-subscribe messaging, client-server interactions, serialization/deserialization and a multi-threaded task system with task stealing.
-
 Here's a simple publish-subscribe example:
 
 ```cpp
@@ -46,3 +44,18 @@ int main() {
   receiver.start();
 }
 ```
+
+## Quick Start
+
+Simply include `#include <iris/iris.hpp>` and you're good to go. Get started by creating an `iris::Component`. 
+
+```cpp
+iris::Component my_component;
+```
+
+Each `iris::Component` can have one or more of the following:
+
+* Periodic and sporadic timers
+* Publishers, subscribers, facets (clients), and receptacles (servers)
+* State variables
+
