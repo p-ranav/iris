@@ -47,7 +47,7 @@ my_component.set_interval(period = 500,
 
 ### Publish-Subscribe Interactions
 
-Here's a simple publish-subscribe example:
+Here's a simple publish-subscribe example. Let's start with the publisher - This is a time-triggered `sender` that publishes messages every 500ms. 
 
 ```cpp
 // publisher.cpp
@@ -70,6 +70,7 @@ int main() {
 }
 ```
 
+The `receiver` component is subscribes to messages on the endpoint `tcp://localhost:5555`. Subscriber callbacks have the signature `std::function<void(iris::Message)>`. `iris` uses [Cereal](https://uscilab.github.io/cereal/) to serialize messages. Use `Message.deserialize<T>` to deserialize received messages. 
 
 ```cpp
 // subscriber.cpp
