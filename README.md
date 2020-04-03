@@ -45,9 +45,10 @@ This will initialize the task system and create threads for each of listener por
 ```cpp
 #include <iostream>
 #include <iris/iris.hpp>
+using namespace iris;
 
 int main() {
-  iris::Component my_component;
+  Component my_component;
   my_component.set_interval(period = 500,
                             on_expiry = [] { std::cout << "Timer fired!\n"; });
   my_component.start();
@@ -62,9 +63,10 @@ Here's a simple publish-subscribe example. Let's start with the publisher - This
 // publisher.cpp
 #include <iostream>
 #include <iris/iris.hpp>
+using namespace iris;
 
 int main() {
-  iris::Component sender;
+  Component sender;
   auto p = sender.create_publisher(endpoints = {"tcp://*:5555"});
 
   unsigned i{0};
@@ -85,11 +87,12 @@ The `receiver` component is subscribes to messages on the endpoint `tcp://localh
 // subscriber.cpp
 #include <iostream>
 #include <iris/iris.hpp>
+using namespace iris;
 
 int main() {
-  iris::Component receiver(threads = 2);
+  Component receiver(threads = 2);
   receiver.create_subscriber(endpoints = {"tcp://localhost:5555"},
-                             on_receive = [&](iris::Message msg) {
+                             on_receive = [](Message msg) {
                                  std::cout << "Received "
                                            << msg.get<std::string>()
                                            << "\n";

@@ -1,10 +1,11 @@
 #include <iostream>
 #include <iris/iris.hpp>
+using namespace iris;
 
 int main() {
-  iris::Component receiver(threads = 2);
+  Component receiver(threads = 2);
   receiver.create_subscriber(endpoints = {"tcp://localhost:5555"},
-    on_receive = [&](iris::Message msg) {
+    on_receive = [](Message msg) {
       std::cout << "Received "
                 << msg.get<std::string>()
                 << "\n";

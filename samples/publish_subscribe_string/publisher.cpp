@@ -1,8 +1,9 @@
 #include <iostream>
 #include <iris/iris.hpp>
+using namespace iris;
 
 int main() {
-  iris::Component sender;
+  Component sender;
   auto p = sender.create_publisher(endpoints = {"tcp://*:5555"});
 
   unsigned i{0};

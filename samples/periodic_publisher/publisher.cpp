@@ -1,9 +1,10 @@
 #include <iostream>
 #include <iris/iris.hpp>
+using namespace iris;
 
-class MyPublisher : public iris::Component {
+class MyPublisher : public Component {
   std::atomic_uint8_t count_{0};
-  iris::Publisher pub_;
+  Publisher pub_;
 
 public:
   MyPublisher() {
