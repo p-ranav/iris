@@ -30,7 +30,7 @@ You can optionally specify the number of threads the component can use in its ta
 iris::Component my_component(iris::threads = 2);
 ```
 
-**NOTE: ** Here `iris::threads` is a [NamedType](https://github.com/joboccara/NamedType) parameter. It is not necessary to use named parameters but it certain cases, they improve code readability, e.g.,:
+**NOTE:** Here `iris::threads` is a [NamedType](https://github.com/joboccara/NamedType) parameter. It is not necessary to use named parameters but it certain cases, they improve code readability, e.g.,:
 
 ```cpp
 using namespace iris;
