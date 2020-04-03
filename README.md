@@ -64,7 +64,12 @@ Each `iris::Component` can have one or more of the following:
 `iris` components can be triggered periodically by timers. To create a timer, call `component.set_interval`. The following component is triggered every 500ms. Timers are an excellent way to kickstart a communication pattern, e.g., publish messages periodically to multiple sinks.
 
 ```cpp
-my_component.set_interval(period = 500, 
-                          on_expiry = [] { std::cout << "Timer fired!\n"; });
+my_component.set_interval(500, [] { std::cout << "Timer fired!\n"; });
 ```
 
+`iris` uses [NamedType](https://github.com/joboccara/NamedType) to provide named parameters. If you like being explicit, you can create this timer like so:
+
+```cpp
+my_component.set_interval(period = 500,
+                          on_expiry = [] { std::cout << "Timer fired!\n"; });
+```
