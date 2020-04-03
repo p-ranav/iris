@@ -11,21 +11,23 @@
 
 namespace iris {
 
-class interval_timer {
+namespace internal {
+
+class PeriodicTimerImpl {
   PeriodMs period_ms_;
-  operation::void_argument fn_;
-  std::reference_wrapper<task_system> executor_;
+  operation::TimerOperation fn_;
+  std::reference_wrapper<TaskSystem> executor_;
 
   std::atomic<bool> execute_{false};
   std::thread thread_;
 
 public:
-  interval_timer(PeriodMs period_ms, const operation::void_argument &fn,
-                 task_system &executor)
+  PeriodicTimerImpl(PeriodMs period_ms, const operation::TimerOperation &fn,
+                    TaskSystem &executor)
       : period_ms_(period_ms), fn_(fn), executor_(executor), execute_(false),
         thread_({}) {}
 
-  ~interval_timer() {
+  ~PeriodicTimerImpl() {
     if (execute_) {
       stop();
     };
@@ -65,5 +67,7 @@ public:
 
   bool is_running() const noexcept { return (execute_ && thread_.joinable()); }
 };
+
+} // namespace internal
 
 } // namespace iris

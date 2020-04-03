@@ -1,7 +1,7 @@
 #pragma once
 #include <functional>
-#include <iris/named_type/named_type.hpp>
 #include <iris/message.hpp>
+#include <iris/named_type/named_type.hpp>
 
 using Threads = fluent::NamedType<unsigned, struct ThreadsTag>;
 static const Threads::argument threads;

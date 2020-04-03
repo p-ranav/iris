@@ -1,23 +1,25 @@
 #pragma once
 #include <functional>
+#include <iris/cereal/archives/portable_binary.hpp>
 #include <iris/kwargs.hpp>
 #include <iris/operation.hpp>
 #include <iris/task_system.hpp>
-#include <iris/cereal/archives/portable_binary.hpp>
 #include <memory>
 #include <zmq.hpp>
 
 namespace iris {
 
-class zmq_publisher {
+namespace internal {
+
+class PublisherImpl {
   std::reference_wrapper<zmq::context_t> context_;
-  std::reference_wrapper<task_system> executor_;
+  std::reference_wrapper<TaskSystem> executor_;
   std::unique_ptr<zmq::socket_t> socket_;
   Endpoints endpoints_;
 
 public:
-  zmq_publisher(zmq::context_t &context, Endpoints endpoints,
-                task_system &executor)
+  PublisherImpl(zmq::context_t &context, Endpoints endpoints,
+                TaskSystem &executor)
       : context_(context), endpoints_(std::move(endpoints)),
         executor_(executor) {
     socket_ = std::make_unique<zmq::socket_t>(context_, ZMQ_PUB);
@@ -26,7 +28,7 @@ public:
     socket_->setsockopt(ZMQ_SNDTIMEO, 0);
   }
 
-  ~zmq_publisher() { socket_->close(); }
+  ~PublisherImpl() { socket_->close(); }
 
   template <typename Message> void send(Message &&message) {
     std::stringstream stream;
@@ -39,9 +41,7 @@ public:
     socket_->send(std::move(message_struct));
   }
 
-  void send(std::string message) {
-    send(message.c_str());
-  }
+  void send(std::string message) { send(message.c_str()); }
 
   void send(const char *message) {
     zmq::message_t message_struct(strlen(message));
@@ -49,5 +49,7 @@ public:
     socket_->send(std::move(message_struct));
   }
 };
+
+} // namespace internal
 
 } // namespace iris

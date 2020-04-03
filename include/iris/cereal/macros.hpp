@@ -29,11 +29,11 @@
         names of its contributors may be used to endorse or promote products
         derived from this software without specific prior written permission.
 
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  DISCLAIMED. IN NO EVENT SHALL RANDOLPH VOORHIES OR SHANE GRANT BE LIABLE FOR ANY
-  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  DISCLAIMED. IN NO EVENT SHALL RANDOLPH VOORHIES OR SHANE GRANT BE LIABLE FOR
+  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
   (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
   LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
   ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
@@ -80,29 +80,29 @@
 
 #ifndef CEREAL_LOAD_FUNCTION_NAME
 //! The deserialization (load) function name to search for.
-/*! You can define @c CEREAL_LOAD_FUNCTION_NAME to be different assuming you do so
-    before this file is included. */
+/*! You can define @c CEREAL_LOAD_FUNCTION_NAME to be different assuming you do
+   so before this file is included. */
 #define CEREAL_LOAD_FUNCTION_NAME load
 #endif // CEREAL_LOAD_FUNCTION_NAME
 
 #ifndef CEREAL_SAVE_FUNCTION_NAME
 //! The serialization (save) function name to search for.
-/*! You can define @c CEREAL_SAVE_FUNCTION_NAME to be different assuming you do so
-    before this file is included. */
+/*! You can define @c CEREAL_SAVE_FUNCTION_NAME to be different assuming you do
+   so before this file is included. */
 #define CEREAL_SAVE_FUNCTION_NAME save
 #endif // CEREAL_SAVE_FUNCTION_NAME
 
 #ifndef CEREAL_LOAD_MINIMAL_FUNCTION_NAME
 //! The deserialization (load_minimal) function name to search for.
-/*! You can define @c CEREAL_LOAD_MINIMAL_FUNCTION_NAME to be different assuming you do so
-    before this file is included. */
+/*! You can define @c CEREAL_LOAD_MINIMAL_FUNCTION_NAME to be different assuming
+   you do so before this file is included. */
 #define CEREAL_LOAD_MINIMAL_FUNCTION_NAME load_minimal
 #endif // CEREAL_LOAD_MINIMAL_FUNCTION_NAME
 
 #ifndef CEREAL_SAVE_MINIMAL_FUNCTION_NAME
 //! The serialization (save_minimal) function name to search for.
-/*! You can define @c CEREAL_SAVE_MINIMAL_FUNCTION_NAME to be different assuming you do so
-    before this file is included. */
+/*! You can define @c CEREAL_SAVE_MINIMAL_FUNCTION_NAME to be different assuming
+   you do so before this file is included. */
 #define CEREAL_SAVE_MINIMAL_FUNCTION_NAME save_minimal
 #endif // CEREAL_SAVE_MINIMAL_FUNCTION_NAME
 
@@ -112,24 +112,25 @@
     will detect this and define CEREAL_NOEXCEPT as a no-op
     @internal */
 #if !defined(CEREAL_HAS_NOEXCEPT)
-  #if defined(__clang__)
-    #if __has_feature(cxx_noexcept)
-      #define CEREAL_HAS_NOEXCEPT
-    #endif
-  #else // NOT clang
-    #if defined(__GXX_EXPERIMENTAL_CXX0X__) && __GNUC__ * 10 + __GNUC_MINOR__ >= 46 || \
-        defined(_MSC_FULL_VER) && _MSC_FULL_VER >= 190023026
-      #define CEREAL_HAS_NOEXCEPT
-    #endif // end GCC/MSVC check
-  #endif // end NOT clang block
+#if defined(__clang__)
+#if __has_feature(cxx_noexcept)
+#define CEREAL_HAS_NOEXCEPT
+#endif
+#else // NOT clang
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) &&                                     \
+        __GNUC__ * 10 + __GNUC_MINOR__ >= 46 ||                                \
+    defined(_MSC_FULL_VER) && _MSC_FULL_VER >= 190023026
+#define CEREAL_HAS_NOEXCEPT
+#endif // end GCC/MSVC check
+#endif // end NOT clang block
 
-  #ifndef CEREAL_NOEXCEPT
-    #ifdef CEREAL_HAS_NOEXCEPT
-      #define CEREAL_NOEXCEPT noexcept
-    #else
-      #define CEREAL_NOEXCEPT
-    #endif // end CEREAL_HAS_NOEXCEPT
-  #endif // end !defined(CEREAL_HAS_NOEXCEPT)
+#ifndef CEREAL_NOEXCEPT
+#ifdef CEREAL_HAS_NOEXCEPT
+#define CEREAL_NOEXCEPT noexcept
+#else
+#define CEREAL_NOEXCEPT
+#endif // end CEREAL_HAS_NOEXCEPT
+#endif // end !defined(CEREAL_HAS_NOEXCEPT)
 #endif // ifndef CEREAL_NOEXCEPT
 
 // ######################################################################

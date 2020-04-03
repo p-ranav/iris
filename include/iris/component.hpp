@@ -1,25 +1,26 @@
 #pragma once
 #include <initializer_list>
-#include <iris/interval_timer.hpp>
+#include <iris/cereal/archives/portable_binary.hpp>
 #include <iris/kwargs.hpp>
 #include <iris/task_system.hpp>
-#include <iris/zmq_publisher.hpp>
-#include <iris/zmq_subscriber.hpp>
-#include <iris/cereal/archives/portable_binary.hpp>
+#include <iris/internal/periodic_timer_impl.hpp>
+#include <iris/internal/publisher_impl.hpp>
+#include <iris/internal/subscriber_impl.hpp>
 #include <memory>
+#include <sstream>
 #include <unordered_map>
 #include <vector>
 #include <zmq.hpp>
-#include <sstream>
 
 namespace iris {
 
 class Component {
-  task_system executor_;
-  std::unordered_map<std::uint8_t, std::unique_ptr<interval_timer>>
+  TaskSystem executor_;
+  std::unordered_map<std::uint8_t, std::unique_ptr<internal::PeriodicTimerImpl>>
       interval_timers_;
-  std::unordered_map<std::uint8_t, std::unique_ptr<zmq_publisher>> publishers_;
-  std::unordered_map<std::uint8_t, std::unique_ptr<zmq_subscriber>>
+  std::unordered_map<std::uint8_t, std::unique_ptr<internal::PublisherImpl>>
+      publishers_;
+  std::unordered_map<std::uint8_t, std::unique_ptr<SusbcriberImpl>>
       subscribers_;
   zmq::context_t context_{zmq::context_t(1)};
   std::mutex timers_mutex_, publishers_mutex_, subscribers_mutex_;
@@ -48,16 +49,17 @@ class Component {
 
   friend class subscriber_message;
   template <typename T, typename U = std::string>
-  T deserialize(std::uint8_t subscriber_id, U&& message) {
+  T deserialize(std::uint8_t subscriber_id, U &&message) {
     lock_t lock{subscribers_mutex_};
-    return subscribers_[subscriber_id]->deserialize<T>(std::forward<U>(message));
+    return subscribers_[subscriber_id]->deserialize<T>(
+        std::forward<U>(message));
   }
 
 public:
-  Component() : executor_(task_system(std::thread::hardware_concurrency())) {}
+  Component() : executor_(TaskSystem(std::thread::hardware_concurrency())) {}
 
   template <typename T>
-  Component(T &&n) : executor_(task_system(Threads(n).get())) {}
+  Component(T &&n) : executor_(TaskSystem(Threads(n).get())) {}
 
   ~Component() {
     for (auto &thread : executor_.threads_)

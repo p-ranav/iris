@@ -16,11 +16,11 @@
         names of its contributors may be used to endorse or promote products
         derived from this software without specific prior written permission.
 
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  DISCLAIMED. IN NO EVENT SHALL RANDOLPH VOORHIES OR SHANE GRANT BE LIABLE FOR ANY
-  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  DISCLAIMED. IN NO EVENT SHALL RANDOLPH VOORHIES OR SHANE GRANT BE LIABLE FOR
+  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
   (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
   LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
   ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
@@ -28,7 +28,8 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/* This code is heavily inspired by the boost serialization implementation by the following authors
+/* This code is heavily inspired by the boost serialization implementation by
+   the following authors
 
    (C) Copyright 2002 Robert Ramey - http://www.rrsd.com .
    Use, modification and distribution is subject to the Boost Software
@@ -38,28 +39,24 @@
 
    (C) Copyright 2006 David Abrahams - http://www.boost.org.
 
-   See /boost/serialization/export.hpp and /boost/archive/detail/register_archive.hpp for their
-   implementation.
+   See /boost/serialization/export.hpp and
+   /boost/archive/detail/register_archive.hpp for their implementation.
 */
 
 #ifndef CEREAL_DETAILS_POLYMORPHIC_IMPL_FWD_HPP_
 #define CEREAL_DETAILS_POLYMORPHIC_IMPL_FWD_HPP_
 
-namespace cereal
-{
-  namespace detail
-  {
-    //! Forward declaration, see polymorphic_impl.hpp for more information
-    template <class Base, class Derived>
-    struct RegisterPolymorphicCaster;
+namespace cereal {
+namespace detail {
+//! Forward declaration, see polymorphic_impl.hpp for more information
+template <class Base, class Derived> struct RegisterPolymorphicCaster;
 
-    //! Forward declaration, see polymorphic_impl.hpp for more information
-    struct PolymorphicCasters;
+//! Forward declaration, see polymorphic_impl.hpp for more information
+struct PolymorphicCasters;
 
-    //! Forward declaration, see polymorphic_impl.hpp for more information
-    template <class Base, class Derived>
-    struct PolymorphicRelation;
-  } // namespace detail
+//! Forward declaration, see polymorphic_impl.hpp for more information
+template <class Base, class Derived> struct PolymorphicRelation;
+} // namespace detail
 } // namespace cereal
 
 #endif // CEREAL_DETAILS_POLYMORPHIC_IMPL_FWD_HPP_

@@ -3,10 +3,7 @@
 
 struct Foo {
   uint64_t value_{15};
-  template <class Archive>
-  void save(Archive & ar) const {
-    ar(value_);
-  }
+  template <class Archive> void save(Archive &ar) const { ar(value_); }
 };
 
 int main() {
