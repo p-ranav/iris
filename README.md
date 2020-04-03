@@ -158,8 +158,7 @@ int main() {
   receiver.create_subscriber(endpoints = {"tcp://localhost:5555"},
     on_receive = [](Message msg) {
       auto position = msg.get<Mouse>();
-      std::cout << "Received ("
-        << position.x << ", " << position.y << ")\n";
+      std::cout << "Received (" << position.x << ", " << position.y << ")\n";
   });
   receiver.start();
 }
