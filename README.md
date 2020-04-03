@@ -117,7 +117,7 @@ int main() {
   std::random_device rd; // obtain a random number from hardware
   std::mt19937 eng(rd()); // seed the generator
   std::uniform_int_distribution<> x_dist(0, 1920); // random number generator for Mouse X position
-  std::uniform_int_distribution<> y_dist(0, 1080); // random number generatof for Mouse Y position
+  std::uniform_int_distribution<> y_dist(0, 1080); // random number generator for Mouse Y position
 
   Component sender;
   auto p = sender.create_publisher(endpoints = {"tcp://*:5555"});
