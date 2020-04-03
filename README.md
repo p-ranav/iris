@@ -1,4 +1,6 @@
-# iris
+<p align="center">
+  <img height="100" src="img/logo.png"/>  
+</p>
 
 `iris` is a `C++17` header-only library that provides a [component model](https://en.wikipedia.org/wiki/Component-based_software_engineering) and messaging framework based on [ZeroMQ](https://zeromq.org/). `iris` supports time-triggered operations, pub-sub messaging, client-server interactions, serialization/deserialization and a multi-threaded task system with task stealing.
 
