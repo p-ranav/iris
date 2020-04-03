@@ -68,8 +68,8 @@ inline void internal::SubscriberImpl::start() {
   started_ = true;
 }
 
-template <typename T> inline T Message::deserialize() {
-  return component_->deserialize<T>(subscriber_id_, payload_);
+template <typename T> inline T Message::get() {
+  return component_->get<T>(subscriber_id_, payload_);
 }
 
 } // namespace iris

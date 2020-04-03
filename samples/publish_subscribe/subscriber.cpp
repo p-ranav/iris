@@ -6,7 +6,7 @@ int main() {
   receiver.create_subscriber(endpoints = {"tcp://localhost:5555"},
     on_receive = [&](iris::Message msg) {
       std::cout << "Received "
-                << msg.deserialize<std::string>()
+                << msg.get<std::string>()
                 << "\n";
   });
   receiver.start();

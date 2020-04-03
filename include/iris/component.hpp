@@ -49,9 +49,9 @@ class Component {
 
   friend class Message;
   template <typename T, typename U = std::string>
-  T deserialize(std::uint8_t subscriber_id, U &&message) {
+  T get(std::uint8_t subscriber_id, U &&message) {
     lock_t lock{subscribers_mutex_};
-    return subscribers_[subscriber_id]->deserialize<T>(
+    return subscribers_[subscriber_id]->get<T>(
         std::forward<U>(message));
   }
 

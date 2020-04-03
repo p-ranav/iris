@@ -14,9 +14,9 @@ class Message {
   friend class internal::SubscriberImpl;
 
 public:
-  template <typename T> T deserialize();
+  template <typename T> T get();
 };
 
-template <> inline std::string Message::deserialize() { return payload_; }
+template <> inline std::string Message::get() { return payload_; }
 
 }; // namespace iris

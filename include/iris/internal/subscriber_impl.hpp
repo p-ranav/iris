@@ -43,7 +43,7 @@ public:
     started_ = false;
   }
 
-  template <typename T, typename U = std::string> T deserialize(U &&message) {
+  template <typename T, typename U = std::string> T get(U &&message) {
     stream_ << message;
     cereal::PortableBinaryInputArchive archive(stream_);
     T result;
