@@ -45,6 +45,14 @@ int main() {
 }
 ```
 
+## Component Model
+
+Here's the anatomy of an `iris::Component`. `iris` components can contain combination of communication ports and periodic/sporadic timers. There are 4 basic types of ports: ***publisher***, ***subscriber***, ***client***, and ***server*** ports. 
+
+<p align="center">
+  <img height="500" src="img/iriscom.png"/>  
+</p>
+
 ## Quick Start
 
 Simply include `#include <iris/iris.hpp>` and you're good to go. Start by creating an `iris::Component`:
@@ -53,11 +61,11 @@ Simply include `#include <iris/iris.hpp>` and you're good to go. Start by creati
 iris::Component my_component;
 ```
 
-Each `iris::Component` can have one or more of the following:
+You can optionally specify the number of threads the component can use in its task system, e.g., this component will spawn 2 executor threads that processes records in its message queues. 
 
-* Periodic and sporadic timers
-* Publishers, subscribers, facets (clients), and receptacles (servers)
-* State variables
+```cpp
+iris::Component my_component(threads = 2);
+```
 
 ### Periodic Timers
 
