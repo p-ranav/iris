@@ -9,7 +9,7 @@
 Here's a simple publish-subscribe example:
 
 ```cpp
-// sender.cpp
+// publisher.cpp
 #include <iostream>
 #include <iris/iris.hpp>
 
@@ -31,7 +31,7 @@ int main() {
 
 
 ```cpp
-// receiver.cpp
+// subscriber.cpp
 #include <iostream>
 #include <iris/iris.hpp>
 
