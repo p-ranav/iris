@@ -47,7 +47,7 @@ int main() {
 
 ## Quick Start
 
-Simply include `#include <iris/iris.hpp>` and you're good to go. Get started by creating an `iris::Component`. 
+Simply include `#include <iris/iris.hpp>` and you're good to go. Start by creating an `iris::Component`:
 
 ```cpp
 iris::Component my_component;
