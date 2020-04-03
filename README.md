@@ -16,7 +16,7 @@ Operation requests (e.g., timer expired so please call my callback) are serviced
   <img height="600" src="img/iriscom.png"/>  
 </p>
 
-## Quick Start
+## Getting Started
 
 Simply include `#include <iris/iris.hpp>` and you're good to go. Start by creating an `iris::Component`:
 
