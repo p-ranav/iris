@@ -7,13 +7,13 @@
 
 namespace iris {
 
-class task_system {
+class TaskSystem {
   const unsigned count_{std::thread::hardware_concurrency()};
   std::vector<std::thread> threads_;
-  std::vector<notification_queue> queue_{count_};
+  std::vector<NotificationQueue> queue_{count_};
   std::atomic<unsigned> index_{0};
   std::atomic<bool> done_{0};
-  friend class component;
+  friend class Component;
 
   void run(unsigned i) {
     while (!done_) {
@@ -24,21 +24,22 @@ class task_system {
       }
       if (!valid_operation(op) && !queue_[i].try_pop(op))
         continue;
-      if (auto void_op = std::get_if<operation::void_argument>(&op))
+      if (auto void_op = std::get_if<operation::TimerOperation>(&op))
         (*void_op).fn();
-      else if (auto string_op = std::get_if<operation::string_argument>(&op))
-        (*string_op).fn(std::move((*string_op).arg));
+      else if (auto subscriber_op =
+                   std::get_if<operation::SubscriberOperation>(&op))
+        (*subscriber_op).fn(std::move((*subscriber_op).arg));
     }
   }
 
   bool valid_operation(operation_t &op) {
-    if (std::holds_alternative<operation::void_argument>(op)) {
-      if (std::get<operation::void_argument>(op).fn) {
+    if (std::holds_alternative<operation::TimerOperation>(op)) {
+      if (std::get<operation::TimerOperation>(op).fn) {
         return true;
       } else
         return false;
-    } else if (std::holds_alternative<operation::string_argument>(op)) {
-      if (std::get<operation::string_argument>(op).fn)
+    } else if (std::holds_alternative<operation::SubscriberOperation>(op)) {
+      if (std::get<operation::SubscriberOperation>(op).fn)
         return true;
       else
         return false;
@@ -47,9 +48,9 @@ class task_system {
   }
 
 public:
-  task_system(const unsigned count) : count_(count) {}
+  TaskSystem(const unsigned count) : count_(count) {}
 
-  ~task_system() {
+  ~TaskSystem() {
     for (auto &queue : queue_)
       queue.done();
   }

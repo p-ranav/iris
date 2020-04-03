@@ -1,11 +1,17 @@
 #include <iostream>
-#include <iris/component.hpp>
-#include <iris/publisher.hpp>
-#include <iris/timer.hpp>
+#include <iris/iris.hpp>
 
 int main() {
-  iris::component sender;
+  iris::Component sender;
   auto p = sender.create_publisher(endpoints = {"tcp://*:5555"});
-  sender.set_interval(period = 50, on_expiry = [&p] { p.send("Hello"); });
+
+  unsigned i{0};
+  sender.set_interval(period = 500, 
+                      on_expiry = [&] { 
+                          const auto msg = "Hello World " + std::to_string(i);
+                          p.send(msg);
+                          std::cout << "Published " << msg << "\n";
+                          ++i;
+                      });
   sender.start();
 }

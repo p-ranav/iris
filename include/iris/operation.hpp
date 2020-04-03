@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include <iris/message.hpp>
 #include <string>
 #include <variant>
 
@@ -7,13 +8,13 @@ namespace iris {
 
 namespace operation {
 
-struct void_argument {
+struct TimerOperation {
   std::function<void()> fn;
 };
 
-struct string_argument {
-  std::function<void(std::string)> fn;
-  std::string arg;
+struct SubscriberOperation {
+  std::function<void(Message)> fn;
+  Message arg;
 };
 
 } // namespace operation
