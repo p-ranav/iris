@@ -94,7 +94,7 @@ struct Mouse {
 };
 ```
 
-Now we can create an `iris::Publisher` using `component.create_publisher`. Publish periodically by creating a periodic timer and publishing mouse objects using `publisher.send`.
+Now we can create an `iris::Publisher` using `component.create_publisher`. Publish periodically by creating a timer and publishing mouse objects using `publisher.send`.
 
 ```cpp
 // publisher.cpp
