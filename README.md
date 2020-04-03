@@ -50,6 +50,7 @@ int main() {
   iris::Component my_component;
   my_component.set_interval(period = 500,
                             on_expiry = [] { std::cout << "Timer fired!\n"; });
+  my_component.start();
 }
 ```
 
