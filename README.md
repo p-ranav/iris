@@ -38,7 +38,7 @@ my_component.start();
 
 This will initialize the task system and create threads for each of listener port and timer. Since this is an empty component, it will do nothing. 
 
-### Periodic Timers
+## Periodic Timers
 
 `iris` components can be triggered periodically by timers. To create a timer, call `component.set_interval`. The following component is triggered every 500ms. Timers are an excellent way to kickstart a communication pattern, e.g., publish messages periodically to multiple sinks.
 
@@ -53,7 +53,7 @@ int main() {
 }
 ```
 
-### Publish-Subscribe Interactions
+## Publish-Subscribe Interactions
 
 Here's a simple publish-subscribe example. Let's start with the publisher - This is a time-triggered `sender` that publishes messages every 500ms. 
 
