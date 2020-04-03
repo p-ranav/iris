@@ -54,7 +54,7 @@ An _operation_ is an abstraction for the different tasks undertaken by a compone
 Operation requests (e.g., timer expired so please call my callback) are serviced by one or more executor threads that make up the component's task system. 
 
 <p align="center">
-  <img height="500" src="img/iriscom.png"/>  
+  <img height="600" src="img/iriscom.png"/>  
 </p>
 
 ## Quick Start
