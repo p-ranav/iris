@@ -135,7 +135,7 @@ int main() {
 
 Now let's write a `recevier` component. Define the `Mouse` struct and write a `load` method to enable deserialization. 
 
-Create a subscriber using `component.create_subscriber`. Subscribers are implemented using ZeroMQ. The timeout parameter sets the timeout for the receive operation on the socket. If the value is 0, `recv()` will return immediately and loop until a message is received. If the value is -1, it will block until a message is available. For all other values, it will wait for a message for that amount of time before trying again. 
+Create an `iris::Subscriber` using `component.create_subscriber`. Subscribers are implemented using ZeroMQ. The timeout parameter sets the timeout for the receive operation on the socket. If the value is 0, `recv()` will return immediately and loop until a message is received. If the value is -1, it will block until a message is available. For all other values, it will wait for a message for that amount of time before trying again. 
 
 Subscriber callbacks have the signature `std::function<void(iris::Message)>`, i.e., subscriber receives `iris::Message` objects in its callback. Simply call `messsage.get<T>` to deserialize to the type `T`. 
 
