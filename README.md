@@ -30,6 +30,14 @@ You can optionally specify the number of threads the component can use in its ta
 iris::Component my_component(threads = 2);
 ```
 
+Start the component by calling `.start()`
+
+```cpp
+my_component.start();
+```
+
+This will initialize the task system and create threads for each of listener port and timer. Since this is an empty component, it will do nothing. 
+
 ### Periodic Timers
 
 `iris` components can be triggered periodically by timers. To create a timer, call `component.set_interval`. The following component is triggered every 500ms. Timers are an excellent way to kickstart a communication pattern, e.g., publish messages periodically to multiple sinks.
