@@ -24,7 +24,7 @@ Simply include `#include <iris/iris.hpp>` and you're good to go. Start by creati
 iris::Component my_component;
 ```
 
-You can optionally specify the number of threads the component can use in its task system, e.g., this component will spawn 2 executor threads that processes records in its message queues. 
+You can optionally specify the number of threads the component can use in its task system, e.g., this component will spawn 2 executor threads that process records in its message queues. 
 
 ```cpp
 iris::Component my_component(threads = 2);
