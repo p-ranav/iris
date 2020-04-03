@@ -35,7 +35,10 @@ iris::Component my_component(iris::threads = 2);
 ```cpp
 using namespace iris;
 // Works but not very readable:
-// component.create_subscriber({"tcp://localhost:5555"}, "Foo", 5000, [] (Message msg) {});
+// component.create_subscriber(std::vector<std::string>{"tcp://localhost:5555"}, 
+//                             "Foo", 
+//                             5000, 
+//                             [] (Message msg) {});
 
 // More readable:
 component.create_subscriber(endpoints = {"tcp://localhost:5555"},
