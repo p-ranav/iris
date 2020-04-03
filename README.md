@@ -47,7 +47,7 @@ int main() {
 
 ## Component Model
 
-Here's the anatomy of an `iris::Component`. `iris` components can contain combination of communication ports and periodic/sporadic timers. There are 4 basic types of ports: ***publisher***, ***subscriber***, ***client***, and ***server*** ports. 
+Here's the anatomy of an `iris::Component`. `iris` components can have a variety of ports and timers. There are 4 basic types of ports: ***publisher***, ***subscriber***, ***client***, and ***server*** ports. Publisher ports publish messages, without blocking. Subscriber ports subscribe to such topics (on specific endpoints) and receive messages published on the specified topic. Server ports providean interface to a component service. Client ports can use this interface to request such services.
 
 <p align="center">
   <img height="500" src="img/iriscom.png"/>  
