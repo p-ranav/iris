@@ -4,47 +4,6 @@
 
 `iris` is a `C++17` header-only library that provides a [component model](https://en.wikipedia.org/wiki/Component-based_software_engineering) and messaging framework based on [ZeroMQ](https://zeromq.org/). 
 
-Here's a simple publish-subscribe example:
-
-```cpp
-// publisher.cpp
-#include <iostream>
-#include <iris/iris.hpp>
-
-int main() {
-  iris::Component sender;
-  auto p = sender.create_publisher(endpoints = {"tcp://*:5555"});
-
-  unsigned i{0};
-  sender.set_interval(period = 500, 
-                      on_expiry = [&] { 
-                          const auto msg = "Hello World " + std::to_string(i);
-                          p.send(msg);
-                          std::cout << "Published " << msg << "\n";
-                          ++i;
-                      });
-  sender.start();
-}
-```
-
-
-```cpp
-// subscriber.cpp
-#include <iostream>
-#include <iris/iris.hpp>
-
-int main() {
-  iris::Component receiver(threads = 2);
-  receiver.create_subscriber(endpoints = {"tcp://localhost:5555"},
-                             on_receive = [&](iris::Message msg) {
-                                 std::cout << "Received "
-                                           << msg.deserialize<std::string>()
-                                           << "\n";
-                             });
-  receiver.start();
-}
-```
-
 ## Component Model
 
 Here's the anatomy of an `iris::Component`. `iris` components can have a variety of ports and timers. There are 4 basic types of ports: ***publisher***, ***subscriber***, ***client***, and ***server*** ports. Publisher ports publish messages, without blocking, on specific endpoints. Subscriber ports subscribe to such topics (on specific endpoints) and receive messages published by one or more publishers. Server ports provide an interface to a component service. Client ports can use this interface to request such services. Component timers can be periodic or sporadic and allow components to trigger themselves with the specified timing characteristics.
@@ -84,4 +43,47 @@ my_component.set_interval(500, [] { std::cout << "Timer fired!\n"; });
 ```cpp
 my_component.set_interval(period = 500,
                           on_expiry = [] { std::cout << "Timer fired!\n"; });
+```
+
+### Publish-Subscribe Interactions
+
+Here's a simple publish-subscribe example:
+
+```cpp
+// publisher.cpp
+#include <iostream>
+#include <iris/iris.hpp>
+
+int main() {
+  iris::Component sender;
+  auto p = sender.create_publisher(endpoints = {"tcp://*:5555"});
+
+  unsigned i{0};
+  sender.set_interval(period = 500, 
+                      on_expiry = [&] { 
+                          const auto msg = "Hello World " + std::to_string(i);
+                          p.send(msg);
+                          std::cout << "Published " << msg << "\n";
+                          ++i;
+                      });
+  sender.start();
+}
+```
+
+
+```cpp
+// subscriber.cpp
+#include <iostream>
+#include <iris/iris.hpp>
+
+int main() {
+  iris::Component receiver(threads = 2);
+  receiver.create_subscriber(endpoints = {"tcp://localhost:5555"},
+                             on_receive = [&](iris::Message msg) {
+                                 std::cout << "Received "
+                                           << msg.deserialize<std::string>()
+                                           << "\n";
+                             });
+  receiver.start();
+}
 ```
