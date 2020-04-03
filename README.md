@@ -70,31 +70,74 @@ int main() {
 
 ## Publish-Subscribe Interactions
 
-Here's a simple publish-subscribe example. Let's start with the publisher - This is a time-triggered `sender` that publishes messages every 500ms. 
+Here's a simple publish-subscribe example. 
+
+Let's say we want to periodically publish `Mouse` position and our struct looks like this: 
+
+```cpp
+struct Mouse {
+  int x, y;
+};
+```
+
+`iris` uses [Cereal](https://github.com/USCiLab/cereal) library for serialization and deserialization of user-defined structures. To enable serialization of `Mouse` objects, write a save method like below:
+
+```cpp
+struct Mouse {
+  int x, y;
+
+  // Method for serialization
+  template <typename Archive>
+  void save(Archive& ar) const {
+    ar(x, y);
+  }
+};
+```
+
+Now we can create an `iris::Publisher` using `component.create_publisher` and publish periodically.
 
 ```cpp
 // publisher.cpp
 #include <iostream>
+#include <random>
 #include <iris/iris.hpp>
 using namespace iris;
 
+struct Mouse {
+  int x, y;
+
+  // Method for serialization
+  template <typename Archive>
+  void save(Archive& ar) const {
+    ar(x, y);
+  }
+};
+
 int main() {
+  std::random_device rd; // obtain a random number from hardware
+  std::mt19937 eng(rd()); // seed the generator
+  std::uniform_int_distribution<> x_dist(0, 1920); // random number generator for Mouse X position
+  std::uniform_int_distribution<> y_dist(0, 1080); // random number generatof for Mouse Y position
+
   Component sender;
   auto p = sender.create_publisher(endpoints = {"tcp://*:5555"});
 
-  unsigned i{0};
-  sender.set_interval(period = 500, 
-                      on_expiry = [&] { 
-                          const auto msg = "Hello World " + std::to_string(i);
-                          p.send(msg);
-                          std::cout << "Published " << msg << "\n";
-                          ++i;
-                      });
+  sender.set_interval(period = 250, 
+    on_expiry = [&] { 
+        Mouse position {.x = x_dist(eng), .y = y_dist(eng)};
+        // Publish the position
+        p.send(position);
+        std::cout << "Published (" << position.x << ", " << position.y << ")\n";
+  });
   sender.start();
 }
 ```
 
-The `receiver` component is subscribes to messages on the endpoint `tcp://localhost:5555`. Subscriber callbacks have the signature `std::function<void(iris::Message)>`. `iris` uses [Cereal](https://uscilab.github.io/cereal/) to serialize messages. Use `Message.get<T>` to get received messages. 
+Now let's write a `recevier` component. Our `receiver` component will subscribe to messages on the endpoint `tcp://localhost:5555`.
+
+Define the `Mouse` struct on the receiver and write a `load` method to enable deserialization. 
+
+Subscriber callbacks have the signature `std::function<void(iris::Message)>`, i.e., subscriber receives `iris::Message` objects in its callback. Simply call `messsage.get<T>` to deserialize to the type `T`. 
 
 ```cpp
 // subscriber.cpp
@@ -102,14 +145,24 @@ The `receiver` component is subscribes to messages on the endpoint `tcp://localh
 #include <iris/iris.hpp>
 using namespace iris;
 
+struct Mouse {
+  int x, y;
+
+  // Method for deserialization
+  template <typename Archive>
+  void load(Archive& ar) {
+    ar(x, y);
+  }
+};
+
 int main() {
   Component receiver(threads = 2);
   receiver.create_subscriber(endpoints = {"tcp://localhost:5555"},
-                             on_receive = [](Message msg) {
-                                 std::cout << "Received "
-                                           << msg.get<std::string>()
-                                           << "\n";
-                             });
+    on_receive = [](Message msg) {
+      auto position = msg.get<Mouse>();
+      std::cout << "Received ("
+        << position.x << ", " << position.y << ")\n";
+  });
   receiver.start();
 }
 ```
