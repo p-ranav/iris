@@ -27,7 +27,23 @@ iris::Component my_component;
 You can optionally specify the number of threads the component can use in its task system, e.g., this component will spawn 2 executor threads that process records in its message queues. 
 
 ```cpp
-iris::Component my_component(2);
+iris::Component my_component(iris::threads = 2);
+```
+
+Here `iris::threads` is a [NamedType](https://github.com/joboccara/NamedType) parameter. It is not necessary to use named parameters but it certain cases, they improve code readability, e.g.,:
+
+```cpp
+using namespace iris;
+// Works but not very readable:
+// component.create_subscriber("tcp://localhost:5555", "Foo", 500, [] (Message msg) {});
+
+// More readable:
+component.create_subscriber(endpoints = {"tcp://localhost:5555"},
+                            filter = "Foo",
+                            timeout = 500,
+                            on_receive = [] (Message msg) {}
+                            );
+
 ```
 
 Start the component by calling `.start()`
