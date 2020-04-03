@@ -133,9 +133,7 @@ int main() {
 }
 ```
 
-Now let's write a `recevier` component. Our `receiver` component will subscribe to messages on the endpoint `tcp://localhost:5555`.
-
-Define the `Mouse` struct on the receiver and write a `load` method to enable deserialization. 
+Now let's write a `recevier` component. Define the `Mouse` struct and write a `load` method to enable deserialization. 
 
 Subscriber callbacks have the signature `std::function<void(iris::Message)>`, i.e., subscriber receives `iris::Message` objects in its callback. Simply call `messsage.get<T>` to deserialize to the type `T`. 
 
