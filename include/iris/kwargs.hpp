@@ -24,7 +24,7 @@ namespace iris {
 static Endpoints endpoints;
 }
 
-using TimeoutMs = fluent::NamedType<unsigned int, struct TimeoutMsTag>;
+using TimeoutMs = fluent::NamedType<int, struct TimeoutMsTag>;
 namespace iris {
 static const TimeoutMs::argument timeout;
 }
