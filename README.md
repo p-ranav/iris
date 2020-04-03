@@ -166,7 +166,3 @@ int main() {
   receiver.start();
 }
 ```
-
-<p align="center">
-  <img src="img/pubsub.gif"/>  
-</p>
