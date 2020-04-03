@@ -53,7 +53,7 @@ component.create_subscriber(endpoints = {"tcp://localhost:5555"},
 
 `iris` components can be triggered periodically by timers. To create a timer, call `component.set_interval`. The following component is triggered every 500ms. Timers are an excellent way to kickstart a communication pattern, e.g., publish messages periodically to multiple sinks.
 
-Remember to call `Component.start()` - This is the method that starts the component executor threads, listener threads, timers etc.
+Call `Component.start()` to start the component - This starts the component executor threads, listener threads, timers etc.
 
 ```cpp
 #include <iostream>
