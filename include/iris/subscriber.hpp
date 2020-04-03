@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <iris/component.hpp>
+#include <iris/message.hpp>
 
 namespace iris {
 
@@ -21,7 +22,7 @@ public:
 template <typename E, typename S>
 inline subscriber Component::create_subscriber(E &&endpoints, S &&fn) {
   lock_t lock{subscribers_mutex_};
-  auto s = std::make_unique<SubscriberImpl>(
+  auto s = std::make_unique<internal::SubscriberImpl>(
       subscriber_count_.load(), this, context_,
       std::forward<Endpoints>(Endpoints(endpoints)), /* filter */ "",
       operation::SubscriberOperation{.fn = SubscriberFunction(fn).get()},
@@ -30,7 +31,7 @@ inline subscriber Component::create_subscriber(E &&endpoints, S &&fn) {
   return subscriber(subscriber_count_++, this);
 }
 
-inline SubscriberImpl::SubscriberImpl(
+inline internal::SubscriberImpl::SubscriberImpl(
     std::uint8_t id, Component *parent, zmq::context_t &context,
     Endpoints endpoints, std::string filter,
     const operation::SubscriberOperation &fn, TaskSystem &executor)
@@ -45,7 +46,7 @@ inline SubscriberImpl::SubscriberImpl(
   socket_->setsockopt(ZMQ_RCVTIMEO, 0);
 }
 
-inline void SubscriberImpl::recv() {
+inline void internal::SubscriberImpl::recv() {
   while (!done_) {
     zmq::message_t received_message;
     socket_->recv(&received_message);
@@ -62,7 +63,7 @@ inline void SubscriberImpl::recv() {
   }
 }
 
-inline void SubscriberImpl::start() {
+inline void internal::SubscriberImpl::start() {
   thread_ = std::thread(&SubscriberImpl::recv, this);
   started_ = true;
 }

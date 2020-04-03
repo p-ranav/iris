@@ -20,7 +20,7 @@ class Component {
       interval_timers_;
   std::unordered_map<std::uint8_t, std::unique_ptr<internal::PublisherImpl>>
       publishers_;
-  std::unordered_map<std::uint8_t, std::unique_ptr<SusbcriberImpl>>
+  std::unordered_map<std::uint8_t, std::unique_ptr<internal::SubscriberImpl>>
       subscribers_;
   zmq::context_t context_{zmq::context_t(1)};
   std::mutex timers_mutex_, publishers_mutex_, subscribers_mutex_;
@@ -47,7 +47,7 @@ class Component {
     subscribers_[subscriber_id]->stop();
   }
 
-  friend class subscriber_message;
+  friend class Message;
   template <typename T, typename U = std::string>
   T deserialize(std::uint8_t subscriber_id, U &&message) {
     lock_t lock{subscribers_mutex_};

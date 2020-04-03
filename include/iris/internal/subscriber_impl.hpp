@@ -12,7 +12,9 @@
 
 namespace iris {
 
-class SusbcriberImpl {
+namespace internal {
+
+class SubscriberImpl {
   std::uint8_t id_;
   class Component *component_;
   std::reference_wrapper<zmq::context_t> context_;
@@ -29,12 +31,12 @@ class SusbcriberImpl {
   std::stringstream stream_;
 
 public:
-  SusbcriberImpl(std::uint8_t id, Component *parent, zmq::context_t &context,
+  SubscriberImpl(std::uint8_t id, Component *parent, zmq::context_t &context,
                  Endpoints endpoints, std::string filter,
                  const operation::SubscriberOperation &fn,
                  TaskSystem &executor);
 
-  ~SusbcriberImpl() {
+  ~SubscriberImpl() {
     if (started_)
       thread_.join();
     socket_->close();
@@ -55,5 +57,7 @@ public:
 
   void stop() { done_ = true; }
 };
+
+}
 
 } // namespace iris
