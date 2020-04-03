@@ -59,3 +59,12 @@ Each `iris::Component` can have one or more of the following:
 * Publishers, subscribers, facets (clients), and receptacles (servers)
 * State variables
 
+### Periodic Timers
+
+`iris` components can be triggered periodically by timers. To create a timer, call `component.set_interval`. The following component is triggered every 500ms. Timers are an excellent way to kickstart a communication pattern, e.g., publish messages periodically to multiple sinks.
+
+```cpp
+my_component.set_interval(period = 500, 
+                          on_expiry = [] { std::cout << "Timer fired!\n"; });
+```
+
