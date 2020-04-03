@@ -51,6 +51,8 @@ Here's the anatomy of an `iris::Component`. `iris` components can have a variety
 
 An _operation_ is an abstraction for the different tasks undertaken by a component.  These tasks are implemented by the component’s source code written by the developer. Application developers provide the functional, business-logic code that implements operations on local state variables and inputs received on component ports. 
 
+Operation requests (e.g., timer expired so please call my callback) are serviced by one or more executor threads that make up the component's task system. 
+
 <p align="center">
   <img height="500" src="img/iriscom.png"/>  
 </p>
