@@ -30,9 +30,7 @@ You can optionally specify the number of threads the component can use in its ta
 iris::Component my_component(iris::threads = 2);
 ```
 
-### Note on named parameters
-
-Here `iris::threads` is a [NamedType](https://github.com/joboccara/NamedType) parameter. It is not necessary to use named parameters but it certain cases, they improve code readability, e.g.,:
+**NOTE: ** Here `iris::threads` is a [NamedType](https://github.com/joboccara/NamedType) parameter. It is not necessary to use named parameters but it certain cases, they improve code readability, e.g.,:
 
 ```cpp
 using namespace iris;
@@ -47,14 +45,6 @@ component.create_subscriber(endpoints = {"tcp://localhost:5555"},
                             );
 
 ```
-
-Start the component by calling `.start()`
-
-```cpp
-my_component.start();
-```
-
-This will initialize the task system and create threads for each of listener port and timer. Since this is an empty component, it will do nothing. 
 
 ## Time-Triggered Operations
 
