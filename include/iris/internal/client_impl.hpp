@@ -48,9 +48,6 @@ public:
     zmq::message_t reply;
     socket_->recv(&reply);
     const auto response = std::string(static_cast<char*>(reply.data()), reply.size());
-    // std::stringstream response_stream;
-    // response_stream << response;
-    // cereal::PortableBinaryInputArchive response_archive(response_stream);
     Response result;
     result.payload_ = response;
     result.client_id_ = id_;
@@ -70,12 +67,8 @@ public:
     zmq::message_t reply;
     socket_->recv(reply);
     const auto response = std::string(static_cast<char*>(reply.data()), reply.size());
-    // std::cout << response << std::endl;
-    // std::stringstream stream;
-    // stream << response;
-    // cereal::PortableBinaryInputArchive response_archive(stream);
     Response result;
-    result.payload_ = response; // (result);
+    result.payload_ = response;
     result.client_id_ = id_;
     result.component_ = component_;
     return std::move(result);
