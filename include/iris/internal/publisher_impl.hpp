@@ -30,10 +30,10 @@ public:
 
   ~PublisherImpl() { socket_->close(); }
 
-  template <typename Message> void send(Message &&message) {
+  template <typename M> void send(M &&message) {
     std::stringstream stream;
     cereal::PortableBinaryOutputArchive archive(stream);
-    archive(message);
+    archive(std::forward<M>(message));
     auto message_str = stream.str();
 
     zmq::message_t message_struct(message_str.length());

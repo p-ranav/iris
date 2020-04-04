@@ -1,6 +1,8 @@
 #pragma once
 #include <functional>
 #include <iris/message.hpp>
+#include <iris/request.hpp>
+#include <iris/response.hpp>
 #include <iris/named_type/named_type.hpp>
 
 using Threads = fluent::NamedType<unsigned, struct ThreadsTag>;
@@ -33,4 +35,10 @@ using SubscriberFunction = fluent::NamedType<std::function<void(iris::Message)>,
                                              struct SubscriberFunctionTag>;
 namespace iris {
 static const SubscriberFunction::argument on_receive;
+}
+
+using ServerFunction = fluent::NamedType<std::function<iris::Response(iris::Request)>,
+                                             struct ServerFunctionTag>;
+namespace iris {
+static const ServerFunction::argument on_request;
 }

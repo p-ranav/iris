@@ -1,6 +1,8 @@
 #pragma once
 #include <functional>
 #include <iris/message.hpp>
+#include <iris/request.hpp>
+#include <iris/response.hpp>
 #include <string>
 #include <variant>
 
@@ -15,6 +17,11 @@ struct TimerOperation {
 struct SubscriberOperation {
   std::function<void(Message)> fn;
   Message arg;
+};
+
+struct ServerOperation {
+  std::function<Response(Request)> fn;
+  Request arg;
 };
 
 } // namespace operation
