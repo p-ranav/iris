@@ -102,6 +102,8 @@ public:
     for (auto &thread : executor_.threads_)
       thread.join();
     subscribers_.clear();
+    servers_.clear();
+    clients_.clear();
     publishers_.clear();
     interval_timers_.clear();
   }

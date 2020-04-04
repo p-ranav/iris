@@ -5,15 +5,12 @@ using namespace iris;
 
 int main() {
   Component c(threads = 1);
+  c.start();
   auto client = c.create_client(endpoints = {"tcp://127.0.0.1:5510"},
                                 timeout = 2500, retries = 3);
-
-  c.start();
-
   std::string request = "R2 552927";
   std::cout << "Sending request with catalog# " << request << std::endl;
   auto response = client.send(request);
-
   auto album = response.get<Album>();
   std::cout << "- Received album:\n";
   std::cout << "    Name: " << album.name << "\n";
@@ -25,7 +22,5 @@ int main() {
     std::cout << "      " << 
               i << ". " << album.tracks[i] << "\n";
   }
-  std::cout << std::endl;
-  
   c.stop();
 }
