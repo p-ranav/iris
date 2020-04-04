@@ -33,9 +33,8 @@ inline Server Component::create_server(E &&endpoints, T &&timeout, S &&fn) {
 
 template <typename E, typename T, typename S>
 inline internal::ServerImpl::ServerImpl(std::uint8_t id, Component *parent,
-                                        zmq::context_t &context,
-                                        E&& endpoints, T&& timeout,
-                                        S &&fn,
+                                        zmq::context_t &context, E &&endpoints,
+                                        T &&timeout, S &&fn,
                                         TaskSystem &executor)
     : id_(id), component_(parent), context_(context),
       endpoints_(std::move(endpoints)), fn_(fn), executor_(executor) {

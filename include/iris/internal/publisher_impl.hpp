@@ -19,8 +19,7 @@ class PublisherImpl {
 
 public:
   template <typename E>
-  PublisherImpl(zmq::context_t &context, E&& endpoints,
-                TaskSystem &executor)
+  PublisherImpl(zmq::context_t &context, E &&endpoints, TaskSystem &executor)
       : context_(context), endpoints_(std::move(endpoints)),
         executor_(executor) {
     socket_ = std::make_unique<zmq::socket_t>(context_, ZMQ_PUB);

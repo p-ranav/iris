@@ -23,8 +23,7 @@ class PeriodicTimerImpl {
 
 public:
   template <typename P, typename T>
-  PeriodicTimerImpl(P&& period_ms, T &&fn,
-                    TaskSystem &executor)
+  PeriodicTimerImpl(P &&period_ms, T &&fn, TaskSystem &executor)
       : period_ms_(period_ms), fn_(fn), executor_(executor), execute_(false),
         thread_({}) {}
 

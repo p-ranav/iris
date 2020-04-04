@@ -34,8 +34,7 @@ class SubscriberImpl {
 public:
   template <typename E, typename T, typename S>
   SubscriberImpl(std::uint8_t id, Component *parent, zmq::context_t &context,
-                 E&& endpoints, std::string filter, T&& timeout,
-                 S &&fn,
+                 E &&endpoints, std::string filter, T &&timeout, S &&fn,
                  TaskSystem &executor);
 
   ~SubscriberImpl() {
