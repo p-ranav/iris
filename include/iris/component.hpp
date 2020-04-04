@@ -169,7 +169,7 @@ void TaskSystem::run(unsigned i) {
       auto request = (*server_op).arg;
       (*server_op).fn(request, response);
       // Send response back to client
-      request.component_->respond(request.server_id_, std::move(response));
+      request.component_->respond(request.server_id_, response);
     }
   }
 }

@@ -16,10 +16,10 @@ int main() {
                        "Electric Funeral", "Hand of Doom",
                        "Jack the Stripper / Fairies Wear Boots"}};
 
-  Component music_tag_component;
+  Component music_tag_component(1);
   music_tag_component.create_server(
       endpoints = {"tcp://*:5510"}, timeout = 500,
-      on_request = [&](Request request, Response& response) -> Response {
+      on_request = [&](Request request, Response& response) {
         auto catalog_id = request.get<std::string>();
         std::cout << "Received request for catalog # " << catalog_id << "\n";
         response.set(albums[catalog_id]);

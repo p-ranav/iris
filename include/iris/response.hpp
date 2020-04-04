@@ -54,7 +54,7 @@ public:
       archive(response);
     }
     auto serialized = stream.str();
-    payload_ = zmq::message_t(serialized.size());
+    payload_.rebuild(serialized.size());
     memcpy(payload_.data(), serialized.c_str(), serialized.size());
   }
 
