@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include <sstream>
-#include <iris/cereal/archives/portable_binary.hpp>
 
 namespace iris {
 
@@ -28,15 +27,6 @@ public:
     archive(std::forward<T>(response));
     payload_ = stream.str();
     std::cout << "Serialized response payload\n";
-  }
-
-  template <class Archive>
-  std::string save_minimal( Archive const & ) const
-  { return payload_; }
-
-  template <class Archive>
-  void load_minimal( Archive const &, std::string const & value ) { 
-    payload_ = value;
   }
 
   template <typename T> T get() {
