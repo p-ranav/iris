@@ -5,7 +5,7 @@
 #include <iris/operation.hpp>
 #include <iris/task_system.hpp>
 #include <memory>
-#include <zmq.hpp>
+#include <iris/cppzmq/zmq.hpp>
 
 namespace iris {
 

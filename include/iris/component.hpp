@@ -12,7 +12,7 @@
 #include <sstream>
 #include <unordered_map>
 #include <vector>
-#include <zmq.hpp>
+#include <iris/cppzmq/zmq.hpp>
 
 namespace iris {
 

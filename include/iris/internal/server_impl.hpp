@@ -10,7 +10,7 @@
 #include <queue>
 #include <string>
 #include <vector>
-#include <zmq.hpp>
+#include <iris/cppzmq/zmq.hpp>
 
 namespace iris {
 
