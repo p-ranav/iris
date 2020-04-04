@@ -1,6 +1,7 @@
 #pragma once
 #include <sstream>
 #include <string>
+#include <iris/cereal/archives/portable_binary.hpp>
 
 namespace iris {
 
