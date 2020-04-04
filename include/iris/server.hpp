@@ -77,7 +77,7 @@ inline void internal::ServerImpl::start() {
 }
 
 template <typename T> inline T Request::get() {
-  return component_->get<T>(server_id_, payload_);
+  return component_->get_request<T>(server_id_, payload_);
 }
 
 } // namespace iris

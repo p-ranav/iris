@@ -57,7 +57,7 @@ class Component {
 
   friend class Message;
   template <typename T, typename U = std::string>
-  T get(std::uint8_t subscriber_id, U &&message) {
+  T get_message(std::uint8_t subscriber_id, U &&message) {
     lock_t lock{subscribers_mutex_};
     return subscribers_[subscriber_id]->get<T>(std::forward<U>(message));
   }
@@ -71,6 +71,15 @@ class Component {
   }
 
   friend class Server;
+
+  friend class Request;
+  template <typename T, typename U = std::string>
+  T get_request(std::uint8_t server_id, U &&request) {
+    lock_t lock{servers_mutex_};
+    return servers_[server_id]->get<T>(std::forward<U>(request));
+  }
+
+  friend class Response;
   std::atomic_uint8_t server_count_{0};
   template <typename Response>
   void respond(std::uint8_t server_id, Response &&response) {

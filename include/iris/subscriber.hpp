@@ -71,7 +71,7 @@ inline void internal::SubscriberImpl::start() {
 }
 
 template <typename T> inline T Message::get() {
-  return component_->get<T>(subscriber_id_, payload_);
+  return component_->get_message<T>(subscriber_id_, payload_);
 }
 
 } // namespace iris
