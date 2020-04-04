@@ -2,6 +2,7 @@
 #include <atomic>
 #include <functional>
 #include <iris/cereal/archives/portable_binary.hpp>
+#include <iris/kwargs.hpp>
 #include <iris/operation.hpp>
 #include <iris/task_system.hpp>
 #include <memory>
@@ -32,8 +33,7 @@ class SubscriberImpl {
 
 public:
   SubscriberImpl(std::uint8_t id, Component *parent, zmq::context_t &context,
-                 Endpoints endpoints, std::string filter,
-                 TimeoutMs timeout,
+                 Endpoints endpoints, std::string filter, TimeoutMs timeout,
                  const operation::SubscriberOperation &fn,
                  TaskSystem &executor);
 

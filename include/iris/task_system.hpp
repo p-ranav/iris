@@ -15,22 +15,7 @@ class TaskSystem {
   std::atomic<bool> done_{0};
   friend class Component;
 
-  void run(unsigned i) {
-    while (!done_) {
-      operation_t op;
-      for (unsigned n = 0; n != count_; ++n) {
-        if (queue_[(i + n) % count_].try_pop(op))
-          break;
-      }
-      if (!valid_operation(op) && !queue_[i].try_pop(op))
-        continue;
-      if (auto void_op = std::get_if<operation::TimerOperation>(&op))
-        (*void_op).fn();
-      else if (auto subscriber_op =
-                   std::get_if<operation::SubscriberOperation>(&op))
-        (*subscriber_op).fn(std::move((*subscriber_op).arg));
-    }
-  }
+  void run(unsigned i);
 
   bool valid_operation(operation_t &op) {
     if (std::holds_alternative<operation::TimerOperation>(op)) {
@@ -40,6 +25,11 @@ class TaskSystem {
         return false;
     } else if (std::holds_alternative<operation::SubscriberOperation>(op)) {
       if (std::get<operation::SubscriberOperation>(op).fn)
+        return true;
+      else
+        return false;
+    } else if (std::holds_alternative<operation::ServerOperation>(op)) {
+      if (std::get<operation::ServerOperation>(op).fn)
         return true;
       else
         return false;
@@ -64,14 +54,16 @@ public:
   void stop() { done_ = true; }
 
   template <typename F> void async_(F &&f) {
-    if (done_)
-      return;
-    auto i = index_++;
-    for (unsigned n = 0; n != count_; ++n) {
-      if (queue_[(i + n) % count_].try_push(std::forward<F>(f)))
+    while (!done_) {
+      auto i = index_++;
+      for (unsigned n = 0; n != count_; ++n) {
+        if (queue_[(i + n) % count_].try_push(std::forward<F>(f)))
+          return;
+      }
+      if (queue_[i % count_].try_push(std::forward<F>(f)))
         return;
+      index_ = 0;
     }
-    queue_[i % count_].try_push(std::forward<F>(f));
   }
 };
 

@@ -25,15 +25,15 @@ public:
     socket_ = std::make_unique<zmq::socket_t>(context_, ZMQ_PUB);
     for (auto &e : endpoints_)
       socket_->bind(e);
-    socket_->setsockopt(ZMQ_SNDTIMEO, 0);
+    socket_->set(zmq::sockopt::sndtimeo, 0);
   }
 
   ~PublisherImpl() { socket_->close(); }
 
-  template <typename Message> void send(Message &&message) {
+  template <typename M> void send(M &&message) {
     std::stringstream stream;
     cereal::PortableBinaryOutputArchive archive(stream);
-    archive(message);
+    archive(std::forward<M>(message));
     auto message_str = stream.str();
 
     zmq::message_t message_struct(message_str.length());
