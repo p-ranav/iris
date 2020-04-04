@@ -117,6 +117,9 @@ public:
     for (auto &[_, v] : subscribers_) {
       v->start();
     }
+    for (auto &[_, v] : servers_) {
+      v->start();
+    }
     for (auto &[_, v] : interval_timers_) {
       v->start();
     }
@@ -125,6 +128,10 @@ public:
   void stop() {
     executor_.stop();
     for (auto &[_, v] : subscribers_) {
+      if (v)
+        v->stop();
+    }
+    for (auto &[_, v] : servers_) {
       if (v)
         v->stop();
     }
@@ -153,6 +160,7 @@ void TaskSystem::run(unsigned i) {
                   std::get_if<operation::ServerOperation>(&op)) {
       auto request = (*server_op).arg;
       auto response = (*server_op).fn(request);
+      std::cout << "Here\n";
       // Send response back to client
       request.component_->respond(request.server_id_, std::move(response));
     }

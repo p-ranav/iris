@@ -50,8 +50,8 @@
 #include <functional>
 #include <iris/cereal/details/polymorphic_impl_fwd.hpp>
 #include <iris/cereal/details/static_object.hpp>
-#include <iris/cereal/types/memory.hpp"
-#include <iris/cereal/types/string.hpp"
+#include <iris/cereal/types/memory.hpp>
+#include <iris/cereal/types/string.hpp>
 #include <limits>
 #include <map>
 #include <set>

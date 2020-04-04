@@ -44,13 +44,15 @@ inline internal::ServerImpl::ServerImpl(
   for (auto &e : endpoints_) {
     socket_->bind(e);
   }
-  socket_->setsockopt(ZMQ_RCVTIMEO, timeout.get());
+  socket_->set(zmq::sockopt::rcvtimeo, timeout.get());
 }
 
 inline void internal::ServerImpl::recv() {
   while (!done_) {
+    while(!ready_) {}
     zmq::message_t received_message;
-    socket_->recv(&received_message);
+    socket_->recv(received_message);
+    ready_ = false;
     const auto message = std::string(
         static_cast<char *>(received_message.data()), received_message.size());
     if (message.length() > 0) {
@@ -67,6 +69,7 @@ inline void internal::ServerImpl::recv() {
 inline void internal::ServerImpl::start() {
   thread_ = std::thread(&ServerImpl::recv, this);
   started_ = true;
+  ready_ = true;
 }
 
 template <typename T> inline T Request::get() {

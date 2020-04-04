@@ -27,9 +27,7 @@ class ServerImpl {
   std::thread thread_;
   std::atomic_bool started_{false};
   std::atomic_bool done_{false};
-
-  // Member variables for deserialization
-  std::stringstream stream_;
+  std::atomic_bool ready_{false};
 
 public:
   ServerImpl(std::uint8_t id, Component *parent, zmq::context_t &context,
@@ -46,8 +44,9 @@ public:
   }
 
   template <typename T, typename U = std::string> T get(U &&request) {
-    stream_ << request;
-    cereal::PortableBinaryInputArchive archive(stream_);
+    std::stringstream stream;
+    stream << request;
+    cereal::PortableBinaryInputArchive archive(stream);
     T result;
     archive(result);
     return std::move(result);
@@ -56,13 +55,17 @@ public:
   void recv();
 
   template <typename Response> void send(Response &&response) {
-    stream_.clear();
-    cereal::JSONOutputArchive archive(stream_);
-    archive(response);
-    auto response_str = stream_.str();
+    std::cout << "Sending response back to client\n";
+    std::cout << response.payload_ << std::endl;
+    // std::stringstream stream;
+    // cereal::JSONOutputArchive archive(stream);
+    // archive(response);
+    const auto response_str = response.payload_; // stream.str();
+    std::cout << "Serialized response: " << response_str << std::endl;
     zmq::message_t reply(response_str.length());
     memcpy(reply.data(), response_str.c_str(), response_str.length());
     socket_->send(reply);
+    ready_ = true;
   }
 
   void start();

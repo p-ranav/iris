@@ -1,12 +1,11 @@
 #pragma once
 #include <functional>
-#include <iris/cereal/archives/json.hpp>
+#include <iris/cereal/archives/portable_binary.hpp>
 #include <iris/kwargs.hpp>
 #include <iris/operation.hpp>
 #include <iris/task_system.hpp>
 #include <memory>
 #include <zmq.hpp>
-#include <iostream>
 
 namespace iris {
 
@@ -19,7 +18,6 @@ class ClientImpl {
   std::reference_wrapper<TaskSystem> executor_;
   std::unique_ptr<zmq::socket_t> socket_;
   Endpoints endpoints_;
-  std::stringstream stream_;
 
 public:
   ClientImpl(zmq::context_t &context, Endpoints endpoints,
@@ -30,7 +28,7 @@ public:
     socket_ = std::make_unique<zmq::socket_t>(context_, ZMQ_REQ);
     for (auto &e : endpoints_)
       socket_->connect(e);
-    socket_->setsockopt(ZMQ_RCVTIMEO, timeout.get());
+    socket_->set(zmq::sockopt::rcvtimeo, timeout.get());
   }
 
   ~ClientImpl() { socket_->close(); }
@@ -50,10 +48,11 @@ public:
     zmq::message_t reply;
     socket_->recv(&reply);
     const auto response = std::string(static_cast<char*>(reply.data()), reply.size());
-    stream_ << response;
-    cereal::JSONInputArchive response_archive(stream_);
+    // std::stringstream response_stream;
+    // response_stream << response;
+    // cereal::PortableBinaryInputArchive response_archive(response_stream);
     Response result;
-    response_archive(result);
+    result.payload_ = response;
     result.client_id_ = id_;
     result.component_ = component_;
     return std::move(result);
@@ -66,17 +65,17 @@ public:
     memcpy(message_struct.data(), message, strlen(message));
     socket_->send(std::move(message_struct));
 
-    std::cout << "Here\n";
-
     // Wait for response
     // Deserialize as Response type and return to client
     zmq::message_t reply;
-    socket_->recv(&reply);
+    socket_->recv(reply);
     const auto response = std::string(static_cast<char*>(reply.data()), reply.size());
-    stream_ << response;
-    cereal::JSONInputArchive response_archive(stream_);
+    // std::cout << response << std::endl;
+    // std::stringstream stream;
+    // stream << response;
+    // cereal::PortableBinaryInputArchive response_archive(stream);
     Response result;
-    response_archive(result);
+    result.payload_ = response; // (result);
     result.client_id_ = id_;
     result.component_ = component_;
     return std::move(result);

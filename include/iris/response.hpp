@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include <sstream>
+#include <iris/cereal/archives/portable_binary.hpp>
 
 namespace iris {
 
@@ -12,6 +14,7 @@ class Response {
   class Component *component_;
   std::uint8_t client_id_;
   friend class internal::ClientImpl;
+  friend class internal::ServerImpl;
 
 public:
 
@@ -24,19 +27,26 @@ public:
     cereal::PortableBinaryOutputArchive archive(stream);
     archive(std::forward<T>(response));
     payload_ = stream.str();
+    std::cout << "Serialized response payload\n";
   }
 
-  template <typename Archive>
-  void save(Archive& ar) const {
-    ar(payload_);
+  template <class Archive>
+  std::string save_minimal( Archive const & ) const
+  { return payload_; }
+
+  template <class Archive>
+  void load_minimal( Archive const &, std::string const & value ) { 
+    payload_ = value;
   }
 
-  template <typename Archive>
-  void load(Archive& ar) {
-    ar(payload_);
+  template <typename T> T get() {
+    std::stringstream stream;
+    stream << payload_;
+    cereal::PortableBinaryInputArchive archive(stream);
+    T result;
+    archive(result);
+    return std::move(result);
   }
-
-  template <typename T> T get();
 };
 
 template <> inline Response::Response(std::string&& response) {
