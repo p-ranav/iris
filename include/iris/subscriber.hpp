@@ -20,7 +20,8 @@ public:
 };
 
 template <typename E, typename T, typename S>
-inline Subscriber Component::create_subscriber(E &&endpoints, T&& timeout, S &&fn) {
+inline Subscriber Component::create_subscriber(E &&endpoints, T &&timeout,
+                                               S &&fn) {
   lock_t lock{subscribers_mutex_};
   auto s = std::make_unique<internal::SubscriberImpl>(
       subscriber_count_.load(), this, context_,
@@ -34,8 +35,7 @@ inline Subscriber Component::create_subscriber(E &&endpoints, T&& timeout, S &&f
 
 inline internal::SubscriberImpl::SubscriberImpl(
     std::uint8_t id, Component *parent, zmq::context_t &context,
-    Endpoints endpoints, std::string filter,
-    TimeoutMs timeout,
+    Endpoints endpoints, std::string filter, TimeoutMs timeout,
     const operation::SubscriberOperation &fn, TaskSystem &executor)
     : id_(id), component_(parent), context_(context),
       endpoints_(std::move(endpoints)), filter_(std::move(filter)), fn_(fn),

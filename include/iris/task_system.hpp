@@ -54,14 +54,16 @@ public:
   void stop() { done_ = true; }
 
   template <typename F> void async_(F &&f) {
-    if (done_)
-      return;
-    auto i = index_++;
-    for (unsigned n = 0; n != count_; ++n) {
-      if (queue_[(i + n) % count_].try_push(std::forward<F>(f)))
+    while (!done_) {
+      auto i = index_++;
+      for (unsigned n = 0; n != count_; ++n) {
+        if (queue_[(i + n) % count_].try_push(std::forward<F>(f)))
+          return;
+      }
+      if (queue_[i % count_].try_push(std::forward<F>(f)))
         return;
+      index_ = 0;
     }
-    queue_[i % count_].try_push(std::forward<F>(f));
   }
 };
 

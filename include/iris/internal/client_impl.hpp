@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include <iostream>
 #include <iris/cereal/archives/portable_binary.hpp>
 #include <iris/kwargs.hpp>
 #include <iris/operation.hpp>
@@ -18,17 +19,20 @@ class ClientImpl {
   std::reference_wrapper<TaskSystem> executor_;
   std::unique_ptr<zmq::socket_t> socket_;
   Endpoints endpoints_;
+  TimeoutMs timeout_;
+  unsigned int retries_{10};
 
 public:
-  ClientImpl(zmq::context_t &context, Endpoints endpoints,
-                TimeoutMs timeout,
-                TaskSystem &executor)
+  ClientImpl(zmq::context_t &context, Endpoints endpoints, TimeoutMs timeout,
+             TaskSystem &executor)
       : context_(context), endpoints_(std::move(endpoints)),
-        executor_(executor) {
+        executor_(executor), timeout_(timeout) {
     socket_ = std::make_unique<zmq::socket_t>(context_, ZMQ_REQ);
     for (auto &e : endpoints_)
       socket_->connect(e);
-    socket_->set(zmq::sockopt::rcvtimeo, timeout.get());
+    socket_->set(zmq::sockopt::rcvtimeo, timeout_.get());
+    int linger = 0;
+    socket_->set(zmq::sockopt::linger, linger);
   }
 
   ~ClientImpl() { socket_->close(); }
@@ -47,7 +51,8 @@ public:
     // Deserialize as Response type and return to client
     zmq::message_t reply;
     socket_->recv(&reply);
-    const auto response = std::string(static_cast<char*>(reply.data()), reply.size());
+    const auto response =
+        std::string(static_cast<char *>(reply.data()), reply.size());
     Response result;
     result.payload_ = response;
     result.client_id_ = id_;
@@ -60,13 +65,59 @@ public:
   Response send(const char *message) {
     zmq::message_t message_struct(strlen(message));
     memcpy(message_struct.data(), message, strlen(message));
-    socket_->send(std::move(message_struct));
+
+    unsigned retries_left = retries_;
+    while (retries_left) {
+      socket_->send(std::move(message_struct));
+      bool expect_reply = true;
+
+      while (expect_reply) {
+        //  Poll socket for a reply, with timeout
+        zmq::pollitem_t items[] = {
+            {static_cast<void *>(*socket_), 0, ZMQ_POLLIN, 0}};
+        zmq::poll(&items[0], 1, timeout_.get());
+
+        //  If we got a reply, process it
+        if (items[0].revents & ZMQ_POLLIN) {
+          zmq::message_t reply;
+          socket_->recv(reply);
+          const auto response =
+              std::string(static_cast<char *>(reply.data()), reply.size());
+          Response result;
+          result.payload_ = response;
+          result.client_id_ = id_;
+          result.component_ = component_;
+          return std::move(result);
+        } else if (--retries_left == 0) {
+          // std::cout << "E: server seems to be offline, abandoning" <<
+          // std::endl;
+          expect_reply = false;
+          break;
+        } else {
+          // std::cout << "W: no response from server, retrying…" << std::endl;
+          //  Old socket will be confused; close it and open a new one
+          socket_->close();
+          socket_.reset(new zmq::socket_t(context_, ZMQ_REQ));
+          for (auto &e : endpoints_)
+            socket_->connect(e);
+          socket_->set(zmq::sockopt::rcvtimeo, timeout_.get());
+          int linger = 0;
+          socket_->set(zmq::sockopt::linger, linger);
+
+          //  Send request again, on new socket
+          zmq::message_t message_struct(strlen(message));
+          memcpy(message_struct.data(), message, strlen(message));
+          socket_->send(std::move(message_struct));
+        }
+      }
+    }
 
     // Wait for response
     // Deserialize as Response type and return to client
     zmq::message_t reply;
     socket_->recv(reply);
-    const auto response = std::string(static_cast<char*>(reply.data()), reply.size());
+    const auto response =
+        std::string(static_cast<char *>(reply.data()), reply.size());
     Response result;
     result.payload_ = response;
     result.client_id_ = id_;

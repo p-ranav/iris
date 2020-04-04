@@ -1,11 +1,11 @@
 #pragma once
 #include <atomic>
 #include <functional>
-#include <iris/cereal/archives/portable_binary.hpp>
 #include <iris/cereal/archives/json.hpp>
+#include <iris/cereal/archives/portable_binary.hpp>
+#include <iris/kwargs.hpp>
 #include <iris/operation.hpp>
 #include <iris/task_system.hpp>
-#include <iris/kwargs.hpp>
 #include <memory>
 #include <queue>
 #include <string>
@@ -31,10 +31,8 @@ class ServerImpl {
 
 public:
   ServerImpl(std::uint8_t id, Component *parent, zmq::context_t &context,
-                 Endpoints endpoints,
-                 TimeoutMs timeout,
-                 const operation::ServerOperation &fn,
-                 TaskSystem &executor);
+             Endpoints endpoints, TimeoutMs timeout,
+             const operation::ServerOperation &fn, TaskSystem &executor);
 
   ~ServerImpl() {
     if (started_)
@@ -58,7 +56,10 @@ public:
     const auto response_str = response.payload_; // stream.str();
     zmq::message_t reply(response_str.length());
     memcpy(reply.data(), response_str.c_str(), response_str.length());
-    socket_->send(reply);
+    auto success = socket_->send(reply);
+    while (!success) {
+      socket_->send(reply);
+    }
     ready_ = true;
   }
 

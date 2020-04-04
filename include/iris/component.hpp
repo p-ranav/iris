@@ -1,11 +1,11 @@
 #pragma once
 #include <initializer_list>
 #include <iris/cereal/archives/portable_binary.hpp>
+#include <iris/internal/client_impl.hpp>
 #include <iris/internal/periodic_timer_impl.hpp>
 #include <iris/internal/publisher_impl.hpp>
-#include <iris/internal/subscriber_impl.hpp>
-#include <iris/internal/client_impl.hpp>
 #include <iris/internal/server_impl.hpp>
+#include <iris/internal/subscriber_impl.hpp>
 #include <iris/kwargs.hpp>
 #include <iris/task_system.hpp>
 #include <memory>
@@ -31,7 +31,7 @@ class Component {
       servers_;
   zmq::context_t context_{zmq::context_t(1)};
   std::mutex timers_mutex_, publishers_mutex_, subscribers_mutex_,
-    clients_mutex_, servers_mutex_;
+      clients_mutex_, servers_mutex_;
 
   friend class PeriodicTimer;
   std::atomic_uint8_t timer_count_{0};
@@ -59,8 +59,7 @@ class Component {
   template <typename T, typename U = std::string>
   T get(std::uint8_t subscriber_id, U &&message) {
     lock_t lock{subscribers_mutex_};
-    return subscribers_[subscriber_id]->get<T>(
-        std::forward<U>(message));
+    return subscribers_[subscriber_id]->get<T>(std::forward<U>(message));
   }
 
   friend class Client;
@@ -104,10 +103,10 @@ public:
   template <typename E> class Publisher create_publisher(E &&endpoints);
 
   template <typename E, typename T, typename S>
-  class Subscriber create_subscriber(E &&endpoints, T && timeout, S &&fn);
+  class Subscriber create_subscriber(E &&endpoints, T &&timeout, S &&fn);
 
   template <typename E, typename T>
-  class Client create_client(E &&endpoints, T && timeout);
+  class Client create_client(E &&endpoints, T &&timeout);
 
   template <typename E, typename T, typename S>
   class Server create_server(E &&endpoints, T &&timeout, S &&fn);
@@ -154,10 +153,9 @@ void TaskSystem::run(unsigned i) {
     if (auto void_op = std::get_if<operation::TimerOperation>(&op))
       (*void_op).fn();
     else if (auto subscriber_op =
-                  std::get_if<operation::SubscriberOperation>(&op))
+                 std::get_if<operation::SubscriberOperation>(&op))
       (*subscriber_op).fn(std::move((*subscriber_op).arg));
-    else if (auto server_op = 
-                  std::get_if<operation::ServerOperation>(&op)) {
+    else if (auto server_op = std::get_if<operation::ServerOperation>(&op)) {
       auto request = (*server_op).arg;
       auto response = (*server_op).fn(request);
       // Send response back to client

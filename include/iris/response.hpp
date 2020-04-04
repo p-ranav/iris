@@ -1,6 +1,6 @@
 #pragma once
-#include <string>
 #include <sstream>
+#include <string>
 
 namespace iris {
 
@@ -16,11 +16,9 @@ class Response {
   friend class internal::ServerImpl;
 
 public:
-
   Response() : payload_(""), component_(nullptr), client_id_(0) {}
 
-  template <typename T>
-  Response(T && response) {
+  template <typename T> Response(T &&response) {
     // Serialize the response data
     std::stringstream stream;
     cereal::PortableBinaryOutputArchive archive(stream);
@@ -38,7 +36,7 @@ public:
   }
 };
 
-template <> inline Response::Response(std::string&& response) {
+template <> inline Response::Response(std::string &&response) {
   payload_ = std::move(response);
 }
 
