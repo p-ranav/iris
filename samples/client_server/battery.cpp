@@ -12,7 +12,7 @@ struct SetLED {
 };
 
 int main() {
-  Component battery;
+  Component battery(threads = 1);
   auto client = battery.create_client(endpoints = {"tcp://127.0.0.1:5510"},
                                       timeout = 2500, retries = 3);
   battery.set_interval(

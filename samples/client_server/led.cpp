@@ -14,7 +14,7 @@ struct SetLED {
 int main() {
   std::array<bool, 3> led_panel{0, 0, 0};
 
-  Component led_manager;
+  Component led_manager(threads = 1);
   led_manager.create_server(
       endpoints = {"tcp://*:5510"}, timeout = 500,
       on_request = [&](Request req) {
