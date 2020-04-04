@@ -3,6 +3,7 @@
 #include <functional>
 #include <iris/cereal/archives/json.hpp>
 #include <iris/cereal/archives/portable_binary.hpp>
+#include <iris/cppzmq/zmq.hpp>
 #include <iris/kwargs.hpp>
 #include <iris/operation.hpp>
 #include <iris/task_system.hpp>
@@ -10,7 +11,6 @@
 #include <queue>
 #include <string>
 #include <vector>
-#include <iris/cppzmq/zmq.hpp>
 
 namespace iris {
 

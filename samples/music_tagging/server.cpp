@@ -7,21 +7,14 @@ using namespace iris;
 int main() {
 
   std::map<std::string, Album> albums;
-  albums["R2 552927"] = Album {
-      .name = "Paranoid",
-      .artist = "Black Sabbath",
-      .year = 1970,
-      .genre = "Heavy metal",
-      .tracks = {
-        "War Pigs",
-        "Paranoid",
-        "Planet Caravan",
-        "Iron Man",
-        "Electric Funeral",
-        "Hand of Doom",
-        "Jack the Stripper / Fairies Wear Boots"
-    }
-  };
+  albums["R2 552927"] =
+      Album{.name = "Paranoid",
+            .artist = "Black Sabbath",
+            .year = 1970,
+            .genre = "Heavy metal",
+            .tracks = {"War Pigs", "Paranoid", "Planet Caravan", "Iron Man",
+                       "Electric Funeral", "Hand of Doom",
+                       "Jack the Stripper / Fairies Wear Boots"}};
 
   Component music_tag_component;
   music_tag_component.create_server(

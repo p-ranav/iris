@@ -1,13 +1,13 @@
 #pragma once
 #include <functional>
 #include <iostream>
-#include <iris/cereal/archives/portable_binary.hpp>
 #include <iris/cereal/archives/json.hpp>
+#include <iris/cereal/archives/portable_binary.hpp>
+#include <iris/cppzmq/zmq.hpp>
 #include <iris/kwargs.hpp>
 #include <iris/operation.hpp>
 #include <iris/task_system.hpp>
 #include <memory>
-#include <iris/cppzmq/zmq.hpp>
 
 namespace iris {
 
@@ -55,12 +55,8 @@ public:
     std::string genre;
     std::vector<std::string> tracks;
 
-    template <class Archive>
-    void serialize( Archive & ar ) {
-      ar(year);
-    }
-
-};
+    template <class Archive> void serialize(Archive &ar) { ar(year); }
+  };
 
   Response send(const char *message) {
     zmq::message_t message_struct(strlen(message));
@@ -93,7 +89,8 @@ public:
           std::cout << test_result.year << std::endl;
 
           Response result;
-          result.payload_ = std::string(static_cast<char *>(reply.data()), reply.size());
+          result.payload_ =
+              std::string(static_cast<char *>(reply.data()), reply.size());
           result.client_id_ = id_;
           result.component_ = component_;
           return std::move(result);

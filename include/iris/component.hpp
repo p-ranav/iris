@@ -1,6 +1,7 @@
 #pragma once
 #include <initializer_list>
 #include <iris/cereal/archives/portable_binary.hpp>
+#include <iris/cppzmq/zmq.hpp>
 #include <iris/internal/client_impl.hpp>
 #include <iris/internal/periodic_timer_impl.hpp>
 #include <iris/internal/publisher_impl.hpp>
@@ -12,7 +13,6 @@
 #include <sstream>
 #include <unordered_map>
 #include <vector>
-#include <iris/cppzmq/zmq.hpp>
 
 namespace iris {
 
@@ -56,7 +56,7 @@ class Component {
   }
 
   friend class Message;
-  template <typename T, typename U = std::string>
+  template <typename T, typename U>
   T get_message(std::uint8_t subscriber_id, U &&message) {
     lock_t lock{subscribers_mutex_};
     return subscribers_[subscriber_id]->get<T>(std::forward<U>(message));

@@ -9,11 +9,9 @@ struct Album {
   std::string genre;
   std::vector<std::string> tracks;
 
-  template <class Archive>
-  void serialize( Archive & ar ) {
+  template <class Archive> void serialize(Archive &ar) {
     // ar(name);
     // ar(artist);
     ar(year);
   }
-
 };

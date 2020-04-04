@@ -1,11 +1,11 @@
 #pragma once
 #include <functional>
-#include <iris/cereal/archives/portable_binary.hpp>
+#include <iris/cereal/archives/json.hpp>
+#include <iris/cppzmq/zmq.hpp>
 #include <iris/kwargs.hpp>
 #include <iris/operation.hpp>
 #include <iris/task_system.hpp>
 #include <memory>
-#include <iris/cppzmq/zmq.hpp>
 
 namespace iris {
 
@@ -32,20 +32,14 @@ public:
 
   template <typename M> void send(M &&message) {
     std::stringstream stream;
-    cereal::JSONOutputArchive archive(stream);
-    archive(std::forward<M>(message));
+    {
+      cereal::JSONOutputArchive archive(
+          stream, cereal::JSONOutputArchive::Options::NoIndent());
+      archive(message);
+    }
     auto message_str = stream.str();
-
     zmq::message_t message_struct(message_str.length());
     memcpy(message_struct.data(), message_str.c_str(), message_str.length());
-    socket_->send(std::move(message_struct));
-  }
-
-  void send(std::string message) { send(message.c_str()); }
-
-  void send(const char *message) {
-    zmq::message_t message_struct(strlen(message));
-    memcpy(message_struct.data(), message, strlen(message));
     socket_->send(std::move(message_struct));
   }
 };

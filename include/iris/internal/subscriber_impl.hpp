@@ -1,7 +1,8 @@
 #pragma once
 #include <atomic>
 #include <functional>
-#include <iris/cereal/archives/portable_binary.hpp>
+#include <iris/cereal/archives/json.hpp>
+#include <iris/cppzmq/zmq.hpp>
 #include <iris/kwargs.hpp>
 #include <iris/operation.hpp>
 #include <iris/task_system.hpp>
@@ -9,7 +10,6 @@
 #include <queue>
 #include <string>
 #include <vector>
-#include <iris/cppzmq/zmq.hpp>
 
 namespace iris {
 
@@ -28,9 +28,6 @@ class SubscriberImpl {
   std::atomic_bool started_{false};
   std::atomic_bool done_{false};
 
-  // Member variables for deserialization
-  std::stringstream stream_;
-
 public:
   template <typename E, typename T, typename S>
   SubscriberImpl(std::uint8_t id, Component *parent, zmq::context_t &context,
@@ -44,11 +41,15 @@ public:
     started_ = false;
   }
 
-  template <typename T, typename U = std::string> T get(U &&message) {
-    stream_ << message;
-    cereal::JSONInputArchive archive(stream_);
+  template <typename T, typename U> T get(U &&message) {
     T result;
-    archive(result);
+    std::stringstream stream;
+    stream.write(reinterpret_cast<const char *>(message.data()),
+                 message.size());
+    {
+      cereal::JSONInputArchive archive(stream);
+      archive(result);
+    }
     return std::move(result);
   }
 
