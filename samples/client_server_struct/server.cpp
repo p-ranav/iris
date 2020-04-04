@@ -12,7 +12,7 @@ int main() {
   Component receiver(threads = 3);
   int code{0};
   receiver.create_server(
-      endpoints = {"tcp://*:5510"}, timeout = -1,
+      endpoints = {"tcp://*:5510"}, timeout = 500,
       on_request = [&](Request request) {
         std::cout << "Received: " << request.get<std::string>() << std::endl;
         std::cout << "Sending status code: " << code << "\n";

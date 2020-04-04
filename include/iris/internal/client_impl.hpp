@@ -20,13 +20,14 @@ class ClientImpl {
   std::unique_ptr<zmq::socket_t> socket_;
   Endpoints endpoints_;
   TimeoutMs timeout_;
-  unsigned int retries_{10};
+  Retries retries_;
 
 public:
-  ClientImpl(zmq::context_t &context, Endpoints endpoints, TimeoutMs timeout,
-             TaskSystem &executor)
+  template <typename E, typename T, typename R>
+  ClientImpl(zmq::context_t &context, E&& endpoints, T&& timeout,
+             R&& retries, TaskSystem &executor)
       : context_(context), endpoints_(std::move(endpoints)),
-        executor_(executor), timeout_(timeout) {
+        timeout_(timeout), retries_(retries), executor_(executor) {
     socket_ = std::make_unique<zmq::socket_t>(context_, ZMQ_REQ);
     for (auto &e : endpoints_)
       socket_->connect(e);
@@ -66,7 +67,7 @@ public:
     zmq::message_t message_struct(strlen(message));
     memcpy(message_struct.data(), message, strlen(message));
 
-    unsigned retries_left = retries_;
+    unsigned retries_left = retries_.get();
     while (retries_left) {
       socket_->send(std::move(message_struct));
       bool expect_reply = true;
@@ -89,8 +90,7 @@ public:
           result.component_ = component_;
           return std::move(result);
         } else if (--retries_left == 0) {
-          // std::cout << "E: server seems to be offline, abandoning" <<
-          // std::endl;
+          // std::cout << "E: server seems to be offline, abandoning" << std::endl;
           expect_reply = false;
           break;
         } else {

@@ -105,8 +105,8 @@ public:
   template <typename E, typename T, typename S>
   class Subscriber create_subscriber(E &&endpoints, T &&timeout, S &&fn);
 
-  template <typename E, typename T>
-  class Client create_client(E &&endpoints, T &&timeout);
+  template <typename E, typename T, typename R>
+  class Client create_client(E &&endpoints, T &&timeout, R &&retries);
 
   template <typename E, typename T, typename S>
   class Server create_server(E &&endpoints, T &&timeout, S &&fn);

@@ -47,8 +47,7 @@ inline internal::ServerImpl::ServerImpl(std::uint8_t id, Component *parent,
 
 inline void internal::ServerImpl::recv() {
   while (!done_) {
-    while (!ready_) {
-    }
+    while (!ready_) {}
     zmq::message_t received_message;
     auto ret = socket_->recv(received_message);
     if (ret.has_value()) {
