@@ -15,7 +15,7 @@ int main() {
                                 timeout = 2500, retries = 3);
   // TODO: Consider adding a failure callback
   c.set_interval(
-      period = 50, on_expiry = [&] {
+      period = 50, on_triggered = [&] {
         std::cout << "Sending Ping\n";
         auto response = client.send("Ping");
         std::cout << "Received status code: "

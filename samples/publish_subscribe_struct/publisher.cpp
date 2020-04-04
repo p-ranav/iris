@@ -19,7 +19,7 @@ int main() {
   auto p = sender.create_publisher(endpoints = {"tcp://*:5555"});
 
   sender.set_interval(
-      period = 250, on_expiry = [&] {
+      period = 250, on_triggered = [&] {
         Mouse position{.x = x_dist(eng), .y = y_dist(eng)};
 
         p.send(position);

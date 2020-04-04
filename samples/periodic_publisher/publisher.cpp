@@ -10,7 +10,7 @@ public:
   MyPublisher() {
     pub_ = create_publisher(endpoints = {"tcp://*:5555"});
     set_interval(period = 50,
-                 on_expiry = std::bind(&MyPublisher::publish, this));
+                 on_triggered = std::bind(&MyPublisher::publish, this));
   }
 
   void publish() {

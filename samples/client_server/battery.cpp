@@ -16,7 +16,7 @@ int main() {
   auto client = battery.create_client(endpoints = {"tcp://127.0.0.1:5510"},
                                       timeout = 2500, retries = 3);
   battery.set_interval(
-      period = 500, on_expiry = [&] {
+      period = 500, on_triggered = [&] {
         auto response = client.send(SetLED{.index = 0, .state = true});
         std::cout << (response.get<bool>() ? "Success" : "Failed") 
                   << std::endl;

@@ -61,7 +61,7 @@ using namespace iris;
 int main() {
   Component my_component;
   my_component.set_interval(period = 500,
-                            on_expiry = [] { std::cout << "Timer fired!\n"; });
+                            on_triggered = [] { std::cout << "Timer fired!\n"; });
   my_component.start();
 }
 ```
@@ -121,7 +121,7 @@ int main() {
   auto p = sender.create_publisher(endpoints = {"tcp://*:5555"});
 
   sender.set_interval(period = 250, 
-    on_expiry = [&] { 
+    on_triggered = [&] { 
         Mouse position {.x = x_dist(eng), .y = y_dist(eng)};
         // Publish the position
         p.send(position);

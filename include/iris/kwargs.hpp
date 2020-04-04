@@ -18,7 +18,7 @@ static const PeriodMs::argument period;
 using TimerFunction =
     fluent::NamedType<std::function<void()>, struct TimerFunctionTag>;
 namespace iris {
-static const TimerFunction::argument on_expiry;
+static const TimerFunction::argument on_triggered;
 }
 
 using Endpoints = std::vector<std::string>;

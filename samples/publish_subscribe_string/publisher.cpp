@@ -8,7 +8,7 @@ int main() {
 
   unsigned i{0};
   sender.set_interval(
-      period = 250, on_expiry = [&] {
+      period = 250, on_triggered = [&] {
         const auto msg = "Hello World " + std::to_string(i);
         p.send(msg);
         std::cout << "Published " << msg << "\n";
