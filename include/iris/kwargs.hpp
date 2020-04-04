@@ -31,6 +31,11 @@ namespace iris {
 static const TimeoutMs::argument timeout;
 }
 
+using Retries = fluent::NamedType<unsigned int, struct RetriesTag>;
+namespace iris {
+static const Retries::argument retries;
+}
+
 using SubscriberFunction = fluent::NamedType<std::function<void(iris::Message)>,
                                              struct SubscriberFunctionTag>;
 namespace iris {
