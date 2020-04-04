@@ -26,7 +26,6 @@ public:
     cereal::PortableBinaryOutputArchive archive(stream);
     archive(std::forward<T>(response));
     payload_ = stream.str();
-    std::cout << "Serialized response payload\n";
   }
 
   template <typename T> T get() {

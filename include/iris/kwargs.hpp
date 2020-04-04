@@ -1,5 +1,4 @@
 #pragma once
-#include <iostream>
 #include <functional>
 #include <iris/message.hpp>
 #include <iris/request.hpp>

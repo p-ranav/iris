@@ -55,13 +55,7 @@ public:
   void recv();
 
   template <typename Response> void send(Response &&response) {
-    std::cout << "Sending response back to client\n";
-    std::cout << response.payload_ << std::endl;
-    // std::stringstream stream;
-    // cereal::JSONOutputArchive archive(stream);
-    // archive(response);
     const auto response_str = response.payload_; // stream.str();
-    std::cout << "Serialized response: " << response_str << std::endl;
     zmq::message_t reply(response_str.length());
     memcpy(reply.data(), response_str.c_str(), response_str.length());
     socket_->send(reply);

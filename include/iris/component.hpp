@@ -160,7 +160,6 @@ void TaskSystem::run(unsigned i) {
                   std::get_if<operation::ServerOperation>(&op)) {
       auto request = (*server_op).arg;
       auto response = (*server_op).fn(request);
-      std::cout << "Here\n";
       // Send response back to client
       request.component_->respond(request.server_id_, std::move(response));
     }

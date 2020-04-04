@@ -13,11 +13,13 @@ struct StatusCode {
 
 int main() {
   Component receiver(threads = 1);
+  int code{0};
   receiver.create_server(endpoints = {"tcp://*:5510"},
     timeout = -1,
-    on_request = [](Request request) {
+    on_request = [&](Request request) {
       std::cout << "Received: " << request.get<std::string>() << std::endl;
-      return StatusCode{.value = 5};
+      std::cout << "Sending status code: " << code << "\n";
+      return StatusCode{.value = code++};
   });
   receiver.start();
 }
