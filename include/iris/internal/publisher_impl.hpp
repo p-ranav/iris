@@ -18,7 +18,8 @@ class PublisherImpl {
   Endpoints endpoints_;
 
 public:
-  PublisherImpl(zmq::context_t &context, Endpoints endpoints,
+  template <typename E>
+  PublisherImpl(zmq::context_t &context, E&& endpoints,
                 TaskSystem &executor)
       : context_(context), endpoints_(std::move(endpoints)),
         executor_(executor) {

@@ -30,9 +30,10 @@ class ServerImpl {
   std::atomic_bool ready_{false};
 
 public:
+  template <typename E, typename T, typename S>
   ServerImpl(std::uint8_t id, Component *parent, zmq::context_t &context,
-             Endpoints endpoints, TimeoutMs timeout,
-             const operation::ServerOperation &fn, TaskSystem &executor);
+             E&& endpoints, T&& timeout,
+             S &&fn, TaskSystem &executor);
 
   ~ServerImpl() {
     if (started_)

@@ -33,10 +33,11 @@ inline Subscriber Component::create_subscriber(E &&endpoints, T &&timeout,
   return Subscriber(subscriber_count_++, this);
 }
 
+template <typename E, typename T, typename S>
 inline internal::SubscriberImpl::SubscriberImpl(
     std::uint8_t id, Component *parent, zmq::context_t &context,
-    Endpoints endpoints, std::string filter, TimeoutMs timeout,
-    const operation::SubscriberOperation &fn, TaskSystem &executor)
+    E&& endpoints, std::string filter, T&& timeout,
+    S&& fn, TaskSystem &executor)
     : id_(id), component_(parent), context_(context),
       endpoints_(std::move(endpoints)), filter_(std::move(filter)), fn_(fn),
       executor_(executor) {

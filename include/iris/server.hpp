@@ -31,10 +31,11 @@ inline Server Component::create_server(E &&endpoints, T &&timeout, S &&fn) {
   return Server(server_count_++, this);
 }
 
+template <typename E, typename T, typename S>
 inline internal::ServerImpl::ServerImpl(std::uint8_t id, Component *parent,
                                         zmq::context_t &context,
-                                        Endpoints endpoints, TimeoutMs timeout,
-                                        const operation::ServerOperation &fn,
+                                        E&& endpoints, T&& timeout,
+                                        S &&fn,
                                         TaskSystem &executor)
     : id_(id), component_(parent), context_(context),
       endpoints_(std::move(endpoints)), fn_(fn), executor_(executor) {

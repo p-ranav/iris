@@ -22,7 +22,8 @@ class PeriodicTimerImpl {
   std::thread thread_;
 
 public:
-  PeriodicTimerImpl(PeriodMs period_ms, const operation::TimerOperation &fn,
+  template <typename P, typename T>
+  PeriodicTimerImpl(P&& period_ms, T &&fn,
                     TaskSystem &executor)
       : period_ms_(period_ms), fn_(fn), executor_(executor), execute_(false),
         thread_({}) {}

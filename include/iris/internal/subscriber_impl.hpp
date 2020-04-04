@@ -32,9 +32,10 @@ class SubscriberImpl {
   std::stringstream stream_;
 
 public:
+  template <typename E, typename T, typename S>
   SubscriberImpl(std::uint8_t id, Component *parent, zmq::context_t &context,
-                 Endpoints endpoints, std::string filter, TimeoutMs timeout,
-                 const operation::SubscriberOperation &fn,
+                 E&& endpoints, std::string filter, T&& timeout,
+                 S &&fn,
                  TaskSystem &executor);
 
   ~SubscriberImpl() {
