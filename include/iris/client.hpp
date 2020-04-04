@@ -21,12 +21,12 @@ public:
 };
 
 template <typename E, typename T, typename R>
-inline Client Component::create_client(E &&endpoints, T &&timeout, R &&retries) {
+inline Client Component::create_client(E &&endpoints, T &&timeout,
+                                       R &&retries) {
   lock_t lock{clients_mutex_};
   auto p = std::make_unique<internal::ClientImpl>(
       context_, std::forward<Endpoints>(Endpoints(endpoints)),
-      std::forward<T>(TimeoutMs(timeout)), 
-      std::forward<R>(Retries(retries)),
+      std::forward<T>(TimeoutMs(timeout)), std::forward<R>(Retries(retries)),
       executor_);
   clients_.insert(std::make_pair(client_count_.load(), std::move(p)));
   return Client(client_count_++, this);

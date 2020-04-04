@@ -24,10 +24,10 @@ class ClientImpl {
 
 public:
   template <typename E, typename T, typename R>
-  ClientImpl(zmq::context_t &context, E&& endpoints, T&& timeout,
-             R&& retries, TaskSystem &executor)
-      : context_(context), endpoints_(std::move(endpoints)),
-        timeout_(timeout), retries_(retries), executor_(executor) {
+  ClientImpl(zmq::context_t &context, E &&endpoints, T &&timeout, R &&retries,
+             TaskSystem &executor)
+      : context_(context), endpoints_(std::move(endpoints)), timeout_(timeout),
+        retries_(retries), executor_(executor) {
     socket_ = std::make_unique<zmq::socket_t>(context_, ZMQ_REQ);
     for (auto &e : endpoints_)
       socket_->connect(e);
@@ -90,7 +90,8 @@ public:
           result.component_ = component_;
           return std::move(result);
         } else if (--retries_left == 0) {
-          // std::cout << "E: server seems to be offline, abandoning" << std::endl;
+          // std::cout << "E: server seems to be offline, abandoning" <<
+          // std::endl;
           expect_reply = false;
           break;
         } else {
