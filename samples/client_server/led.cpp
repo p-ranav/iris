@@ -17,12 +17,12 @@ int main() {
   Component led_manager(threads = 1);
   led_manager.create_server(
       endpoints = {"tcp://*:5510"}, timeout = 500,
-      on_request = [&](Request req) {
+      on_request = [&](Request req, Response &res) {
         auto request = req.get<SetLED>();
         led_panel[request.index] = request.state;
         std::cout << "Switched " << (request.state ? "ON" : "OFF") << " LED_"
                   << request.index << std::endl;
-        return true;
+        res.set(true);
       });
   led_manager.start();
 }

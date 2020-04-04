@@ -13,10 +13,10 @@ int main() {
   int code{0};
   receiver.create_server(
       endpoints = {"tcp://*:5510"}, timeout = 500,
-      on_request = [&](Request request) {
+      on_request = [&](Request request, Response &res) {
         std::cout << "Received: " << request.get<std::string>() << std::endl;
         std::cout << "Sending status code: " << code << "\n";
-        return StatusCode{.value = code++};
+        res.set(StatusCode{.value = code++});
       });
   receiver.start();
 }

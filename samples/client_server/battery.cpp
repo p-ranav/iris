@@ -18,7 +18,8 @@ int main() {
   battery.set_interval(
       period = 500, on_expiry = [&] {
         auto response = client.send(SetLED{.index = 0, .state = true});
-        std::cout << (response.get<bool>() ? "Success" : "Failed") << std::endl;
+        std::cout << (response.get<bool>() ? "Success" : "Failed") 
+                  << std::endl;
       });
   battery.start();
 }

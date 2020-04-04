@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <iris/cereal/types/vector.hpp>
 
 struct Album {
   std::string name;
@@ -10,8 +11,7 @@ struct Album {
   std::vector<std::string> tracks;
 
   template <class Archive> void serialize(Archive &ar) {
-    // ar(name);
-    // ar(artist);
-    ar(year);
+    ar(name, artist, year, genre);
+    ar(tracks);
   }
 };

@@ -1,7 +1,7 @@
 #pragma once
 #include <iris/cereal/archives/portable_binary.hpp>
 #include <sstream>
-#include <string>
+#include <iris/cppzmq/zmq.hpp>
 
 namespace iris {
 
@@ -10,37 +10,54 @@ class ClientImpl;
 }
 
 class Response {
-  std::string payload_;
+  zmq::message_t payload_;
   class Component *component_;
   std::uint8_t client_id_;
   friend class internal::ClientImpl;
   friend class internal::ServerImpl;
 
 public:
-  Response() : payload_(""), component_(nullptr), client_id_(0) {}
+  Response() {}
 
-  template <typename T> Response(T &&response) {
-    // Serialize the response data
-    std::stringstream stream;
-    cereal::JSONOutputArchive archive(stream);
-    archive(std::forward<T>(response));
-    payload_ = stream.str();
+  Response(const Response &rhs) {
+    payload_.copy(const_cast<Response &>(rhs).payload_);
+    component_ = rhs.component_;
+    client_id_ = rhs.client_id_;
+  }
+
+  Response &operator=(Response rhs) {
+    std::swap(payload_, rhs.payload_);
+    std::swap(component_, rhs.component_);
+    std::swap(client_id_, rhs.client_id_);
+    return *this;
   }
 
   template <typename T> T get() {
-    std::stringstream stream;
-    stream << payload_;
-    cereal::JSONInputArchive archive(stream);
     T result;
-    archive(result);
+    std::stringstream stream;
+    stream.write(reinterpret_cast<const char *>(payload_.data()),
+                 payload_.size());
+    {
+      cereal::JSONInputArchive archive(stream);
+      archive(result);
+    }
     return std::move(result);
   }
+
+  template <typename T>
+  void set(T &&response) {
+    // Serialize the response data
+    std::stringstream stream;
+    {
+      cereal::JSONOutputArchive archive(stream,
+        cereal::JSONOutputArchive::Options::NoIndent());
+      archive(response);
+    }
+    auto serialized = stream.str();
+    payload_ = zmq::message_t(serialized.size());
+    memcpy(payload_.data(), serialized.c_str(), serialized.size());
+  }
+
 };
-
-template <> inline Response::Response(std::string &&response) {
-  payload_ = std::move(response);
-}
-
-template <> inline std::string Response::get() { return payload_; }
 
 }; // namespace iris

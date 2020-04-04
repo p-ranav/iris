@@ -7,6 +7,7 @@
 #include <iris/kwargs.hpp>
 #include <iris/operation.hpp>
 #include <iris/task_system.hpp>
+#include <iris/response.hpp>
 #include <memory>
 
 namespace iris {
@@ -39,28 +40,20 @@ public:
 
   ~ClientImpl() { socket_->close(); }
 
-  template <typename Message> Response send(Message &&message) {
-    std::stringstream stream;
-    cereal::JSONOutputArchive archive(stream);
-    archive(message);
-    send(stream.str().c_str());
+  Response send(const char * request) {
+    return send(std::string(request));
   }
 
-  Response send(std::string message) { send(message.c_str()); }
-
-  struct Album {
-    std::string name;
-    std::string artist;
-    int year;
-    std::string genre;
-    std::vector<std::string> tracks;
-
-    template <class Archive> void serialize(Archive &ar) { ar(year); }
-  };
-
-  Response send(const char *message) {
-    zmq::message_t message_struct(strlen(message));
-    memcpy(message_struct.data(), message, strlen(message));
+  template <typename R> Response send(R &&request) {
+    std::stringstream stream;
+    {
+      cereal::JSONOutputArchive archive(stream,
+        cereal::JSONOutputArchive::Options::NoIndent());
+      archive(request);
+    }
+    auto serialized = stream.str();
+    zmq::message_t message_struct(serialized.size());
+    memcpy(message_struct.data(), serialized.c_str(), serialized.size());
 
     unsigned retries_left = retries_.get();
     while (retries_left) {
@@ -77,20 +70,9 @@ public:
         if (items[0].revents & ZMQ_POLLIN) {
           zmq::message_t reply;
           socket_->recv(reply);
-          const auto response =
-              std::string(static_cast<char *>(reply.data()), reply.size());
-
-          std::stringstream test_stream;
-          test_stream << response;
-          cereal::JSONInputArchive test_archive(test_stream);
-          Album test_result;
-          test_archive(test_result);
-          std::cout << test_result.name << std::endl;
-          std::cout << test_result.year << std::endl;
 
           Response result;
-          result.payload_ =
-              std::string(static_cast<char *>(reply.data()), reply.size());
+          result.payload_ = std::move(reply);
           result.client_id_ = id_;
           result.component_ = component_;
           return std::move(result);
@@ -111,21 +93,21 @@ public:
           socket_->set(zmq::sockopt::linger, linger);
 
           //  Send request again, on new socket
-          zmq::message_t message_struct(strlen(message));
-          memcpy(message_struct.data(), message, strlen(message));
+          zmq::message_t message_struct(serialized.size());
+          memcpy(message_struct.data(), serialized.c_str(), serialized.size());
           socket_->send(std::move(message_struct));
         }
       }
     }
 
+    // TODO: Check if server is down and throw to calling business logic
+
     // Wait for response
     // Deserialize as Response type and return to client
     zmq::message_t reply;
     socket_->recv(reply);
-    const auto response =
-        std::string(static_cast<char *>(reply.data()), reply.size());
     Response result;
-    result.payload_ = response;
+    result.payload_ = std::move(reply);
     result.client_id_ = id_;
     result.component_ = component_;
     return std::move(result);

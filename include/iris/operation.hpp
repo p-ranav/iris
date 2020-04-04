@@ -20,7 +20,7 @@ struct SubscriberOperation {
 };
 
 struct ServerOperation {
-  std::function<Response(Request)> fn;
+  std::function<void(Request, Response&)> fn;
   Request arg;
 };
 

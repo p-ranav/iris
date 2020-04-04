@@ -19,10 +19,10 @@ int main() {
   Component music_tag_component;
   music_tag_component.create_server(
       endpoints = {"tcp://*:5510"}, timeout = 500,
-      on_request = [&](Request request) -> Response {
+      on_request = [&](Request request, Response& response) -> Response {
         auto catalog_id = request.get<std::string>();
-        std::cout << "Received request for catalog #" << catalog_id << "\n";
-        return albums[catalog_id];
+        std::cout << "Received request for catalog # " << catalog_id << "\n";
+        response.set(albums[catalog_id]);
       });
   music_tag_component.start();
 }

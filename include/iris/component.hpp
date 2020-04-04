@@ -64,16 +64,16 @@ class Component {
 
   friend class Client;
   std::atomic_uint8_t client_count_{0};
-  template <typename Request>
-  Response request(std::uint8_t client_id, Request &&request) {
+  template <typename R>
+  Response request(std::uint8_t client_id, R &&request) {
     lock_t lock{clients_mutex_};
-    return clients_[client_id]->send(std::forward<Request>(request));
+    return clients_[client_id]->send(std::forward<R>(request));
   }
 
   friend class Server;
 
   friend class Request;
-  template <typename T, typename U = std::string>
+  template <typename T, typename U>
   T get_request(std::uint8_t server_id, U &&request) {
     lock_t lock{servers_mutex_};
     return servers_[server_id]->get<T>(std::forward<U>(request));
@@ -165,8 +165,9 @@ void TaskSystem::run(unsigned i) {
                  std::get_if<operation::SubscriberOperation>(&op))
       (*subscriber_op).fn(std::move((*subscriber_op).arg));
     else if (auto server_op = std::get_if<operation::ServerOperation>(&op)) {
+      Response response;
       auto request = (*server_op).arg;
-      auto response = (*server_op).fn(request);
+      (*server_op).fn(request, response);
       // Send response back to client
       request.component_->respond(request.server_id_, std::move(response));
     }

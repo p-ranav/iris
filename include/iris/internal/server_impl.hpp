@@ -41,24 +41,24 @@ public:
     started_ = false;
   }
 
-  template <typename T, typename U = std::string> T get(U &&request) {
-    std::stringstream stream;
-    stream << request;
-    cereal::JSONInputArchive archive(stream);
+  template <typename T, typename U> T get(U &&request) {
     T result;
-    archive(result);
+    std::stringstream stream;
+    stream.write(reinterpret_cast<const char *>(request.data()),
+                 request.size());
+    {
+      cereal::JSONInputArchive archive(stream);
+      archive(result);
+    }
     return std::move(result);
   }
 
   void recv();
 
   template <typename Response> void send(Response &&response) {
-    const auto response_str = response.payload_; // stream.str();
-    zmq::message_t reply(response_str.length());
-    memcpy(reply.data(), response_str.c_str(), response_str.length());
-    auto success = socket_->send(reply);
+    auto success = socket_->send(response.payload_);
     while (!success) {
-      socket_->send(reply);
+      socket_->send(response.payload_);
     }
     ready_ = true;
   }

@@ -1,6 +1,5 @@
 #pragma once
 #include <iris/cppzmq/zmq.hpp>
-#include <string>
 
 namespace iris {
 

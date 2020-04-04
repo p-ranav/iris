@@ -15,8 +15,8 @@ class Client {
 public:
   Client() = default;
 
-  template <typename Request> Response send(Request &&request) {
-    return component_->request(id_, std::forward<Request>(request));
+  template <typename R> iris::Response send(R &&request) {
+    return component_->request(id_, std::forward<R>(request));
   }
 };
 

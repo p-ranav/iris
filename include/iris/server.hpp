@@ -49,26 +49,19 @@ inline void internal::ServerImpl::recv() {
   while (!done_) {
     while (!ready_) {
     }
-    zmq::message_t received_message;
-    auto ret = socket_->recv(received_message);
+    zmq::message_t message;
+    auto ret = socket_->recv(message);
     if (ret.has_value()) {
-      ready_ = false;
-      const auto message =
-          std::string(static_cast<char *>(received_message.data()),
-                      received_message.size());
-      if (message.length() > 0) {
+        ready_ = false;
         Request payload;
         payload.payload_ = std::move(message);
         payload.server_id_ = id_;
         payload.component_ = component_;
-        fn_.arg = std::move(payload);
+        fn_.arg = payload;
         executor_.get().async_(fn_);
-      } else {
-        ready_ = true;
       }
     }
   }
-}
 
 inline void internal::ServerImpl::start() {
   thread_ = std::thread(&ServerImpl::recv, this);

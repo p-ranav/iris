@@ -19,7 +19,8 @@ int main() {
         std::cout << "Sending Ping\n";
         auto response = client.send("Ping");
         std::cout << "Received status code: "
-                  << response.get<StatusCode>().value << std::endl;
+                  << response.get<StatusCode>().value 
+                  << std::endl;
       });
   c.start();
 }
