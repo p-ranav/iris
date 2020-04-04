@@ -46,7 +46,7 @@ public:
 
   template <typename T, typename U = std::string> T get(U &&message) {
     stream_ << message;
-    cereal::PortableBinaryInputArchive archive(stream_);
+    cereal::JSONInputArchive archive(stream_);
     T result;
     archive(result);
     return std::move(result);

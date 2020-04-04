@@ -32,7 +32,7 @@ public:
 
   template <typename M> void send(M &&message) {
     std::stringstream stream;
-    cereal::PortableBinaryOutputArchive archive(stream);
+    cereal::JSONOutputArchive archive(stream);
     archive(std::forward<M>(message));
     auto message_str = stream.str();
 

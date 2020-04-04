@@ -22,7 +22,7 @@ public:
   template <typename T> Response(T &&response) {
     // Serialize the response data
     std::stringstream stream;
-    cereal::PortableBinaryOutputArchive archive(stream);
+    cereal::JSONOutputArchive archive(stream);
     archive(std::forward<T>(response));
     payload_ = stream.str();
   }
@@ -30,7 +30,7 @@ public:
   template <typename T> T get() {
     std::stringstream stream;
     stream << payload_;
-    cereal::PortableBinaryInputArchive archive(stream);
+    cereal::JSONInputArchive archive(stream);
     T result;
     archive(result);
     return std::move(result);

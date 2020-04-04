@@ -11,6 +11,8 @@ struct Album {
 
   template <class Archive>
   void serialize( Archive & ar ) {
+    // ar(name);
+    // ar(artist);
     ar(year);
   }
 

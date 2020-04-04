@@ -2,6 +2,7 @@
 #include <functional>
 #include <iostream>
 #include <iris/cereal/archives/portable_binary.hpp>
+#include <iris/cereal/archives/json.hpp>
 #include <iris/kwargs.hpp>
 #include <iris/operation.hpp>
 #include <iris/task_system.hpp>
@@ -40,28 +41,26 @@ public:
 
   template <typename Message> Response send(Message &&message) {
     std::stringstream stream;
-    cereal::PortableBinaryOutputArchive archive(stream);
+    cereal::JSONOutputArchive archive(stream);
     archive(message);
-    auto message_str = stream.str();
-
-    zmq::message_t message_struct(message_str.length());
-    memcpy(message_struct.data(), message_str.c_str(), message_str.length());
-    socket_->send(std::move(message_struct));
-
-    // Wait for response
-    // Deserialize as Response type and return to client
-    zmq::message_t reply;
-    socket_->recv(&reply);
-    const auto response =
-        std::string(static_cast<char *>(reply.data()), reply.size());
-    Response result;
-    result.payload_ = response;
-    result.client_id_ = id_;
-    result.component_ = component_;
-    return std::move(result);
+    send(stream.str().c_str());
   }
 
   Response send(std::string message) { send(message.c_str()); }
+
+  struct Album {
+    std::string name;
+    std::string artist;
+    int year;
+    std::string genre;
+    std::vector<std::string> tracks;
+
+    template <class Archive>
+    void serialize( Archive & ar ) {
+      ar(year);
+    }
+
+};
 
   Response send(const char *message) {
     zmq::message_t message_struct(strlen(message));
@@ -84,8 +83,17 @@ public:
           socket_->recv(reply);
           const auto response =
               std::string(static_cast<char *>(reply.data()), reply.size());
+
+          std::stringstream test_stream;
+          test_stream << response;
+          cereal::JSONInputArchive test_archive(test_stream);
+          Album test_result;
+          test_archive(test_result);
+          std::cout << test_result.name << std::endl;
+          std::cout << test_result.year << std::endl;
+
           Response result;
-          result.payload_ = response;
+          result.payload_ = std::string(static_cast<char *>(reply.data()), reply.size());
           result.client_id_ = id_;
           result.component_ = component_;
           return std::move(result);
