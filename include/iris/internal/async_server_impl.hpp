@@ -56,6 +56,7 @@ public:
   void recv();
 
   template <typename Response> void send(Response &&response) {
+    std::cout << "Scket Level:: Sending server response\n";
     auto success = socket_->send(response.payload_);
     while (!success) {
       socket_->send(response.payload_);

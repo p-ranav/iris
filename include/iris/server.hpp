@@ -57,6 +57,7 @@ inline void internal::ServerImpl::recv() {
       payload.payload_ = std::move(message);
       payload.server_id_ = id_;
       payload.component_ = component_;
+      payload.async_ = false;
       fn_.arg = payload;
       executor_.get().async_(fn_);
     }

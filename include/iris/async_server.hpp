@@ -26,7 +26,7 @@ inline AsyncServer Component::create_async_server(E &&endpoints, T &&timeout, S 
       async_server_count_.load(), this, context_,
       std::forward<Endpoints>(Endpoints(endpoints)),
       std::forward<TimeoutMs>(TimeoutMs(timeout)),
-      operation::ServerOperation{.fn = AsyncServerFunction(fn).get()}, executor_);
+      operation::ServerOperation{.fn = ServerFunction(fn).get()}, executor_);
   async_servers_.insert(std::make_pair(async_server_count_.load(), std::move(s)));
   return AsyncServer(async_server_count_++, this);
 }
@@ -57,6 +57,7 @@ inline void internal::AsyncServerImpl::recv() {
       payload.payload_ = std::move(message);
       payload.server_id_ = id_;
       payload.component_ = component_;
+      payload.async_ = true;
       fn_.arg = payload;
       executor_.get().async_(fn_);
     }

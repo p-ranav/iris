@@ -14,6 +14,7 @@ class Request {
   zmq::message_t payload_;
   class Component *component_;
   std::uint8_t server_id_;
+  bool async_;
   friend class TaskSystem;
   friend class internal::ServerImpl;
   friend class internal::AsyncServerImpl;

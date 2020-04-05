@@ -90,7 +90,7 @@ class Component {
     lock_t lock{servers_mutex_};
     servers_[server_id]->stop();
   }
-  
+
   friend class AsyncServer;
   std::atomic_uint8_t async_server_count_{0};
   template <typename Response>
@@ -207,9 +207,14 @@ void TaskSystem::run(unsigned i) {
     else if (auto server_op = std::get_if<operation::ServerOperation>(&op)) {
       Response response;
       auto request = (*server_op).arg;
+      std::cout << "Before fn call\n";
       (*server_op).fn(request, response);
+      std::cout << "After fn call\n";
       // Send response back to client
-      request.component_->respond(request.server_id_, response);
+      if (request.async_)
+        request.component_->respond_async(request.server_id_, response);
+      else
+        request.component_->respond(request.server_id_, response);
     }
   }
 }
