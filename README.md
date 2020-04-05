@@ -197,9 +197,9 @@ int main() {
 }
 ```
 
-## Client Server Interactions
+## Synchronous Request-Reply Interactions
 
-The client-server model is one of the basic interaction patterns in `iris` - client sends a request and server replies to the request. 
+The client-server model is one of the basic interaction patterns in `iris` - client sends a request and server replies to the request. `iris::Client` and `iris::Server` implement the synchronous remote method invocation. 
 
 <p align="center">
   <img height=230 src="img/client_server.png"/>  
@@ -312,3 +312,9 @@ int main() {
 * Poll the REQ socket and receive from it only when it's sure a reply has arrived.
 * Resend a request, if no reply has arrived within a timeout period.
 * Abandon the transaction if there is still no reply after several requests.
+
+## Asynchronous Request-Reply Interactions (DEALER-ROUTER Pattern)
+
+<p align="center">
+  <img height=230 src="img/async_client_server.png"/>  
+</p>
