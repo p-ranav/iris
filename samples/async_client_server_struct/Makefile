@@ -4,4 +4,4 @@ all:
 	g++ -I../../include -std=c++17 -pthread -o server server.cpp -lzmq
 
 clean:
-	rm -f client server
+	rm -f client server broker
