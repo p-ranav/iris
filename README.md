@@ -269,7 +269,13 @@ int main() {
 }
 ```
 
-Now, we can write a client that calls this server. Create a client port using `component.create_client`. 
+Now, we can write a client that calls this server. Create a client port using `component.create_client`. `iris` clients implement the [lazy pirate](http://zguide.zeromq.org/php:chapter4#Client-Side-Reliability-Lazy-Pirate-Pattern) pattern - Rather than doing a blocking receive, `iris` clients:
+
+* Send a request to the server
+* Poll the REQ socket and receive from it only when it's sure a reply has arrived.
+* Resend a request, if no reply has arrived within a timeout period.
+* Abandon the transaction if there is still no reply after several requests.
+
 
 ```cpp
 // client.cpp
@@ -305,13 +311,6 @@ int main() {
   c.stop();
 }
 ```
-
-`iris` clients implement the [lazy pirate](http://zguide.zeromq.org/php:chapter4#Client-Side-Reliability-Lazy-Pirate-Pattern) pattern - Rather than doing a blocking receive, `iris` clients:
-
-* Send a request to the server
-* Poll the REQ socket and receive from it only when it's sure a reply has arrived.
-* Resend a request, if no reply has arrived within a timeout period.
-* Abandon the transaction if there is still no reply after several requests.
 
 ## Asynchronous Request-Reply Interactions
 
