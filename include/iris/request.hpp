@@ -26,12 +26,14 @@ public:
     payload_.copy(const_cast<Request &>(rhs).payload_);
     component_ = rhs.component_;
     server_id_ = rhs.server_id_;
+    async_ = rhs.async_;
   }
 
   Request &operator=(Request rhs) {
     std::swap(payload_, rhs.payload_);
     std::swap(component_, rhs.component_);
     std::swap(server_id_, rhs.server_id_);
+    std::swap(async_, rhs.async_);
     return *this;
   }
 
