@@ -42,9 +42,11 @@ public:
     frontend_ = std::make_unique<zmq::socket_t>(context_, ZMQ_ROUTER);
     backend_ = std::make_unique<zmq::socket_t>(context_, ZMQ_DEALER);
     for (auto &e : frontend_endpoints_) {
+      std::cout << "Binding to " << e << "\n";
         frontend_->bind(e);
     }
     for (auto &e : backend_endpoints_) {
+            std::cout << "Binding to " << e << "\n";
         backend_->bind(e);
     }
   }

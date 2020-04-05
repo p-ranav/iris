@@ -12,7 +12,7 @@ int main() {
   Component receiver(threads = 3);
   int code{0};
   receiver.create_broker(
-    frontend = {"tcp://*5510"},
+    frontend = {"tcp://*:5510"},
     backend = {"tcp://*:5515"}
   );
   receiver.create_async_server(
