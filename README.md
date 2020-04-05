@@ -316,5 +316,5 @@ int main() {
 ## Asynchronous Request-Reply Interactions
 
 <p align="center">
-  <img height=230 src="img/async_client_server.png"/>  
+  <img height=230 src="img/async_client_server_distributed.png"/>  
 </p>
