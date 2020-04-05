@@ -196,3 +196,12 @@ int main() {
   receiver.start();
 }
 ```
+
+## Client Server Interactions
+
+This is one of the basic interaction patterns in `iris` - the client-server model where client sends a request and server replies to the request. `iris` clients are [lazy pirates](http://zguide.zeromq.org/php:chapter4#Client-Side-Reliability-Lazy-Pirate-Pattern). Rather than doing a blocking receive, iris client ports:
+
+* Send a request to the server
+* Poll the client socket and receive from it only when it's sure a reply has arrived.
+* Resend a request, if no reply has arrived within a timeout period.
+* Abandon the transaction if there is still no reply after several requests.
