@@ -199,13 +199,11 @@ int main() {
 
 ## Client Server Interactions
 
-This is one of the basic interaction patterns in `iris` - the client-server model where client sends a request and server replies to the request. 
+The client-server model is one of the basic interaction patterns in `iris` - client sends a request and server replies to the request. 
 
 <p align="center">
   <img height=230 src="img/client_server.png"/>  
 </p>
-
-### Example
 
 Say we have a music database server that can be queried for album metadata. Clients can request for album metadata using a catalog ID. Servers will respond with the album metadata. 
 
