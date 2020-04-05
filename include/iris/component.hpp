@@ -7,6 +7,7 @@
 #include <iris/internal/periodic_timer_impl.hpp>
 #include <iris/internal/publisher_impl.hpp>
 #include <iris/internal/server_impl.hpp>
+#include <iris/internal/async_server_impl.hpp>
 #include <iris/internal/subscriber_impl.hpp>
 #include <iris/kwargs.hpp>
 #include <iris/task_system.hpp>
@@ -33,9 +34,11 @@ class Component {
       clients_;
   std::unordered_map<std::uint8_t, std::unique_ptr<internal::ServerImpl>>
       servers_;
+  std::unordered_map<std::uint8_t, std::unique_ptr<internal::AsyncServerImpl>>
+      async_servers_;
   zmq::context_t context_{zmq::context_t(1)};
   std::mutex timers_mutex_, oneshot_timers_mutex_, publishers_mutex_,
-      subscribers_mutex_, clients_mutex_, servers_mutex_;
+      subscribers_mutex_, clients_mutex_, servers_mutex_, async_servers_mutex_;
 
   friend class PeriodicTimer;
   std::atomic_uint8_t timer_count_{0};
@@ -75,13 +78,6 @@ class Component {
 
   friend class Server;
 
-  friend class Request;
-  template <typename T, typename U>
-  T get_request(std::uint8_t server_id, U &&request) {
-    lock_t lock{servers_mutex_};
-    return servers_[server_id]->get<T>(std::forward<U>(request));
-  }
-
   friend class Response;
   std::atomic_uint8_t server_count_{0};
   template <typename Response>
@@ -93,6 +89,19 @@ class Component {
   void stop_server(std::uint8_t server_id) {
     lock_t lock{servers_mutex_};
     servers_[server_id]->stop();
+  }
+  
+  friend class AsyncServer;
+  std::atomic_uint8_t async_server_count_{0};
+  template <typename Response>
+  void respond_async(std::uint8_t server_id, Response &&response) {
+    lock_t lock{async_servers_mutex_};
+    return async_servers_[server_id]->send(std::forward<Response>(response));
+  }
+
+  void stop_async_server(std::uint8_t server_id) {
+    lock_t lock{async_servers_mutex_};
+    async_servers_[server_id]->stop();
   }
 
 public:
@@ -106,6 +115,7 @@ public:
       thread.join();
     subscribers_.clear();
     servers_.clear();
+    async_servers_.clear();
     clients_.clear();
     publishers_.clear();
     interval_timers_.clear();
@@ -137,6 +147,9 @@ public:
   template <typename E, typename T, typename S>
   class Server create_server(E &&endpoints, T &&timeout, S &&fn);
 
+  template <typename E, typename T, typename S>
+  class AsyncServer create_async_server(E &&endpoints, T &&timeout, S &&fn);
+
   void start() {
     executor_.start();
     for (auto &t : oneshot_timers_) {
@@ -146,6 +159,9 @@ public:
       v->start();
     }
     for (auto &[_, v] : servers_) {
+      v->start();
+    }
+    for (auto &[_, v] : async_servers_) {
       v->start();
     }
     for (auto &[_, v] : interval_timers_) {
@@ -160,6 +176,10 @@ public:
         v->stop();
     }
     for (auto &[_, v] : servers_) {
+      if (v)
+        v->stop();
+    }
+    for (auto &[_, v] : async_servers_) {
       if (v)
         v->stop();
     }

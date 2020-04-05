@@ -15,6 +15,7 @@ class Response {
   std::uint8_t client_id_;
   friend class internal::ClientImpl;
   friend class internal::ServerImpl;
+  friend class internal::AsyncServerImpl;
 
 public:
   Response() {}

@@ -1,10 +1,13 @@
 #pragma once
 #include <iris/cppzmq/zmq.hpp>
+#include <sstream>
+#include <iris/cereal/archives/json.hpp>
 
 namespace iris {
 
 namespace internal {
 class ServerImpl;
+class AsyncServerImpl;
 }
 
 class Request {
@@ -13,6 +16,7 @@ class Request {
   std::uint8_t server_id_;
   friend class TaskSystem;
   friend class internal::ServerImpl;
+  friend class internal::AsyncServerImpl;
 
 public:
   Request() {}
@@ -30,7 +34,17 @@ public:
     return *this;
   }
 
-  template <typename T> T get();
+  template <typename T> T get() {
+    T result;
+    std::stringstream stream;
+    stream.write(reinterpret_cast<const char *>(payload_.data()),
+                 payload_.size());
+    {
+      cereal::JSONInputArchive archive(stream);
+      archive(result);
+    }
+    return result;
+  }
 };
 
 }; // namespace iris
