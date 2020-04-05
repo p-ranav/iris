@@ -210,7 +210,7 @@ Handling failures only at the client works when we have a set of clients talking
 
 So, pros and cons:
 
-Pro: simple to understand and implement.
-Pro: works easily with existing client and server application code.
-Pro: ZeroMQ automatically retries the actual reconnection until it works.
-Con: doesn't failover to backup or alternate servers.
+* Pro: simple to understand and implement.
+* Pro: works easily with existing client and server application code.
+* Pro: ZeroMQ automatically retries the actual reconnection until it works.
+* Con: doesn't failover to backup or alternate servers.
