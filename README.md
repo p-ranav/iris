@@ -6,7 +6,7 @@
 
 ## Component Model
 
-Here's the anatomy of an `iris::Component`. `iris` components can have a variety of ports and timers. There are 4 basic types of ports: ***publisher***, ***subscriber***, ***client***, and ***server*** ports. Publisher ports publish messages, without blocking, on specific endpoints. Subscriber ports subscribe to such topics (on specific endpoints) and receive messages published by one or more publishers. Server ports provide an interface to a component service. Client ports can use this interface to request such services. Component timers can be periodic or sporadic and allow components to trigger themselves with the specified timing characteristics.
+Here's the anatomy of an `iris::Component`. `iris` components can have a variety of ports and timers. There are 4 basic types of ports: ***publisher***, ***subscriber***, ***client***, and ***server*** ports. Publisher ports publish messages, without blocking, on specific endpoints. Subscriber ports subscribe to such topics (on specific endpoints) and receive messages published by one or more publishers. Server ports provide an interface to a component service. Client ports can use this interface to request such services. Component timers can be periodic or oneshot and allow components to trigger themselves with the specified timing characteristics.
 
 An _operation_ is an abstraction for the different tasks undertaken by a component.  These tasks are implemented by the component’s source code written by the developer. Application developers provide the functional, business-logic code that implements operations on local state variables and inputs received on component ports. 
 
@@ -64,6 +64,46 @@ int main() {
                             on_triggered = [] { std::cout << "Timer fired!\n"; });
   my_component.start();
 }
+```
+
+### One-shot Timers
+
+Use `component.set_timeout` to create a one-shit timer that triggers the component after a set delay. 
+
+```cpp
+// oneshot_timers.cpp
+#include <iris/iris.hpp>
+using namespace iris;
+#include <iostream>
+
+int main() {
+  Component c;
+  c.set_timeout(delay = 1000,
+                on_triggered = [] { std::cout << "1.0 second Timeout!" << std::endl; 
+                });
+  c.set_timeout(delay = 2500,
+                on_triggered = [] { std::cout << "2.5 second Timeout!" << std::endl; 
+                });
+  c.set_timeout(delay = 5000,
+                on_triggered = [] { std::cout << "5.0 second Timeout!" << std::endl; 
+                });
+  c.set_timeout(delay = 6000, 
+                on_triggered = [&] {
+                    std::cout << "Stopping component" << std::endl;
+                    c.stop();
+                });
+  c.start();
+}
+```
+
+Noice that the component is stopped after 6 seconds. `component.stop()` stops the task schedule from further processing tasks. Here's the console output when running this component:
+
+```bash
+$ ./oneshot_timers
+1.0 second Timeout!
+2.5 second Timeout!
+5.0 second Timeout!
+Stopping component
 ```
 
 ## Publish-Subscribe Interactions
