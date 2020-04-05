@@ -42,11 +42,9 @@ public:
     frontend_ = std::make_unique<zmq::socket_t>(context_, ZMQ_ROUTER);
     backend_ = std::make_unique<zmq::socket_t>(context_, ZMQ_DEALER);
     for (auto &e : frontend_endpoints_) {
-      std::cout << "Binding to " << e << "\n";
         frontend_->bind(e);
     }
     for (auto &e : backend_endpoints_) {
-            std::cout << "Binding to " << e << "\n";
         backend_->bind(e);
     }
   }
@@ -65,8 +63,6 @@ public:
         { static_cast<void*>(*frontend_.get()), 0, ZMQ_POLLIN, 0 },
         { static_cast<void*>(*backend_.get()), 0, ZMQ_POLLIN, 0 }
     };
-
-    std::cout << "Starting recv\n";
     
     //  Switch messages between sockets
     while (!done_) {
@@ -74,8 +70,6 @@ public:
         int more;               //  Multipart detection
 
         zmq::poll(&items[0], 2, -1);
-
-        std::cout << "created poll\n";
         
         if (items[0].revents & ZMQ_POLLIN) {
             while(!done_) {
@@ -105,7 +99,6 @@ public:
 
   void start() {
     thread_ = std::thread(&BrokerImpl::recv, this);
-    std::cout << "Started\n";
     started_ = true;
     ready_ = true;
   }
