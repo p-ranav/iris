@@ -199,18 +199,9 @@ int main() {
 
 ## Client Server Interactions
 
-This is one of the basic interaction patterns in `iris` - the client-server model where client sends a request and server replies to the request. `iris` clients are [lazy pirates](http://zguide.zeromq.org/php:chapter4#Client-Side-Reliability-Lazy-Pirate-Pattern). Rather than doing a blocking receive, iris client ports:
+This is one of the basic interaction patterns in `iris` - the client-server model where client sends a request and server replies to the request. `iris` clients implement the [lazy pirate](http://zguide.zeromq.org/php:chapter4#Client-Side-Reliability-Lazy-Pirate-Pattern) pattern - Rather than doing a blocking receive, iris clients:
 
 * Send a request to the server
-* Poll the client socket and receive from it only when it's sure a reply has arrived.
+* Poll the REQ socket and receive from it only when it's sure a reply has arrived.
 * Resend a request, if no reply has arrived within a timeout period.
 * Abandon the transaction if there is still no reply after several requests.
-
-Handling failures only at the client works when we have a set of clients talking to a single server. It can handle a server crash, but only if recovery means restarting that same server. If there's a permanent error, such as a dead power supply on the server hardware, this approach won't work. Because the application code in servers is usually the biggest source of failures in any architecture, depending on a single server is not a great idea.
-
-So, pros and cons:
-
-* Pro: simple to understand and implement.
-* Pro: works easily with existing client and server application code.
-* Pro: ZeroMQ automatically retries the actual reconnection until it works.
-* Con: doesn't failover to backup or alternate servers.
