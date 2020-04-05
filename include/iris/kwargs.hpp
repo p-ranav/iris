@@ -15,6 +15,11 @@ namespace iris {
 static const PeriodMs::argument period;
 }
 
+using DelayMs = fluent::NamedType<unsigned int, struct DelayMsTag>;
+namespace iris {
+static const DelayMs::argument delay;
+}
+
 using TimerFunction =
     fluent::NamedType<std::function<void()>, struct TimerFunctionTag>;
 namespace iris {

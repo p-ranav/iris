@@ -4,6 +4,7 @@
 #include <iris/cppzmq/zmq.hpp>
 #include <iris/internal/client_impl.hpp>
 #include <iris/internal/periodic_timer_impl.hpp>
+#include <iris/internal/oneshot_timer_impl.hpp>
 #include <iris/internal/publisher_impl.hpp>
 #include <iris/internal/server_impl.hpp>
 #include <iris/internal/subscriber_impl.hpp>
@@ -21,6 +22,9 @@ class Component {
   TaskSystem executor_;
   std::unordered_map<std::uint8_t, std::unique_ptr<internal::PeriodicTimerImpl>>
       interval_timers_;
+  std::vector<std::unique_ptr<internal::OneShotTimerImpl>> oneshot_timers_;
+  std::vector<std::thread> oneshot_timer_threads_;
+
   std::unordered_map<std::uint8_t, std::unique_ptr<internal::PublisherImpl>>
       publishers_;
   std::unordered_map<std::uint8_t, std::unique_ptr<internal::SubscriberImpl>>
@@ -30,7 +34,8 @@ class Component {
   std::unordered_map<std::uint8_t, std::unique_ptr<internal::ServerImpl>>
       servers_;
   zmq::context_t context_{zmq::context_t(1)};
-  std::mutex timers_mutex_, publishers_mutex_, subscribers_mutex_,
+  std::mutex timers_mutex_, oneshot_timers_mutex_,
+    publishers_mutex_, subscribers_mutex_,
       clients_mutex_, servers_mutex_;
 
   friend class PeriodicTimer;
@@ -106,10 +111,23 @@ public:
     clients_.clear();
     publishers_.clear();
     interval_timers_.clear();
+    for (auto & t : oneshot_timer_threads_) {
+      t.join();
+    }
+    oneshot_timers_.clear();
   }
 
   template <typename P, typename T>
   class PeriodicTimer set_interval(P &&period_ms, T &&fn);
+
+  template <typename P, typename T>
+  void set_timeout(P &&delay_ms, T &&fn) {
+    lock_t lock{oneshot_timers_mutex_};
+    auto t = std::make_unique<internal::OneShotTimerImpl>(
+        std::forward<DelayMs>(DelayMs(delay_ms)),
+        operation::TimerOperation{.fn = TimerFunction(fn).get()}, executor_);
+    oneshot_timers_.push_back(std::move(t));
+  }
 
   template <typename E> class Publisher create_publisher(E &&endpoints);
 
@@ -124,6 +142,9 @@ public:
 
   void start() {
     executor_.start();
+    for (auto &t : oneshot_timers_) {
+      oneshot_timer_threads_.push_back(t->start());
+    }
     for (auto &[_, v] : subscribers_) {
       v->start();
     }
