@@ -37,13 +37,8 @@ inline internal::AsyncServerImpl::AsyncServerImpl(std::uint8_t id, Component *pa
                                         T &&timeout, S &&fn,
                                         TaskSystem &executor)
     : id_(id), component_(parent), context_(context),
-      endpoints_(std::move(endpoints)), fn_(fn), executor_(executor) {
-  socket_ = std::make_unique<zmq::socket_t>(context, ZMQ_REP);
-  for (auto &e : endpoints_) {
-    socket_->connect(e);
-  }
-  socket_->set(zmq::sockopt::rcvtimeo, timeout.get());
-}
+      endpoints_(std::move(endpoints)), timeout_(timeout),
+      fn_(fn), executor_(executor) {}
 
 inline void internal::AsyncServerImpl::recv() {
   while (!done_) {
@@ -65,6 +60,12 @@ inline void internal::AsyncServerImpl::recv() {
 }
 
 inline void internal::AsyncServerImpl::start() {
+  socket_ = std::make_unique<zmq::socket_t>(context_, ZMQ_REP);
+  for (auto &e : endpoints_) {
+    socket_->connect(e);
+  }
+  socket_->set(zmq::sockopt::rcvtimeo, timeout_.get());
+
   thread_ = std::thread(&AsyncServerImpl::recv, this);
   started_ = true;
   ready_ = true;

@@ -2,6 +2,7 @@
 #include <initializer_list>
 #include <iris/cereal/archives/portable_binary.hpp>
 #include <iris/cppzmq/zmq.hpp>
+#include <iris/internal/broker_impl.hpp>
 #include <iris/internal/client_impl.hpp>
 #include <iris/internal/oneshot_timer_impl.hpp>
 #include <iris/internal/periodic_timer_impl.hpp>
@@ -36,9 +37,12 @@ class Component {
       servers_;
   std::unordered_map<std::uint8_t, std::unique_ptr<internal::AsyncServerImpl>>
       async_servers_;
+  std::unordered_map<std::uint8_t, std::unique_ptr<internal::BrokerImpl>>
+      brokers_;
   zmq::context_t context_{zmq::context_t(1)};
   std::mutex timers_mutex_, oneshot_timers_mutex_, publishers_mutex_,
-      subscribers_mutex_, clients_mutex_, servers_mutex_, async_servers_mutex_;
+      subscribers_mutex_, clients_mutex_, servers_mutex_, async_servers_mutex_,
+      brokers_mutex_;
 
   friend class PeriodicTimer;
   std::atomic_uint8_t timer_count_{0};
@@ -104,6 +108,13 @@ class Component {
     async_servers_[server_id]->stop();
   }
 
+  friend class Broker;
+  std::atomic_uint8_t broker_count_{0};
+  void stop_broker(std::uint8_t broker_id) {
+    lock_t lock{brokers_mutex_};
+    brokers_[broker_id]->stop();
+  }
+
 public:
   Component() : executor_(TaskSystem(std::thread::hardware_concurrency())) {}
 
@@ -119,6 +130,7 @@ public:
     clients_.clear();
     publishers_.clear();
     interval_timers_.clear();
+    brokers_.clear();
     for (auto &t : oneshot_timer_threads_) {
       t.join();
     }
@@ -150,6 +162,9 @@ public:
   template <typename E, typename T, typename S>
   class AsyncServer create_async_server(E &&endpoints, T &&timeout, S &&fn);
 
+  template <typename E>
+  class Broker create_broker(E &&frontend_endpoints, E &&backend_endpoints);
+
   void start() {
     executor_.start();
     for (auto &t : oneshot_timers_) {
@@ -159,6 +174,9 @@ public:
       v->start();
     }
     for (auto &[_, v] : servers_) {
+      v->start();
+    }
+    for (auto &[_, v] : brokers_) {
       v->start();
     }
     for (auto &[_, v] : async_servers_) {
@@ -180,6 +198,10 @@ public:
         v->stop();
     }
     for (auto &[_, v] : async_servers_) {
+      if (v)
+        v->stop();
+    }
+    for (auto &[_, v] : brokers_) {
       if (v)
         v->stop();
     }

@@ -23,6 +23,7 @@ class AsyncServerImpl {
   std::reference_wrapper<TaskSystem> executor_;
   std::unique_ptr<zmq::socket_t> socket_;
   Endpoints endpoints_;
+  TimeoutMs timeout_;
   operation::ServerOperation fn_;
   std::thread thread_;
   std::atomic_bool started_{false};
