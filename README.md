@@ -269,7 +269,7 @@ int main() {
 }
 ```
 
-Now, we can write a client that calls this server.
+Now, we can write a client that calls this server. Create a client port using `component.create_client`. 
 
 ```cpp
 // client.cpp
@@ -284,9 +284,14 @@ int main() {
   auto client = c.create_client(endpoints = {"tcp://127.0.0.1:5510"},
                                 timeout = 2500, 
                                 retries = 3);
+                                
   std::string request = "R2 552927";
   std::cout << "Sending request with catalog# " << request << std::endl;
+  
+  // Client-server call
   auto response = client.send(request);
+  
+  // Parse server response
   auto album = response.get<Album>();
   std::cout << "- Received album:\n";
   std::cout << "    Name: " << album.name << "\n";
