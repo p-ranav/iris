@@ -96,7 +96,7 @@ int main() {
 }
 ```
 
-Noice that the component is stopped after 6 seconds. `component.stop()` stops the task schedule from further processing tasks. Here's the console output when running this component:
+Noice that the component is stopped after 6 seconds - `component.stop()` stops the task scheduler from further processing tasks. Here's the console output when running this component:
 
 ```bash
 $ ./oneshot_timers
