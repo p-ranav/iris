@@ -313,7 +313,7 @@ int main() {
 * Resend a request, if no reply has arrived within a timeout period.
 * Abandon the transaction if there is still no reply after several requests.
 
-## Asynchronous Request-Reply Interactions (DEALER-ROUTER Pattern)
+## Asynchronous Request-Reply Interactions
 
 <p align="center">
   <img height=230 src="img/async_client_server.png"/>  
