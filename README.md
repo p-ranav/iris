@@ -226,8 +226,7 @@ struct Album {
   std::vector<std::string> tracks;
 
   template <class Archive> void serialize(Archive &ar) {
-    ar(name, artist, year, genre);
-    ar(tracks);
+    ar(name, artist, year, genre, tracks);
   }
 };
 ```
