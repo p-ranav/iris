@@ -199,7 +199,7 @@ int main() {
 
 ## Synchronous Request-Reply Interactions
 
-The client-server model is one of the basic interaction patterns in `iris` - client sends a request and server replies to the request. `iris::Client` and `iris::Server` implement the synchronous remote method invocation. 
+The client-server model is one of the basic interaction patterns in `iris` - client sends a request and server replies to the request.
 
 <p align="center">
   <img height=230 src="img/client_server.png"/>  
