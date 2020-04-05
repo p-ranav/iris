@@ -2,13 +2,6 @@
 #include <iris/iris.hpp>
 using namespace iris;
 
-struct StatusCode {
-  int value;
-
-  // Method for deserialization
-  template <typename Archive> void load(Archive &ar) { ar(value); }
-};
-
 int main() {
   Component c(threads = 2);
   auto client = c.create_client(endpoints = {"tcp://localhost:5510"},
@@ -19,7 +12,7 @@ int main() {
         std::cout << "Sending Ping\n";
         auto response = client.send("Ping");
         std::cout << "Received status code: "
-                  << response.get<StatusCode>().value << std::endl;
+                  << response.get<int>() << std::endl;
       });
   c.start();
 }

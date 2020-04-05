@@ -229,9 +229,7 @@ void TaskSystem::run(unsigned i) {
     else if (auto server_op = std::get_if<operation::ServerOperation>(&op)) {
       Response response;
       auto request = (*server_op).arg;
-      std::cout << "Before fn call\n";
       (*server_op).fn(request, response);
-      std::cout << "After fn call\n";
       // Send response back to client
       if (request.async_)
         request.component_->respond_async(request.server_id_, response);
