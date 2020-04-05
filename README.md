@@ -99,11 +99,12 @@ int main() {
 Noice that the component is stopped after 6 seconds - `component.stop()` stops the task scheduler from further processing tasks. Here's the console output when running this component:
 
 ```bash
-$ ./oneshot_timers
+$ time ./oneshot_timers
 1.0 second Timeout!
 2.5 second Timeout!
 5.0 second Timeout!
 Stopping component
+./oneshot_timers  94.83s user 0.15s system 1578% cpu 6.015 total
 ```
 
 ## Publish-Subscribe Interactions
