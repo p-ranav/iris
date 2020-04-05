@@ -199,7 +199,13 @@ int main() {
 
 ## Client Server Interactions
 
-This is one of the basic interaction patterns in `iris` - the client-server model where client sends a request and server replies to the request. `iris` clients implement the [lazy pirate](http://zguide.zeromq.org/php:chapter4#Client-Side-Reliability-Lazy-Pirate-Pattern) pattern - Rather than doing a blocking receive, iris clients:
+This is one of the basic interaction patterns in `iris` - the client-server model where client sends a request and server replies to the request. 
+
+<p align="center">
+  <img height=230 src="img/client_server.png"/>  
+</p>
+
+`iris` clients implement the [lazy pirate](http://zguide.zeromq.org/php:chapter4#Client-Side-Reliability-Lazy-Pirate-Pattern) pattern - Rather than doing a blocking receive, iris clients:
 
 * Send a request to the server
 * Poll the REQ socket and receive from it only when it's sure a reply has arrived.
