@@ -205,6 +205,101 @@ This is one of the basic interaction patterns in `iris` - the client-server mode
   <img height=230 src="img/client_server.png"/>  
 </p>
 
+### Example
+
+Say we have a music database server that can be queried for album metadata. Clients can request for album metadata using a catalog ID. Servers will respond with the album metadata. 
+
+Let's start with the server response - the `Album` struct. Note the use of cereal `serialize` method for serialization/deserialization.
+
+```cpp
+// album.hpp
+#pragma once
+#include <iris/cereal/types/vector.hpp>
+#include <string>
+#include <vector>
+
+struct Album {
+  std::string name;
+  std::string artist;
+  int year;
+  std::string genre;
+  std::vector<std::string> tracks;
+
+  template <class Archive> void serialize(Archive &ar) {
+    ar(name, artist, year, genre);
+    ar(tracks);
+  }
+};
+```
+
+To create a server port, call `component.create_server`. 
+
+* Server callbacks have the signature `std::function<void(Request, Response&)>`
+* Simply deserialize the request, perform the server task, and use `response.set()` to set the server response
+
+```cpp
+#include "album.hpp"
+#include <iris/iris.hpp>
+using namespace iris;
+#include <iostream>
+#include <map>
+
+int main() {
+
+  std::map<std::string, Album> albums;
+  albums["R2 552927"] =
+      Album{.name = "Paranoid",
+            .artist = "Black Sabbath",
+            .year = 1970,
+            .genre = "Heavy metal",
+            .tracks = {"War Pigs", "Paranoid", "Planet Caravan", "Iron Man",
+                       "Electric Funeral", "Hand of Doom",
+                       "Jack the Stripper / Fairies Wear Boots"}};
+
+  Component music_tag_component;
+  music_tag_component.create_server(
+      endpoints = {"tcp://*:5510"}, 
+      timeout = 500,
+      on_request = [&](Request request, Response &response) {
+          auto catalog_id = request.get<std::string>();
+          std::cout << "Received request for catalog # " << catalog_id << "\n";
+          response.set(albums[catalog_id]);
+      });
+  music_tag_component.start();
+}
+```
+
+Now, we can write a client that calls this server.
+
+```cpp
+#include "album.hpp"
+#include <iostream>
+#include <iris/iris.hpp>
+using namespace iris;
+
+int main() {
+  Component c(threads = 1);
+  c.start();
+  auto client = c.create_client(endpoints = {"tcp://127.0.0.1:5510"},
+                                timeout = 2500, 
+                                retries = 3);
+  std::string request = "R2 552927";
+  std::cout << "Sending request with catalog# " << request << std::endl;
+  auto response = client.send(request);
+  auto album = response.get<Album>();
+  std::cout << "- Received album:\n";
+  std::cout << "    Name: " << album.name << "\n";
+  std::cout << "    Artist: " << album.artist << "\n";
+  std::cout << "    Year: " << album.year << "\n";
+  std::cout << "    Genre: " << album.genre << "\n";
+  std::cout << "    Tracks:\n";
+  for (size_t i = 0; i < album.tracks.size(); ++i) {
+    std::cout << "      " << i << ". " << album.tracks[i] << "\n";
+  }
+  c.stop();
+}
+```
+
 `iris` clients implement the [lazy pirate](http://zguide.zeromq.org/php:chapter4#Client-Side-Reliability-Lazy-Pirate-Pattern) pattern - Rather than doing a blocking receive, `iris` clients:
 
 * Send a request to the server
