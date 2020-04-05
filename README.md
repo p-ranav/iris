@@ -237,6 +237,7 @@ To create a server port, call `component.create_server`.
 * Simply deserialize the request, perform the server task, and use `response.set()` to set the server response
 
 ```cpp
+// server.cpp
 #include "album.hpp"
 #include <iris/iris.hpp>
 using namespace iris;
@@ -271,6 +272,7 @@ int main() {
 Now, we can write a client that calls this server.
 
 ```cpp
+// client.cpp
 #include "album.hpp"
 #include <iostream>
 #include <iris/iris.hpp>
