@@ -1,7 +1,7 @@
 #pragma once
+#include <iris/cereal/types/vector.hpp>
 #include <string>
 #include <vector>
-#include <iris/cereal/types/vector.hpp>
 
 struct Album {
   std::string name;

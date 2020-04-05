@@ -1,7 +1,7 @@
 #pragma once
 #include <iris/cereal/archives/portable_binary.hpp>
-#include <sstream>
 #include <iris/cppzmq/zmq.hpp>
+#include <sstream>
 
 namespace iris {
 
@@ -44,20 +44,18 @@ public:
     return std::move(result);
   }
 
-  template <typename T>
-  void set(T &&response) {
+  template <typename T> void set(T &&response) {
     // Serialize the response data
     std::stringstream stream;
     {
-      cereal::JSONOutputArchive archive(stream,
-        cereal::JSONOutputArchive::Options::NoIndent());
+      cereal::JSONOutputArchive archive(
+          stream, cereal::JSONOutputArchive::Options::NoIndent());
       archive(response);
     }
     auto serialized = stream.str();
     payload_.rebuild(serialized.size());
     memcpy(payload_.data(), serialized.c_str(), serialized.size());
   }
-
 };
 
 }; // namespace iris

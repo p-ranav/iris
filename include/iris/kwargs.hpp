@@ -48,7 +48,7 @@ static const SubscriberFunction::argument on_receive;
 }
 
 using ServerFunction =
-    fluent::NamedType<std::function<void(iris::Request, iris::Response&)>,
+    fluent::NamedType<std::function<void(iris::Request, iris::Response &)>,
                       struct ServerFunctionTag>;
 namespace iris {
 static const ServerFunction::argument on_request;

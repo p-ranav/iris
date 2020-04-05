@@ -6,8 +6,8 @@
 #include <iris/cppzmq/zmq.hpp>
 #include <iris/kwargs.hpp>
 #include <iris/operation.hpp>
-#include <iris/task_system.hpp>
 #include <iris/response.hpp>
+#include <iris/task_system.hpp>
 #include <memory>
 
 namespace iris {
@@ -40,15 +40,13 @@ public:
 
   ~ClientImpl() { socket_->close(); }
 
-  Response send(const char * request) {
-    return send(std::string(request));
-  }
+  Response send(const char *request) { return send(std::string(request)); }
 
   template <typename R> Response send(R &&request) {
     std::stringstream stream;
     {
-      cereal::JSONOutputArchive archive(stream,
-        cereal::JSONOutputArchive::Options::NoIndent());
+      cereal::JSONOutputArchive archive(
+          stream, cereal::JSONOutputArchive::Options::NoIndent());
       archive(request);
     }
     auto serialized = stream.str();

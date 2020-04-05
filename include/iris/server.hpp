@@ -52,16 +52,16 @@ inline void internal::ServerImpl::recv() {
     zmq::message_t message;
     auto ret = socket_->recv(message);
     if (ret.has_value()) {
-        ready_ = false;
-        Request payload;
-        payload.payload_ = std::move(message);
-        payload.server_id_ = id_;
-        payload.component_ = component_;
-        fn_.arg = payload;
-        executor_.get().async_(fn_);
-      }
+      ready_ = false;
+      Request payload;
+      payload.payload_ = std::move(message);
+      payload.server_id_ = id_;
+      payload.component_ = component_;
+      fn_.arg = payload;
+      executor_.get().async_(fn_);
     }
   }
+}
 
 inline void internal::ServerImpl::start() {
   thread_ = std::thread(&ServerImpl::recv, this);

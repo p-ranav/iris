@@ -3,8 +3,8 @@
 #include <iris/cereal/archives/portable_binary.hpp>
 #include <iris/cppzmq/zmq.hpp>
 #include <iris/internal/client_impl.hpp>
-#include <iris/internal/periodic_timer_impl.hpp>
 #include <iris/internal/oneshot_timer_impl.hpp>
+#include <iris/internal/periodic_timer_impl.hpp>
 #include <iris/internal/publisher_impl.hpp>
 #include <iris/internal/server_impl.hpp>
 #include <iris/internal/subscriber_impl.hpp>
@@ -34,9 +34,8 @@ class Component {
   std::unordered_map<std::uint8_t, std::unique_ptr<internal::ServerImpl>>
       servers_;
   zmq::context_t context_{zmq::context_t(1)};
-  std::mutex timers_mutex_, oneshot_timers_mutex_,
-    publishers_mutex_, subscribers_mutex_,
-      clients_mutex_, servers_mutex_;
+  std::mutex timers_mutex_, oneshot_timers_mutex_, publishers_mutex_,
+      subscribers_mutex_, clients_mutex_, servers_mutex_;
 
   friend class PeriodicTimer;
   std::atomic_uint8_t timer_count_{0};
@@ -69,8 +68,7 @@ class Component {
 
   friend class Client;
   std::atomic_uint8_t client_count_{0};
-  template <typename R>
-  Response request(std::uint8_t client_id, R &&request) {
+  template <typename R> Response request(std::uint8_t client_id, R &&request) {
     lock_t lock{clients_mutex_};
     return clients_[client_id]->send(std::forward<R>(request));
   }
@@ -111,7 +109,7 @@ public:
     clients_.clear();
     publishers_.clear();
     interval_timers_.clear();
-    for (auto & t : oneshot_timer_threads_) {
+    for (auto &t : oneshot_timer_threads_) {
       t.join();
     }
     oneshot_timers_.clear();
@@ -120,8 +118,7 @@ public:
   template <typename P, typename T>
   class PeriodicTimer set_interval(P &&period_ms, T &&fn);
 
-  template <typename P, typename T>
-  void set_timeout(P &&delay_ms, T &&fn) {
+  template <typename P, typename T> void set_timeout(P &&delay_ms, T &&fn) {
     lock_t lock{oneshot_timers_mutex_};
     auto t = std::make_unique<internal::OneShotTimerImpl>(
         std::forward<DelayMs>(DelayMs(delay_ms)),

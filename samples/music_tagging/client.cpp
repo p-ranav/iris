@@ -19,8 +19,7 @@ int main() {
   std::cout << "    Genre: " << album.genre << "\n";
   std::cout << "    Tracks:\n";
   for (size_t i = 0; i < album.tracks.size(); ++i) {
-    std::cout << "      " << 
-              i << ". " << album.tracks[i] << "\n";
+    std::cout << "      " << i << ". " << album.tracks[i] << "\n";
   }
   c.stop();
 }
