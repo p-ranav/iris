@@ -319,6 +319,7 @@ Now, we can write a client that calls this server. Create a client port using `c
 * Resend a request, if no reply has arrived within a timeout period.
 * Abandon the transaction if there is still no reply after several requests.
 
+So, `iris::Clients` require a _timeout_ (waiting on server response) and a total number of _retries_ when this timeout occurs.
 
 ```cpp
 // client.cpp
