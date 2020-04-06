@@ -17,4 +17,4 @@ find_library(ZeroMQ_LIBRARY
         PATHS ${PC_ZeroMQ_LIBRARY_DIRS}
         )
 
-add_subdirectory(publish_subscribe_string)
+add_subdirectory(nginx_log_publisher)
