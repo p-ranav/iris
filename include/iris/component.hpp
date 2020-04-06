@@ -219,13 +219,16 @@ public:
 
 void TaskSystem::run(unsigned i) {
   while (!done_) {
+    lock_t lock{queue_mutex_};
+    ready_.wait(lock);
     operation_t op;
     for (unsigned n = 0; n != count_; ++n) {
       if (queue_[(i + n) % count_].try_pop(op))
         break;
     }
-    if (!valid_operation(op) && !queue_[i].try_pop(op))
+    if (!valid_operation(op) && !queue_[i].try_pop(op)) {
       continue;
+    }
     if (auto void_op = std::get_if<operation::TimerOperation>(&op))
       (*void_op).fn();
     else if (auto subscriber_op =

@@ -12,7 +12,11 @@ class TaskSystem {
   std::vector<std::thread> threads_;
   std::vector<NotificationQueue> queue_{count_};
   std::atomic<unsigned> index_{0};
-  std::atomic<bool> done_{0};
+  std::atomic_bool done_{0};
+  std::mutex queue_mutex_;
+  std::condition_variable ready_;
+  std::atomic_bool queue_empty_{true};
+
   friend class Component;
 
   void run(unsigned i);
@@ -51,17 +55,24 @@ public:
     }
   }
 
-  void stop() { done_ = true; }
+  void stop() { 
+    done_ = true; 
+    ready_.notify_all();
+  }
 
   template <typename F> void async_(F &&f) {
     while (!done_) {
       auto i = index_++;
       for (unsigned n = 0; n != count_; ++n) {
-        if (queue_[(i + n) % count_].try_push(std::forward<F>(f)))
+        if (queue_[(i + n) % count_].try_push(std::forward<F>(f))) {
+          ready_.notify_one();
           return;
+        }
       }
-      if (queue_[i % count_].try_push(std::forward<F>(f)))
+      if (queue_[i % count_].try_push(std::forward<F>(f))) {
+        ready_.notify_one();
         return;
+      }
       index_ = 0;
     }
   }
