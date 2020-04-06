@@ -416,7 +416,8 @@ int main(int argc, char *argv[]) {
   Component c(threads = 1);
   c.start();
   auto client = c.create_client(endpoints = {"tcp://127.0.0.1:5510"},
-                                timeout = 2500, retries = 3);
+                                timeout = 2500, 
+                                retries = 3);
 
   // Send request to server
   auto response = client.send(request);
