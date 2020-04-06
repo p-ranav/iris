@@ -40,7 +40,7 @@ public:
     auto message_str = stream.str();
     zmq::message_t message_struct(message_str.length());
     memcpy(message_struct.data(), message_str.c_str(), message_str.length());
-    socket_->send(std::move(message_struct));
+    socket_->send(std::move(message_struct), zmq::send_flags::none);
   }
 };
 

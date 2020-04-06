@@ -1,9 +1,9 @@
 #pragma once
-#include <iris/cereal/types/vector.hpp>
-#include <vector>
+#include <iris/cereal/types/array.hpp>
+#include <array>
 
 struct Numbers {
-  std::vector<double> values;
+  std::array<double, 3> values;
 
   auto size() const { return values.size(); }
   auto begin() const { return values.begin(); }

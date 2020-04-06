@@ -56,9 +56,9 @@ public:
   void recv();
 
   template <typename Response> void send(Response &&response) {
-    auto success = socket_->send(response.payload_);
+    auto success = socket_->send(response.payload_, zmq::send_flags::none);
     while (!success) {
-      socket_->send(response.payload_);
+      socket_->send(response.payload_, zmq::send_flags::none);
     }
     ready_ = true;
   }

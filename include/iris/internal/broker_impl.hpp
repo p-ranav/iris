@@ -67,31 +67,33 @@ public:
     //  Switch messages between sockets
     while (!done_) {
         zmq::message_t message;
-        int more;               //  Multipart detection
-
         zmq::poll(&items[0], 2, -1);
         
         if (items[0].revents & ZMQ_POLLIN) {
             while(!done_) {
                 //  Process all parts of the message
-                frontend_->recv(&message);
-                size_t more_size = sizeof (more);
-                frontend_->getsockopt(ZMQ_RCVMORE, &more, &more_size);
-                backend_->send(message, more? ZMQ_SNDMORE: 0);
-                
-                if (!more)
-                    break;      //  Last message part
+                auto ret = frontend_->recv(message, zmq::recv_flags::none);
+                if (ret) {
+                  //  Multipart detection
+                  auto more = frontend_->get(zmq::sockopt::rcvmore);
+                  backend_->send(message, more? zmq::send_flags::sndmore: zmq::send_flags::none);
+                  
+                  if (!more)
+                      break;
+                }
             }
         }
         if (items[1].revents & ZMQ_POLLIN) {
             while (!done_) {
                 //  Process all parts of the message
-                backend_->recv(&message);
-                size_t more_size = sizeof (more);
-                backend_->getsockopt(ZMQ_RCVMORE, &more, &more_size);
-                frontend_->send(message, more? ZMQ_SNDMORE: 0);
-                if (!more)
-                    break;      //  Last message part
+                auto ret = backend_->recv(message, zmq::recv_flags::none);
+                if (ret) {
+                  //  Multipart detection
+                  auto more = backend_->get(zmq::sockopt::rcvmore);
+                  frontend_->send(message, more? zmq::send_flags::sndmore: zmq::send_flags::none);
+                  if (!more)
+                      break;
+                }
             }
         }
     }
