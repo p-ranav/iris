@@ -6,15 +6,19 @@
 
 ## Component Model
 
-`iris` components can have a variety of  ports and timers. There are 4 basic types of communication ports: ***publisher***, ***subscriber***, ***client***, and ***server*** ports. Publisher ports publish messages, without blocking, on specific endpoints. Subscriber ports subscribe to such topics (on specific endpoints) and receive messages published by one or more publishers. Server ports provide an interface to a component service. Client ports can use this interface to request such services. Both synchronous and asynchronous remote method invocations are supported. Component timers can be periodic or oneshot and allow components to trigger themselves with the specified timing characteristics.
+An `iris::Component` is a building block - A reusable piece of software that can be instantiated and connected with other components. Think LEGO. Large and complex software systems can be assembled by composing small, tested component building blocks. 
 
-An _operation_ is an abstraction for the different tasks undertaken by a component.  These tasks are implemented by the component’s source code written by the developer. Application developers provide the functional, business-logic code that implements operations on local state variables and inputs received on component ports. 
+`iris` components support:
 
-Operation requests (e.g., timer expired so please call my callback) are serviced by one or more executor threads that make up the component's task system. 
+* A variety of communication ports and patterns: _Publisher_, _Subscriber_, _Client_, _Server_, _AsyncServer_, and _Brokers_
+* Periodic and oneshot timers that can trigger the component into action
+* A speedy task system with task stealing
+* Cereal-based serialization and deserialization of complex structures
+* ZeroMQ-based messaging
 
 <p align="center">
   <img height="600" src="img/iriscom.png"/>  
-</p>
+</p> 
 
 ## Getting Started
 
