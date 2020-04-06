@@ -239,13 +239,13 @@ int main() {
 
 ## Synchronous Request-Reply Interactions
 
-The client-server model is one of the basic interaction patterns in `iris` - client sends a request and server replies to the request. 
+The client-server model is another basic interaction pattern. Client sends a request to a remote server and waits for a reply. The server receives the request and calls a server-side callback to respond to the client.
 
 <p align="center">
   <img height=230 src="img/client_server.png"/>  
 </p>
 
-Say we have a music database server that can be queried for album metadata. Clients can request for album metadata using a catalog ID. Servers will respond with the album metadata. 
+Consider a music database server that can be queried for album metadata. Clients can request for album metadata using a catalog ID. Servers will respond with the album metadata. 
 
 Let's start with the server response - the `Album` struct.
 
