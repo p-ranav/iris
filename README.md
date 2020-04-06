@@ -257,7 +257,7 @@ The client-server model is another basic interaction pattern. Client sends a req
   <img height=230 src="img/client_server.png"/>  
 </p>
 
-Consider a music database server that can be queried for album metadata. Clients can request for album metadata using a catalog ID. Servers will respond with the album metadata. 
+In this example, we will create a music "database" server that can be queried for album metadata. Clients can request for album metadata using a catalog ID. Servers will respond with the album metadata. 
 
 Let's start with the server response - the `Album` struct.
 
