@@ -139,9 +139,9 @@ struct NginxLogEntry {
 We can start by writing our subscriber.
 
 * Create a subscriber using `component.create_subscriber`
-* The signature of a subscriber callback is `std::function<void(Message)>`. 
+* The signature of a subscriber callback is `std::function<void(Message)>` 
 * You can deserialize the received message using `Message.get<T>()`
-* Here, we are receiving log entries and printing select fields. 
+* Here, we are receiving log entries and printing select fields
 
 ```cpp
 // subscriber.cpp
@@ -168,11 +168,11 @@ int main() {
 
 Now, for the publisher. When managing state, it is cleaner to inherit from `iris::Component` and write a class.
 
-* Create a class named `NginxLogPublisher` that inherits from iris::Component
-* Create a publisher by calling `create_publisher` - We have inherited this method.
+* Create a class named `NginxLogPublisher` that inherits from `iris::Component`
+* Create a publisher by calling `create_publisher` - We have inherited this method
 * Parse the JSON log file
-* Create a periodic timer using `set_interval` and publish log messages.
-* Call `join()` on the class destructor to join on the task system executor threads.
+* Create a periodic timer using `set_interval` and publish log messages
+* Call `join()` on the class destructor to join on the task system executor threads
 
 ```cpp
 // publisher
