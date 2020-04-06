@@ -435,11 +435,11 @@ int main() {
 
 Here is our async server. Create workers like this using `Component.create_async_server`. 
 
-This worker:
+This server:
 
-* Receives a `Request` object that is deserialized into a `Numbers` structures.
-* It calculates the mean and standard deviation of the array.
-* It sets the response using `response.set`
+* receives a `Request` object that is deserialized into a `Numbers` structures.
+* calculates the mean and standard deviation of the array.
+* sets the response using `response.set`
 
 ***NOTE*** `iris::AsyncServer` is not very different from `iris::Server`. Instead of _binding_ to a ZeroMQ socket and waiting to receive requests, an `AsyncServer` _connects_ with a broker and waits for requests. 
 
