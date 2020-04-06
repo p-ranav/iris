@@ -4,9 +4,7 @@ if(DEFINED PROJECT_NAME)
   set(IRIS_SUBPROJECT ON)
 endif()
 
-project(iris VERSION 1.8.0 LANGUAGES CXX
-  HOMEPAGE_URL "https://github.com/p-ranav/iris"
-  DESCRIPTION "Lightweight Component Model and Messaging Framework based on ØMQ")
+project(iris VERSION 0.1.0 LANGUAGES CXX)
 
 if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
     include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
