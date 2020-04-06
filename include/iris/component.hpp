@@ -165,6 +165,11 @@ public:
   template <typename E>
   class Broker create_broker(E &&frontend_endpoints, E &&backend_endpoints);
 
+  void join() {
+    for (auto &thread : executor_.threads_)
+      thread.join();
+  }
+
   void start() {
     executor_.start();
     for (auto &t : oneshot_timers_) {
