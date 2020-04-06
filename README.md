@@ -13,8 +13,8 @@ An `iris::Component` is a building block - A reusable piece of software that can
 * A variety of communication ports and patterns: _Publisher_, _Subscriber_, _Client_, _Server_, _AsyncServer_, and _Brokers_
 * Periodic and oneshot timers that can trigger the component into action
 * A speedy task system with task stealing
-* Cereal-based serialization and deserialization of complex structures
-* ZeroMQ-based messaging
+* [Cereal](https://github.com/USCiLab/cereal)-based serialization and deserialization of complex structures
+* [ZeroMQ](https://zeromq.org/)-based messaging
 
 <p align="center">
   <img height="600" src="img/iriscom.png"/>  
