@@ -22,6 +22,10 @@ int main() {
       on_request = [&](Request request, Response &response) {
           // Request from client
           auto kvpair = request.get<std::tuple<std::string, std::string>>();
+          auto key = std::get<0>(kvpair);
+          auto value = std::get<1>(kvpair);
+          std::cout << "Received request {key: " 
+                    << key << ", value: " << value << "}\n";
 
           // Response to be filled and sent back 
           // Either a valid album struct or empty
@@ -29,13 +33,11 @@ int main() {
 
           // Find the album in the JSON database
           auto it = std::find_if(j.begin(), j.end(), 
-            [&kvpair](const auto& element) {
-              auto key = std::get<0>(kvpair);
-              auto value = std::get<1>(kvpair);
+            [&key, &value](const auto& element) {
               if (key == "year")
                 return element[key] == std::stoi(value);
               else
-                return element[std::get<0>(kvpair)] == std::get<1>(kvpair);
+                return element[key] == value;
           });
 
           // Populate the response fields

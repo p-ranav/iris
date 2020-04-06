@@ -38,6 +38,8 @@ int main(int argc, char *argv[]) {
     for (size_t i = 0; i < metadata.tracks.size(); ++i) {
       std::cout << "      " << i << ". " << metadata.tracks[i] << "\n";
     }
+  } else {
+    std::cout << "Album not found!\n";
   }
   c.stop();
 }
