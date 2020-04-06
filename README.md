@@ -30,22 +30,7 @@ You can optionally specify the number of threads the component can use in its ta
 iris::Component my_component(iris::threads = 2);
 ```
 
-**NOTE:** Here `iris::threads` is a [NamedType](https://github.com/joboccara/NamedType) parameter. It is not necessary to use named parameters but in certain cases, they improve code readability, e.g.,:
-
-```cpp
-using namespace iris;
-// Works but not very readable:
-// component.create_subscriber(std::vector<std::string>{"tcp://localhost:5555"}, 
-//                             5000, 
-//                             [] (Message msg) {});
-
-// More readable:
-component.create_subscriber(endpoints = {"tcp://localhost:5555"},
-                            timeout = 5000,
-                            on_receive = [] (Message msg) {}
-                            );
-
-```
+**NOTE:** Here `iris::threads` is a [NamedType](https://github.com/joboccara/NamedType) parameter. It is not necessary to use named parameters but in certain cases they improve code readability.
 
 ## Time-Triggered Operations
 
