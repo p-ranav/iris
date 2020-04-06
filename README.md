@@ -136,7 +136,7 @@ struct NginxLogEntry {
 };
 ```
 
-We can start by writing our subscriber. Some notes:
+We can start by writing our subscriber.
 
 * Create a subscriber using `component.create_subscriber`
 * The signature of a subscriber callback is `std::function<void(Message)>`. 
@@ -162,6 +162,67 @@ int main() {
                     << "-> " << entry.response << std::endl;
       });
   receiver.start();
+}
+```
+
+Now, for the publisher. When managing state, it is cleaner to inherit from `iris::Component` and write a class.
+
+* Create a class named `NginxLogPublisher` that inherits from iris::Component
+* Create a publisher by calling `create_publisher` - We have inherited this method.
+* Parse the JSON log file
+* Create a periodic timer using `set_interval` and publish log messages.
+* Call `join()` on the class destructor to join on the task system executor threads.
+
+```cpp
+#include <iostream>
+#include <iris/iris.hpp>
+using namespace iris;
+#include "nginx_log_entry.hpp"
+#include "json.hpp"
+#include <fstream>
+
+class NginxLogPublisher : public Component {
+  Publisher pub;
+  nlohmann::json j;
+  nlohmann::json::iterator it;
+
+public:
+  NginxLogPublisher(const std::string &filename) {
+    // read a JSON file
+    std::ifstream stream("nginx_logs.json");
+    stream >> j;
+    it = j.begin();
+
+    // Craete publisher
+    pub = create_publisher(endpoints = {"tcp://*:5555"});
+
+    // Publish periodically
+    set_interval(period = 50, 
+                 on_triggered = [this] {
+                     auto element = *it;
+                     std::cout << "Published: " << element << std::endl;
+                     pub.send(NginxLogEntry{
+                         .time = element["time"].get<std::string>(),
+                         .remote_ip = element["remote_ip"].get<std::string>(),
+                         .remote_user = element["remote_user"].get<std::string>(),
+                         .request = element["request"].get<std::string>(),
+                         .response = element["response"].get<unsigned>(),
+                         .bytes = element["bytes"].get<unsigned>(),
+                         .agent = element["agent"].get<std::string>()
+                     });
+                     ++it;
+                 });
+  }
+
+  ~NginxLogPublisher() {
+    join();
+  }
+
+};
+
+int main() {
+  NginxLogPublisher publisher("nginx_logs.json");
+  publisher.start();
 }
 ```
 
