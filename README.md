@@ -82,6 +82,10 @@ Noice that the component is stopped after 5 seconds - `component.stop()` stops t
 
 ## Publish-Subscribe Interactions
 
+<p align="center">
+  <img height=290 src="img/publish_subscribe.png"/>  
+</p>
+
 Here's a simple publish-subscribe example. 
 
 Let's say we want to periodically publish `Mouse` position and our struct looks like this: 
