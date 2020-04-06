@@ -143,7 +143,7 @@ struct NginxLogEntry {
 We can start by writing our subscriber.
 
 * Create a subscriber using `component.create_subscriber`
-* The subscriber port timeout is how long the subscriber's recv() call will wait before timing out and checking again. Timeouts are essential to keeping the component reactive to commands like component.stop(). See `ZMQ_RCVTIMEO` for more details.
+* The subscriber port timeout is how long the subscriber's `recv()` call will wait before timing out and checking again. Timeouts are essential to keeping the component reactive to commands like component.stop(). See `ZMQ_RCVTIMEO` for more details.
 * The signature of a subscriber callback is `std::function<void(Message)>` 
 * You can deserialize the received message using `Message.get<T>()`
 * Here, we are receiving log entries and printing select fields
