@@ -4,17 +4,33 @@
 
 `iris` is a `C++17` header-only library that provides a [component model](https://en.wikipedia.org/wiki/Component-based_software_engineering) and messaging framework based on [ZeroMQ](https://zeromq.org/). 
 
+## Table of Contents
+
+*   [Component Model](#component-model)
+*   [Getting Started](#getting-started)
+    *   [Time-Triggered Oprations](#time-triggered-operations)
+    *   [Publish-Subscribe Interactions](#publish-subscribe-interactions)
+    *   [Synchronous Request-Reply Interactions](#synchronous-request-reply-interactions)
+    *   [Asynchronous Request-Reply Interactions](#asynchronous-request-reply-interactions)
+*   [Building Samples](#building-samples)
+*   [Contributing](#contributing)
+*   [License](#license)
+
 ## Component Model
 
-`iris` components can have a variety of ports and timers. There are 4 basic types of ports: ***publisher***, ***subscriber***, ***client***, and ***server*** ports. Publisher ports publish messages, without blocking, on specific endpoints. Subscriber ports subscribe to such topics (on specific endpoints) and receive messages published by one or more publishers. Server ports provide an interface to a component service. Client ports can use this interface to request such services. Both synchronous and asynchronous remote method invocations are supported. Component timers can be periodic or oneshot and allow components to trigger themselves with the specified timing characteristics.
+An `iris::Component` is a building block - A reusable piece of software that can be instantiated and connected with other components. Think LEGO. Large and complex software systems can be assembled by composing small, tested component building blocks. 
 
-An _operation_ is an abstraction for the different tasks undertaken by a component.  These tasks are implemented by the component’s source code written by the developer. Application developers provide the functional, business-logic code that implements operations on local state variables and inputs received on component ports. 
+`iris` components support:
 
-Operation requests (e.g., timer expired so please call my callback) are serviced by one or more executor threads that make up the component's task system. 
+* A variety of communication ports and patterns: _Publisher_, _Subscriber_, _Client_, _Server_, _AsyncServer_, and _Brokers_
+* Periodic and oneshot timers that can trigger the component into action
+* A speedy multi-threaded task system with task stealing
+* [Cereal](https://github.com/USCiLab/cereal)-based serialization and deserialization of complex structures
+* [ZeroMQ](https://zeromq.org/)-based messaging
 
 <p align="center">
   <img height="600" src="img/iriscom.png"/>  
-</p>
+</p> 
 
 ## Getting Started
 
@@ -24,7 +40,7 @@ Simply include `#include <iris/iris.hpp>` and you're good to go. Start by creati
 iris::Component my_component;
 ```
 
-You can optionally specify the number of threads the component can use in its task system, e.g., this component will spawn 2 executor threads that process records in its message queues. 
+You can optionally specify the number of threads the component can use in its task system, e.g., this component will spawn 2 executor threads that process records in its respective message queues. 
 
 ```cpp
 iris::Component my_component(iris::threads = 2);
@@ -139,6 +155,7 @@ struct NginxLogEntry {
 We can start by writing our subscriber.
 
 * Create a subscriber using `component.create_subscriber`
+* The subscriber port timeout is how long the subscriber's `recv()` call will wait before timing out and checking again. Timeouts are essential to keeping the component reactive to commands like component.stop(). See `ZMQ_RCVTIMEO` for more details.
 * The signature of a subscriber callback is `std::function<void(Message)>` 
 * You can deserialize the received message using `Message.get<T>()`
 * Here, we are receiving log entries and printing select fields
@@ -234,15 +251,15 @@ int main() {
 
 ## Synchronous Request-Reply Interactions
 
-The client-server model is one of the basic interaction patterns in `iris` - client sends a request and server replies to the request.
+The client-server model is another basic interaction pattern. Client sends a request to a remote server and waits for a reply. The server receives the request and calls a server-side callback to respond to the client.
 
 <p align="center">
   <img height=230 src="img/client_server.png"/>  
 </p>
 
-Say we have a music database server that can be queried for album metadata. Clients can request for album metadata using a catalog ID. Servers will respond with the album metadata. 
+Consider a music database server that can be queried for album metadata. Clients can request for album metadata using a catalog ID. Servers will respond with the album metadata. 
 
-Let's start with the server response - the `Album` struct. Note the use of cereal `serialize` method for serialization/deserialization.
+Let's start with the server response - the `Album` struct.
 
 ```cpp
 // album.hpp
@@ -268,6 +285,7 @@ To create a server port, call `component.create_server`.
 
 * Server callbacks have the signature `std::function<void(Request, Response&)>`
 * Simply deserialize the request, perform the server task, and use `response.set()` to set the server response
+* The server port timeout is how long the server's `recv()` call will wait before timing out and checking again. Timeouts are essential to keeping the component reactive to commands like `component.stop()`. See `ZMQ_RCVTIMEO` for more details.
 
 ```cpp
 // server.cpp
@@ -304,13 +322,16 @@ int main() {
 }
 ```
 
-Now, we can write a client that calls this server. Create a client port using `component.create_client`. `iris` clients implement the [lazy pirate](http://zguide.zeromq.org/php:chapter4#Client-Side-Reliability-Lazy-Pirate-Pattern) pattern - Rather than doing a blocking receive, `iris` clients:
+Now, we can write a client that calls this server. Create a client port using `component.create_client`. 
+
+***NOTE*** `iris` clients implement the [lazy pirate](http://zguide.zeromq.org/php:chapter4#Client-Side-Reliability-Lazy-Pirate-Pattern) pattern - Rather than doing a blocking receive, `iris` clients:
 
 * Send a request to the server
 * Poll the REQ socket and receive from it only when it's sure a reply has arrived.
 * Resend a request, if no reply has arrived within a timeout period.
 * Abandon the transaction if there is still no reply after several requests.
 
+So, `iris::Clients` require a _timeout_ (waiting on server response) and a total number of _retries_ when this timeout occurs.
 
 ```cpp
 // client.cpp
@@ -354,3 +375,21 @@ Rather than having one client request work from one worker can we get any number
 <p align="center">
   <img height=230 src="img/async_client_server_distributed.png"/>  
 </p>
+
+## Building Samples
+
+There are a number of samples in the `samples/` directory. You can build these samples by running the following commands.
+
+```bash
+mkdir build
+cd build
+cmake -DIRIS_SAMPLES=ON ..
+make
+```
+
+## Contributing
+Contributions are welcome, have a look at the [CONTRIBUTING.md](CONTRIBUTING.md) document for more information.
+
+## License
+The project is available under the [MIT](https://opensource.org/licenses/MIT) license.
+
