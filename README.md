@@ -502,7 +502,8 @@ using namespace iris;
 int main() {
   Component c(threads = 2);
   auto client = c.create_client(endpoints = {"tcp://localhost:5510"},
-                                timeout = 2500, retries = 3);
+                                timeout = 2500, 
+                                retries = 3);
 
   double i = 0.0, j = 1.0, k = 2.0;
 
