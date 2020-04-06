@@ -88,7 +88,7 @@ Publish/Subscribe is classic pattern where senders of messages, called publisher
   <img height=290 src="img/publish_subscribe.png"/>  
 </p>
 
-In this example, we will be publishing messages from an Nginx log file. Here's the log file format:
+In this example, we will be parsing an Nginx log file and publishing each log entry. Here's the log file format:
 
 ```bash
 [{"time": "17/May/2015:08:05:32 +0000", "remote_ip": "93.180.71.3", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)"},
