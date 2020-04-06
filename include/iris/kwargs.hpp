@@ -29,8 +29,8 @@ static const TimerFunction::argument on_triggered;
 using Endpoints = std::vector<std::string>;
 namespace iris {
 static Endpoints endpoints;
-static Endpoints frontend;
-static Endpoints backend;
+static Endpoints router_endpoints;
+static Endpoints dealer_endpoints;
 }
 
 using TimeoutMs = fluent::NamedType<int, struct TimeoutMsTag>;
