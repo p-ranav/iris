@@ -238,7 +238,7 @@ int main() {
 
 ## Synchronous Request-Reply Interactions
 
-The client-server model is one of the basic interaction patterns in `iris` - client sends a request and server replies to the request.
+The client-server model is one of the basic interaction patterns in `iris` - client sends a request and server replies to the request. 
 
 <p align="center">
   <img height=230 src="img/client_server.png"/>  
@@ -308,7 +308,9 @@ int main() {
 }
 ```
 
-Now, we can write a client that calls this server. Create a client port using `component.create_client`. `iris` clients implement the [lazy pirate](http://zguide.zeromq.org/php:chapter4#Client-Side-Reliability-Lazy-Pirate-Pattern) pattern - Rather than doing a blocking receive, `iris` clients:
+Now, we can write a client that calls this server. Create a client port using `component.create_client`. 
+
+***NOTE*** `iris` clients implement the [lazy pirate](http://zguide.zeromq.org/php:chapter4#Client-Side-Reliability-Lazy-Pirate-Pattern) pattern - Rather than doing a blocking receive, `iris` clients:
 
 * Send a request to the server
 * Poll the REQ socket and receive from it only when it's sure a reply has arrived.
