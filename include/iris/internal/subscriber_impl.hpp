@@ -22,7 +22,6 @@ class SubscriberImpl {
   std::reference_wrapper<TaskSystem> executor_;
   std::unique_ptr<zmq::socket_t> socket_;
   Endpoints endpoints_;
-  std::string filter_;
   operation::SubscriberOperation fn_;
   std::thread thread_;
   std::atomic_bool started_{false};
@@ -31,7 +30,7 @@ class SubscriberImpl {
 public:
   template <typename E, typename T, typename S>
   SubscriberImpl(std::uint8_t id, Component *parent, zmq::context_t &context,
-                 E &&endpoints, std::string filter, T &&timeout, S &&fn,
+                 E &&endpoints, T &&timeout, S &&fn,
                  TaskSystem &executor);
 
   ~SubscriberImpl() {

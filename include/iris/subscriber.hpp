@@ -25,7 +25,7 @@ inline Subscriber Component::create_subscriber(E &&endpoints, T &&timeout,
   lock_t lock{subscribers_mutex_};
   auto s = std::make_unique<internal::SubscriberImpl>(
       subscriber_count_.load(), this, context_,
-      std::forward<Endpoints>(Endpoints(endpoints)), /* filter */ "",
+      std::forward<Endpoints>(Endpoints(endpoints)),
       std::forward<TimeoutMs>(TimeoutMs(timeout)),
       operation::SubscriberOperation{.fn = SubscriberFunction(fn).get()},
       executor_);
@@ -36,15 +36,14 @@ inline Subscriber Component::create_subscriber(E &&endpoints, T &&timeout,
 template <typename E, typename T, typename S>
 inline internal::SubscriberImpl::SubscriberImpl(
     std::uint8_t id, Component *parent, zmq::context_t &context, E &&endpoints,
-    std::string filter, T &&timeout, S &&fn, TaskSystem &executor)
+    T &&timeout, S &&fn, TaskSystem &executor)
     : id_(id), component_(parent), context_(context),
-      endpoints_(std::move(endpoints)), filter_(std::move(filter)), fn_(fn),
+      endpoints_(std::move(endpoints)), fn_(fn),
       executor_(executor) {
   socket_ = std::make_unique<zmq::socket_t>(context, ZMQ_SUB);
   for (auto &e : endpoints_) {
     socket_->connect(e);
   }
-  socket_->setsockopt(ZMQ_SUBSCRIBE, filter_.c_str(), filter_.length());
   socket_->set(zmq::sockopt::rcvtimeo, timeout.get());
 }
 

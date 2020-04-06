@@ -18,3 +18,5 @@ find_library(ZeroMQ_LIBRARY
         )
 
 add_subdirectory(nginx_log_publisher)
+add_subdirectory(music_tag_server)
+add_subdirectory(number_stats_server)
