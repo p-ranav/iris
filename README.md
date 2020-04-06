@@ -6,7 +6,7 @@
 
 ## Component Model
 
-Here's the anatomy of an `iris::Component`. `iris` components can have a variety of ports and timers. There are 4 basic types of ports: ***publisher***, ***subscriber***, ***client***, and ***server*** ports. Publisher ports publish messages, without blocking, on specific endpoints. Subscriber ports subscribe to such topics (on specific endpoints) and receive messages published by one or more publishers. Server ports provide an interface to a component service. Client ports can use this interface to request such services. Component timers can be periodic or oneshot and allow components to trigger themselves with the specified timing characteristics.
+`iris` components can have a variety of ports and timers. There are 4 basic types of ports: ***publisher***, ***subscriber***, ***client***, and ***server*** ports. Publisher ports publish messages, without blocking, on specific endpoints. Subscriber ports subscribe to such topics (on specific endpoints) and receive messages published by one or more publishers. Server ports provide an interface to a component service. Client ports can use this interface to request such services. Both synchronous and asynchronous remote method invocations are supported. Component timers can be periodic or oneshot and allow components to trigger themselves with the specified timing characteristics.
 
 An _operation_ is an abstraction for the different tasks undertaken by a component.  These tasks are implemented by the component’s source code written by the developer. Application developers provide the functional, business-logic code that implements operations on local state variables and inputs received on component ports. 
 
@@ -30,22 +30,7 @@ You can optionally specify the number of threads the component can use in its ta
 iris::Component my_component(iris::threads = 2);
 ```
 
-**NOTE:** Here `iris::threads` is a [NamedType](https://github.com/joboccara/NamedType) parameter. It is not necessary to use named parameters but in certain cases, they improve code readability, e.g.,:
-
-```cpp
-using namespace iris;
-// Works but not very readable:
-// component.create_subscriber(std::vector<std::string>{"tcp://localhost:5555"}, 
-//                             5000, 
-//                             [] (Message msg) {});
-
-// More readable:
-component.create_subscriber(endpoints = {"tcp://localhost:5555"},
-                            timeout = 5000,
-                            on_receive = [] (Message msg) {}
-                            );
-
-```
+**NOTE:** Here `iris::threads` is a [NamedType](https://github.com/joboccara/NamedType) parameter. It is not necessary to use named parameters but in certain cases they improve code readability.
 
 ## Time-Triggered Operations
 
@@ -84,10 +69,7 @@ int main() {
   c.set_timeout(delay = 2500,
                 on_triggered = [] { std::cout << "2.5 second Timeout!" << std::endl; 
                 });
-  c.set_timeout(delay = 5000,
-                on_triggered = [] { std::cout << "5.0 second Timeout!" << std::endl; 
-                });
-  c.set_timeout(delay = 6000, 
+  c.set_timeout(delay = 5000, 
                 on_triggered = [&] {
                     std::cout << "Stopping component" << std::endl;
                     c.stop();
@@ -96,7 +78,7 @@ int main() {
 }
 ```
 
-Noice that the component is stopped after 6 seconds - `component.stop()` stops the task scheduler from further processing of tasks. 
+Noice that the component is stopped after 5 seconds - `component.stop()` stops the task scheduler from further processing of tasks. 
 
 ## Publish-Subscribe Interactions
 
@@ -313,6 +295,8 @@ int main() {
 ```
 
 ## Asynchronous Request-Reply Interactions
+
+Rather than having one client request work from one worker can we get any number of clients to request work from any number of workers? We could pre load each client with a list of workers and have each client talk directly to a worker. This works, but what if we add or remove workers, we then need to update every client. A better solution would be to have a broker which both clients and workers connect to and is responsible for passing messages back and forth. Since this broker will need to deal with many simultaneous requests and responses we’ll need some new sockets. Routers are like asynchronous response sockets and dealers like asynchronous request sockets.
 
 <p align="center">
   <img height=230 src="img/async_client_server_distributed.png"/>  
