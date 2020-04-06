@@ -199,7 +199,7 @@ public:
     pub = create_publisher(endpoints = {"tcp://*:5555"});
 
     // Publish periodically
-    set_interval(period = 50, 
+    set_interval(period = 200, 
                  on_triggered = [this] {
                      auto element = *it;
                      std::cout << "Published: " << element << std::endl;
