@@ -228,6 +228,10 @@ int main() {
 }
 ```
 
+<p align="center">
+  <img src="img/nginx_log_publisher.gif"/>  
+</p>
+
 ## Synchronous Request-Reply Interactions
 
 The client-server model is one of the basic interaction patterns in `iris` - client sends a request and server replies to the request.
