@@ -257,7 +257,7 @@ The client-server model is another basic interaction pattern. Client sends a req
   <img height=230 src="img/client_server.png"/>  
 </p>
 
-Consider a music database server that can be queried for album metadata. Clients can request for album metadata using a catalog ID. Servers will respond with the album metadata. 
+In this example, we will create a music "database" server that can be queried for album metadata. Clients can request for album metadata using a catalog ID. Servers will respond with the album metadata. 
 
 Let's start with the server response - the `Album` struct.
 
@@ -370,7 +370,7 @@ int main() {
 
 ## Asynchronous Request-Reply Interactions
 
-Rather than having one client request work from one worker can we get any number of clients to request work from any number of workers? We could pre load each client with a list of workers and have each client talk directly to a worker. This works, but what if we add or remove workers, we then need to update every client. A better solution would be to have a broker which both clients and workers connect to and is responsible for passing messages back and forth. Since this broker will need to deal with many simultaneous requests and responses we’ll need some new sockets. Routers are like asynchronous response sockets and dealers like asynchronous request sockets.
+Rather than having one client request work from one worker can we get any number of clients to request work from any number of workers? We could pre load each client with a list of workers and have each client talk directly to a worker. This works, but what if we add or remove workers, we then need to update every client. A better solution would be to have a broker which both clients and workers connect to and is responsible for passing messages back and forth. Brokers can deal with many simultaneous requests and responses using routers and dealers. Routers are like asynchronous response sockets and dealers like asynchronous request sockets.
 
 <p align="center">
   <img height=230 src="img/async_client_server_distributed.png"/>  
@@ -381,8 +381,7 @@ Rather than having one client request work from one worker can we get any number
 There are a number of samples in the `samples/` directory. You can build these samples by running the following commands.
 
 ```bash
-mkdir build
-cd build
+mkdir build && cd build
 cmake -DIRIS_SAMPLES=ON ..
 make
 ```
