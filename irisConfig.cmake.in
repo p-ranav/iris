@@ -1,0 +1,9 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+find_dependency(Threads REQUIRED)
+
+if (NOT TARGET iris::iris)
+  include(${CMAKE_CURRENT_LIST_DIR}/irisTargets.cmake)
+endif ()
