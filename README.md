@@ -376,6 +376,158 @@ Rather than having one client request work from one worker can we get any number
   <img height=230 src="img/async_client_server_distributed.png"/>  
 </p>
 
+For this example, let's assume we have some servers (workers) that can calculate the mean and standard deviation of an array of numbers. 
+The client will send an array of numbers to the broker. The broker will forward this request to one of many async servers. These async servers/workers are connected to the broker and waiting for work. 
+
+Here is the struct we will be passing to the server(s). On the client-side, we will prepare a random array of 3 doubles and pass to the server.
+
+```cpp
+// numbers.hpp
+#pragma once
+#include <iris/cereal/types/vector.hpp>
+#include <vector>
+
+struct Numbers {
+  std::vector<double> values;
+
+  auto size() const { return values.size(); }
+  auto begin() const { return values.begin(); }
+  auto end() const { return values.end(); }
+
+  template <class Archive> void serialize(Archive &ar) {
+    ar(values);
+  }
+};
+```
+
+and here is the response we expect from the server. A `Statistics` object with mean and standard deviation:
+
+```cpp
+// statistics.hpp
+#pragma once
+
+struct Statistics {
+  double mean;
+  double stdev;
+
+  template <class Archive> void serialize(Archive &ar) {
+    ar(mean, stdev);
+  }
+};
+```
+
+Our broker component is very simple. It forwards request on port `5510` to port `5515` where one of our workers will be waiting to receive work. 
+
+***NOTE*** Below, we are creating a component with 0 threads - The task system is not needed for pure broker components as there are no tasks to execute. Brokers operate at the ZeroMQ level, simply forwarding requests and responses. 
+
+***NOTE*** Broker components, like any other component, can have other communication ports and timers. If you have these, then you need executor threads. 
+
+```cpp
+#include <iostream>
+#include <iris/iris.hpp>
+using namespace iris;
+
+int main() {
+  Component b(threads = 0);
+  b.create_broker(
+    router_endpoints = {"tcp://*:5510"},
+    dealer_endpoints = {"tcp://*:5515"}
+  );
+  b.start();
+}
+```
+
+Here is our async server. Create workers like this using `Component.create_async_server`. 
+
+This server:
+
+* receives a `Request` object that is deserialized into a `Numbers` structures.
+* calculates the mean and standard deviation of the array.
+* sets the response using `response.set`
+
+***NOTE*** `iris::AsyncServer` is not very different from `iris::Server`. Instead of _binding_ to a ZeroMQ socket and waiting to receive requests, an `AsyncServer` _connects_ with a broker and waits for requests. 
+
+```cpp
+#include <iostream>
+#include "numbers.hpp"
+#include "statistics.hpp"
+#include <iris/iris.hpp>
+using namespace iris;
+#include <algorithm>
+#include <numeric>
+#include <cmath>
+
+int main() {
+  Component worker(threads = 3);
+
+  worker.create_async_server(
+      endpoints = {"tcp://localhost:5515"}, 
+      timeout = 500,
+      on_request = [&](Request request, Response &res) {
+          auto numbers = request.get<Numbers>();
+
+          std::cout << "Received numbers: {" << numbers.values[0] 
+                    << ", " << numbers.values[1] 
+                    << ", " << numbers.values[2] << "}\n";
+
+          // Calculate mean
+          double sum = std::accumulate(numbers.begin(), numbers.end(), 0.0);
+          double mean = sum / numbers.size();
+
+          // Calculate standard deviation
+          double accum = 0.0;
+          std::for_each(numbers.begin(), numbers.end(), [&](const double d) {
+            accum += (d - mean) * (d -mean);
+          });
+          double stdev = std::sqrt(accum / numbers.size());
+
+          // Set the response
+          res.set(Statistics{.mean = mean, .stdev = stdev});
+
+          std::cout << "Calculated stats successfully\n";
+      });
+  worker.start();
+}
+```
+
+Finally, here's our client. This client:
+
+* Creates an array of numbers and sends it to the broker
+* The broker will forward to one of the async servers at its disposal.
+* One of the servers will respond and the response is forwarded back to this client
+
+```cpp
+#include <iostream>
+#include "numbers.hpp"
+#include "statistics.hpp"
+#include <iris/iris.hpp>
+using namespace iris;
+
+int main() {
+  Component c(threads = 2);
+  auto client = c.create_client(endpoints = {"tcp://localhost:5510"},
+                                timeout = 2500, 
+                                retries = 3);
+
+  double i = 0.0, j = 1.0, k = 2.0;
+
+  c.set_interval(
+      period = 2000, 
+      on_triggered = [&] {
+          std::cout << "[Sent] numbers = {" << i << ", " << j << ", " << k << "}\n";
+          auto response = client.send(Numbers{.values = {i, j, k}});
+          auto stats = response.get<Statistics>();
+          std::cout << "[Received] mean = " << stats.mean 
+                    << "; stdev = " << stats.stdev
+                    << std::endl;
+          i += 0.3;
+          j += 0.5;
+          k += 0.9;
+      });
+  c.start();
+}
+```
+
 <p align="center">
   <img src="img/number_stats_server.gif"/>  
 </p>
