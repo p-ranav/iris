@@ -381,8 +381,7 @@ Rather than having one client request work from one worker can we get any number
 There are a number of samples in the `samples/` directory. You can build these samples by running the following commands.
 
 ```bash
-mkdir build
-cd build
+mkdir build && cd build
 cmake -DIRIS_SAMPLES=ON ..
 make
 ```
