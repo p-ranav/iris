@@ -136,99 +136,31 @@ struct NginxLogEntry {
 };
 ```
 
-Here's a simple publish-subscribe example. 
+We can start by writing our subscriber. Some notes:
 
-Let's say we want to periodically publish `Mouse` position and our struct looks like this: 
-
-```cpp
-struct Mouse {
-  int x, y;
-};
-```
-
-`iris` uses [Cereal](https://github.com/USCiLab/cereal) library for serialization and deserialization of user-defined structures. To enable serialization of `Mouse` objects, write a save method like below:
+* Create a subscriber using `component.create_subscriber`
+* The signature of a subscriber callback is `std::function<void(Message)>`. 
+* You can deserialize the received message using `Message.get<T>()`
+* Here, we are receiving log entries and printing select fields. 
 
 ```cpp
-struct Mouse {
-  int x, y;
-
-  // Method for serialization
-  template <typename Archive>
-  void save(Archive& ar) const {
-    ar(x, y);
-  }
-};
-```
-
-Now we can create an `iris::Publisher` using `component.create_publisher`. Publish periodically by creating a timer and publishing mouse objects using `publisher.send`.
-
-```cpp
-// publisher.cpp
-#include <iostream>
-#include <random>
-#include <iris/iris.hpp>
-using namespace iris;
-
-struct Mouse {
-  int x, y;
-
-  // Method for serialization
-  template <typename Archive>
-  void save(Archive& ar) const {
-    ar(x, y);
-  }
-};
-
-int main() {
-  std::random_device rd; // obtain a random number from hardware
-  std::mt19937 eng(rd()); // seed the generator
-  std::uniform_int_distribution<> x_dist(0, 1920); // random number generator for Mouse X position
-  std::uniform_int_distribution<> y_dist(0, 1080); // random number generator for Mouse Y position
-
-  Component sender;
-  auto p = sender.create_publisher(endpoints = {"tcp://*:5555"});
-
-  sender.set_interval(period = 250, 
-    on_triggered = [&] { 
-        Mouse position {.x = x_dist(eng), .y = y_dist(eng)};
-        // Publish the position
-        p.send(position);
-        std::cout << "Published (" << position.x << ", " << position.y << ")\n";
-  });
-  sender.start();
-}
-```
-
-Now let's write a `recevier` component. Define the `Mouse` struct and write a `load` method to enable deserialization. 
-
-Create an `iris::Subscriber` using `component.create_subscriber`. Subscribers are implemented using ZeroMQ. The timeout parameter sets the timeout (in milliseconds) for the receive operation on the socket. If the value is 0, `recv()` will return immediately and loop until a message is received. If the value is -1, it will block until a message is available. For all other values, it will wait for a message for that amount of time before trying again. 
-
-Subscriber callbacks have the signature `std::function<void(iris::Message)>`, i.e., subscriber receives `iris::Message` objects in its callback. Simply call `messsage.get<T>` to deserialize to the type `T`. 
-
-```cpp
-// subscriber.cpp
 #include <iostream>
 #include <iris/iris.hpp>
 using namespace iris;
-
-struct Mouse {
-  int x, y;
-
-  // Method for deserialization
-  template <typename Archive>
-  void load(Archive& ar) {
-    ar(x, y);
-  }
-};
+#include "nginx_log_entry.hpp"
 
 int main() {
   Component receiver(threads = 2);
-  receiver.create_subscriber(endpoints = {"tcp://localhost:5555"},
-    timeout = 100, // timeout after 100ms and check again
-    on_receive = [](Message msg) {
-      auto position = msg.get<Mouse>();
-      std::cout << "Received (" << position.x << ", " << position.y << ")\n";
-  });
+  receiver.create_subscriber(
+      endpoints = {"tcp://localhost:5555"}, 
+      timeout = 5000,
+      on_receive = [](Message msg) {
+          auto entry = msg.get<NginxLogEntry>();
+          std::cout << "[" << entry.time << "] "
+                    << "{" << entry.remote_ip << "} "
+                    << "-> " << entry.request
+                    << "-> " << entry.response << std::endl;
+      });
   receiver.start();
 }
 ```
