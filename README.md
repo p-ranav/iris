@@ -82,9 +82,37 @@ Noice that the component is stopped after 5 seconds - `component.stop()` stops t
 
 ## Publish-Subscribe Interactions
 
+Publish/Subscribe is classic pattern where senders of messages, called publishers, do not program the messages to be sent directly to specific receivers, called subscribers. Messages are published without the knowledge of what or if any subscriber of that knowledge exists.
+
 <p align="center">
   <img height=290 src="img/publish_subscribe.png"/>  
 </p>
+
+In this example, we will be publishing messages from an Nginx log file. Here's the log file format:
+
+```bash
+[{"time": "17/May/2015:08:05:32 +0000", "remote_ip": "93.180.71.3", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)"},
+{"time": "17/May/2015:08:05:23 +0000", "remote_ip": "93.180.71.3", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)"},
+{"time": "17/May/2015:08:05:24 +0000", "remote_ip": "80.91.33.133", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.17)"},
+{"time": "17/May/2015:08:05:34 +0000", "remote_ip": "217.168.17.5", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 200, "bytes": 490, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.10.3)"},
+{"time": "17/May/2015:08:05:09 +0000", "remote_ip": "217.168.17.5", "remote_user": "-", "request": "GET /downloads/product_2 HTTP/1.1", "response": 200, "bytes": 490, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.10.3)"},
+{"time": "17/May/2015:08:05:57 +0000", "remote_ip": "93.180.71.3", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)"},
+{"time": "17/May/2015:08:05:02 +0000", "remote_ip": "217.168.17.5", "remote_user": "-", "request": "GET /downloads/product_2 HTTP/1.1", "response": 404, "bytes": 337, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.10.3)"},
+{"time": "17/May/2015:08:05:42 +0000", "remote_ip": "217.168.17.5", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 404, "bytes": 332, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.10.3)"},
+{"time": "17/May/2015:08:05:01 +0000", "remote_ip": "80.91.33.133", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.17)"},
+{"time": "17/May/2015:08:05:27 +0000", "remote_ip": "93.180.71.3", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)"},
+{"time": "17/May/2015:08:05:12 +0000", "remote_ip": "217.168.17.5", "remote_user": "-", "request": "GET /downloads/product_2 HTTP/1.1", "response": 200, "bytes": 3316, "referrer": "-", "agent": "-"},
+{"time": "17/May/2015:08:05:49 +0000", "remote_ip": "188.138.60.101", "remote_user": "-", "request": "GET /downloads/product_2 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.9.7.9)"},
+{"time": "17/May/2015:08:05:14 +0000", "remote_ip": "80.91.33.133", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.16)"},
+{"time": "17/May/2015:08:05:45 +0000", "remote_ip": "46.4.66.76", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 404, "bytes": 318, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (1.0.1ubuntu2)"},
+{"time": "17/May/2015:08:05:26 +0000", "remote_ip": "93.180.71.3", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 404, "bytes": 324, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)"},
+{"time": "17/May/2015:08:05:22 +0000", "remote_ip": "91.234.194.89", "remote_user": "-", "request": "GET /downloads/product_2 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.9.7.9)"},
+{"time": "17/May/2015:08:05:07 +0000", "remote_ip": "80.91.33.133", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.17)"},
+{"time": "17/May/2015:08:05:38 +0000", "remote_ip": "37.26.93.214", "remote_user": "-", "request": "GET /downloads/product_2 HTTP/1.1", "response": 404, "bytes": 319, "referrer": "-", "agent": "Go 1.1 package http"},
+..
+...
+....
+```
 
 Here's a simple publish-subscribe example. 
 
