@@ -246,7 +246,7 @@ The client-server model is one of the basic interaction patterns in `iris` - cli
 
 Say we have a music database server that can be queried for album metadata. Clients can request for album metadata using a catalog ID. Servers will respond with the album metadata. 
 
-Let's start with the server response - the `Album` struct. Note the use of cereal `serialize` method for serialization/deserialization.
+Let's start with the server response - the `Album` struct.
 
 ```cpp
 // album.hpp
@@ -272,6 +272,7 @@ To create a server port, call `component.create_server`.
 
 * Server callbacks have the signature `std::function<void(Request, Response&)>`
 * Simply deserialize the request, perform the server task, and use `response.set()` to set the server response
+* The Server port timeout is how long the server's `recv()` call will wait before timing out and checking again. Timeouts are essential to keeping the component reactive to commands like `component.stop()`
 
 ```cpp
 // server.cpp
