@@ -376,6 +376,10 @@ Rather than having one client request work from one worker can we get any number
   <img height=230 src="img/async_client_server_distributed.png"/>  
 </p>
 
+<p align="center">
+  <img src="img/number_stats_server.gif"/>  
+</p>
+
 ## Building Samples
 
 There are a number of samples in the `samples/` directory. You can build these samples by running the following commands.
