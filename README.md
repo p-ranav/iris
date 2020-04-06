@@ -418,6 +418,8 @@ struct Statistics {
 
 Our broker component is very simple. It forwards request on port `5510` to port `5515` where one of our workers will be waiting to receive work. Note below that we are creating a component with 0 threads - The task system is not needed for brokers as there are no tasks to execute. Brokers operate at the ZeroMQ level, simply forwarding requests and responses. 
 
+***NOTE*** Broker components, like any other component, can have other communication ports and timers. If you have these, then you need executor threads. 
+
 ```cpp
 #include <iostream>
 #include <iris/iris.hpp>
