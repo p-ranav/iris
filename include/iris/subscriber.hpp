@@ -44,6 +44,7 @@ inline internal::SubscriberImpl::SubscriberImpl(
   for (auto &e : endpoints_) {
     socket_->connect(e);
   }
+  socket_->set(zmq::sockopt::subscribe, /*filter */"");
   socket_->set(zmq::sockopt::rcvtimeo, timeout.get());
 }
 
