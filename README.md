@@ -84,10 +84,7 @@ int main() {
   c.set_timeout(delay = 2500,
                 on_triggered = [] { std::cout << "2.5 second Timeout!" << std::endl; 
                 });
-  c.set_timeout(delay = 5000,
-                on_triggered = [] { std::cout << "5.0 second Timeout!" << std::endl; 
-                });
-  c.set_timeout(delay = 6000, 
+  c.set_timeout(delay = 5000, 
                 on_triggered = [&] {
                     std::cout << "Stopping component" << std::endl;
                     c.stop();
@@ -96,7 +93,7 @@ int main() {
 }
 ```
 
-Noice that the component is stopped after 6 seconds - `component.stop()` stops the task scheduler from further processing of tasks. 
+Noice that the component is stopped after 5 seconds - `component.stop()` stops the task scheduler from further processing of tasks. 
 
 ## Publish-Subscribe Interactions
 
