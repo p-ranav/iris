@@ -82,106 +82,155 @@ Noice that the component is stopped after 5 seconds - `component.stop()` stops t
 
 ## Publish-Subscribe Interactions
 
+Publish/Subscribe is classic pattern where senders of messages, called publishers, do not program the messages to be sent directly to specific receivers, called subscribers. Messages are published without the knowledge of what or if any subscriber of that knowledge exists.
+
 <p align="center">
   <img height=290 src="img/publish_subscribe.png"/>  
 </p>
 
-Here's a simple publish-subscribe example. 
+In this example ([samples/nginx_log_publisher](https://github.com/p-ranav/iris/tree/master/samples/nginx_log_publisher)), we will be parsing an Nginx log file and publishing each log entry. Here's the log file format:
 
-Let's say we want to periodically publish `Mouse` position and our struct looks like this: 
-
-```cpp
-struct Mouse {
-  int x, y;
-};
+```bash
+[{"time": "17/May/2015:08:05:32 +0000", "remote_ip": "93.180.71.3", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)"},
+{"time": "17/May/2015:08:05:23 +0000", "remote_ip": "93.180.71.3", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)"},
+{"time": "17/May/2015:08:05:24 +0000", "remote_ip": "80.91.33.133", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.17)"},
+{"time": "17/May/2015:08:05:34 +0000", "remote_ip": "217.168.17.5", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 200, "bytes": 490, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.10.3)"},
+{"time": "17/May/2015:08:05:09 +0000", "remote_ip": "217.168.17.5", "remote_user": "-", "request": "GET /downloads/product_2 HTTP/1.1", "response": 200, "bytes": 490, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.10.3)"},
+{"time": "17/May/2015:08:05:57 +0000", "remote_ip": "93.180.71.3", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)"},
+{"time": "17/May/2015:08:05:02 +0000", "remote_ip": "217.168.17.5", "remote_user": "-", "request": "GET /downloads/product_2 HTTP/1.1", "response": 404, "bytes": 337, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.10.3)"},
+{"time": "17/May/2015:08:05:42 +0000", "remote_ip": "217.168.17.5", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 404, "bytes": 332, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.10.3)"},
+{"time": "17/May/2015:08:05:01 +0000", "remote_ip": "80.91.33.133", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.17)"},
+{"time": "17/May/2015:08:05:27 +0000", "remote_ip": "93.180.71.3", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)"},
+{"time": "17/May/2015:08:05:12 +0000", "remote_ip": "217.168.17.5", "remote_user": "-", "request": "GET /downloads/product_2 HTTP/1.1", "response": 200, "bytes": 3316, "referrer": "-", "agent": "-"},
+{"time": "17/May/2015:08:05:49 +0000", "remote_ip": "188.138.60.101", "remote_user": "-", "request": "GET /downloads/product_2 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.9.7.9)"},
+{"time": "17/May/2015:08:05:14 +0000", "remote_ip": "80.91.33.133", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.16)"},
+{"time": "17/May/2015:08:05:45 +0000", "remote_ip": "46.4.66.76", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 404, "bytes": 318, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (1.0.1ubuntu2)"},
+{"time": "17/May/2015:08:05:26 +0000", "remote_ip": "93.180.71.3", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 404, "bytes": 324, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)"},
+{"time": "17/May/2015:08:05:22 +0000", "remote_ip": "91.234.194.89", "remote_user": "-", "request": "GET /downloads/product_2 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.9.7.9)"},
+{"time": "17/May/2015:08:05:07 +0000", "remote_ip": "80.91.33.133", "remote_user": "-", "request": "GET /downloads/product_1 HTTP/1.1", "response": 304, "bytes": 0, "referrer": "-", "agent": "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.17)"},
+{"time": "17/May/2015:08:05:38 +0000", "remote_ip": "37.26.93.214", "remote_user": "-", "request": "GET /downloads/product_2 HTTP/1.1", "response": 404, "bytes": 319, "referrer": "-", "agent": "Go 1.1 package http"},
+..
+...
+....
 ```
 
-`iris` uses [Cereal](https://github.com/USCiLab/cereal) library for serialization and deserialization of user-defined structures. To enable serialization of `Mouse` objects, write a save method like below:
+First we can write a message struct `NginxLogEntry`. `iris` uses [Cereal](https://github.com/USCiLab/cereal) for serialization and deserialization of messages for transport. Our `NginxLogEntry` struct has a `serialize` method for this purpose. 
 
 ```cpp
-struct Mouse {
-  int x, y;
+// nginx_log_entry.hpp
+#pragma once
+#include <string>
 
-  // Method for serialization
-  template <typename Archive>
-  void save(Archive& ar) const {
-    ar(x, y);
+struct NginxLogEntry {
+  std::string time;
+  std::string remote_ip;
+  std::string remote_user;
+  std::string request;
+  unsigned response;
+  unsigned bytes;
+  std::string agent;
+
+  template <class Archive> void serialize(Archive &ar) {
+    ar(time, remote_ip, remote_user, request, response, bytes, agent);
   }
 };
 ```
 
-Now we can create an `iris::Publisher` using `component.create_publisher`. Publish periodically by creating a timer and publishing mouse objects using `publisher.send`.
+We can start by writing our subscriber.
 
-```cpp
-// publisher.cpp
-#include <iostream>
-#include <random>
-#include <iris/iris.hpp>
-using namespace iris;
-
-struct Mouse {
-  int x, y;
-
-  // Method for serialization
-  template <typename Archive>
-  void save(Archive& ar) const {
-    ar(x, y);
-  }
-};
-
-int main() {
-  std::random_device rd; // obtain a random number from hardware
-  std::mt19937 eng(rd()); // seed the generator
-  std::uniform_int_distribution<> x_dist(0, 1920); // random number generator for Mouse X position
-  std::uniform_int_distribution<> y_dist(0, 1080); // random number generator for Mouse Y position
-
-  Component sender;
-  auto p = sender.create_publisher(endpoints = {"tcp://*:5555"});
-
-  sender.set_interval(period = 250, 
-    on_triggered = [&] { 
-        Mouse position {.x = x_dist(eng), .y = y_dist(eng)};
-        // Publish the position
-        p.send(position);
-        std::cout << "Published (" << position.x << ", " << position.y << ")\n";
-  });
-  sender.start();
-}
-```
-
-Now let's write a `recevier` component. Define the `Mouse` struct and write a `load` method to enable deserialization. 
-
-Create an `iris::Subscriber` using `component.create_subscriber`. Subscribers are implemented using ZeroMQ. The timeout parameter sets the timeout (in milliseconds) for the receive operation on the socket. If the value is 0, `recv()` will return immediately and loop until a message is received. If the value is -1, it will block until a message is available. For all other values, it will wait for a message for that amount of time before trying again. 
-
-Subscriber callbacks have the signature `std::function<void(iris::Message)>`, i.e., subscriber receives `iris::Message` objects in its callback. Simply call `messsage.get<T>` to deserialize to the type `T`. 
+* Create a subscriber using `component.create_subscriber`
+* The signature of a subscriber callback is `std::function<void(Message)>` 
+* You can deserialize the received message using `Message.get<T>()`
+* Here, we are receiving log entries and printing select fields
 
 ```cpp
 // subscriber.cpp
 #include <iostream>
 #include <iris/iris.hpp>
 using namespace iris;
-
-struct Mouse {
-  int x, y;
-
-  // Method for deserialization
-  template <typename Archive>
-  void load(Archive& ar) {
-    ar(x, y);
-  }
-};
+#include "nginx_log_entry.hpp"
 
 int main() {
   Component receiver(threads = 2);
-  receiver.create_subscriber(endpoints = {"tcp://localhost:5555"},
-    timeout = 100, // timeout after 100ms and check again
-    on_receive = [](Message msg) {
-      auto position = msg.get<Mouse>();
-      std::cout << "Received (" << position.x << ", " << position.y << ")\n";
-  });
+  receiver.create_subscriber(
+      endpoints = {"tcp://localhost:5555"}, 
+      timeout = 5000,
+      on_receive = [](Message msg) {
+          auto entry = msg.get<NginxLogEntry>();
+          std::cout << "[" << entry.time << "] "
+                    << "{" << entry.remote_ip << "} "
+                    << "-> " << entry.request
+                    << "-> " << entry.response << std::endl;
+      });
   receiver.start();
 }
 ```
+
+Now, for the publisher. When managing state, it is cleaner to inherit from `iris::Component` and write a class.
+
+* Create a class named `NginxLogPublisher` that inherits from `iris::Component`
+* Create a publisher by calling `create_publisher` - We have inherited this method
+* Parse the JSON log file
+* Create a periodic timer using `set_interval` and publish log messages
+* Call `join()` on the class destructor to join on the task system executor threads
+
+```cpp
+// publisher
+#include <iostream>
+#include <iris/iris.hpp>
+using namespace iris;
+#include "nginx_log_entry.hpp"
+#include "json.hpp"
+#include <fstream>
+
+class NginxLogPublisher : public Component {
+  Publisher pub;
+  nlohmann::json j;
+  nlohmann::json::iterator it;
+
+public:
+  NginxLogPublisher(const std::string &filename) {
+    // read a JSON file
+    std::ifstream stream("nginx_logs.json");
+    stream >> j;
+    it = j.begin();
+
+    // Craete publisher
+    pub = create_publisher(endpoints = {"tcp://*:5555"});
+
+    // Publish periodically
+    set_interval(period = 200, 
+                 on_triggered = [this] {
+                     auto element = *it;
+                     std::cout << "Published: " << element << std::endl;
+                     pub.send(NginxLogEntry{
+                         .time = element["time"].get<std::string>(),
+                         .remote_ip = element["remote_ip"].get<std::string>(),
+                         .remote_user = element["remote_user"].get<std::string>(),
+                         .request = element["request"].get<std::string>(),
+                         .response = element["response"].get<unsigned>(),
+                         .bytes = element["bytes"].get<unsigned>(),
+                         .agent = element["agent"].get<std::string>()
+                     });
+                     ++it;
+                 });
+  }
+
+  ~NginxLogPublisher() {
+    join();
+  }
+
+};
+
+int main() {
+  NginxLogPublisher publisher("nginx_logs.json");
+  publisher.start();
+}
+```
+
+<p align="center">
+  <img src="img/nginx_log_publisher.gif"/>  
+</p>
 
 ## Synchronous Request-Reply Interactions
 
