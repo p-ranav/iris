@@ -114,6 +114,28 @@ In this example, we will be publishing messages from an Nginx log file. Here's t
 ....
 ```
 
+First we can write a message struct `NginxLogEntry`. `iris` uses [Cereal](https://github.com/USCiLab/cereal) for serialization and deserialization of messages for transport. Our `NginxLogEntry` struct has a `serialize` method for this purpose. 
+
+```cpp
+// nginx_log_entry.hpp
+#pragma once
+#include <string>
+
+struct NginxLogEntry {
+  std::string time;
+  std::string remote_ip;
+  std::string remote_user;
+  std::string request;
+  unsigned response;
+  unsigned bytes;
+  std::string agent;
+
+  template <class Archive> void serialize(Archive &ar) {
+    ar(time, remote_ip, remote_user, request, response, bytes, agent);
+  }
+};
+```
+
 Here's a simple publish-subscribe example. 
 
 Let's say we want to periodically publish `Mouse` position and our struct looks like this: 
