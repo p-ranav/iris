@@ -192,7 +192,7 @@ Now, for the publisher. When managing state, it is cleaner to inherit from `iris
 * Call `join()` on the class destructor to join on the task system executor threads
 
 ```cpp
-// publisher
+// publisher.cpp
 #include <iostream>
 #include <iris/iris.hpp>
 using namespace iris;
