@@ -6,7 +6,7 @@
 struct Album {
   std::string name;
   std::string artist;
-  int year;
+  unsigned year;
   std::string genre;
   std::vector<std::string> tracks;
 

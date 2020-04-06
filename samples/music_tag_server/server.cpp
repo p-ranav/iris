@@ -3,26 +3,54 @@
 using namespace iris;
 #include <iostream>
 #include <map>
+#include "json.hpp"
+#include <fstream>
+#include <iris/cereal/types/optional.hpp>
+#include <iris/cereal/types/tuple.hpp>
 
 int main() {
 
-  std::map<std::string, Album> albums;
-  albums["R2 552927"] =
-      Album{.name = "Paranoid",
-            .artist = "Black Sabbath",
-            .year = 1970,
-            .genre = "Heavy metal",
-            .tracks = {"War Pigs", "Paranoid", "Planet Caravan", "Iron Man",
-                       "Electric Funeral", "Hand of Doom",
-                       "Jack the Stripper / Fairies Wear Boots"}};
+  // Load JSON database
+  nlohmann::json j;
+  std::ifstream stream("database.json");
+  stream >> j;
 
-  Component music_tag_component;
-  music_tag_component.create_server(
-      endpoints = {"tcp://*:5510"}, timeout = 500,
+  Component server;
+  server.create_server(
+      endpoints = {"tcp://*:5510"}, 
+      timeout = 500,
       on_request = [&](Request request, Response &response) {
-        auto catalog_id = request.get<std::string>();
-        std::cout << "Received request for catalog # " << catalog_id << "\n";
-        response.set(albums[catalog_id]);
+          // Request from client
+          auto kvpair = request.get<std::tuple<std::string, std::string>>();
+
+          // Response to be filled and sent back 
+          // Either a valid album struct or empty
+          std::optional<Album> album{};
+
+          // Find the album in the JSON database
+          auto it = std::find_if(j.begin(), j.end(), 
+            [&kvpair](const auto& element) {
+              auto key = std::get<0>(kvpair);
+              auto value = std::get<1>(kvpair);
+              if (key == "year")
+                return element[key] == std::stoi(value);
+              else
+                return element[std::get<0>(kvpair)] == std::get<1>(kvpair);
+          });
+
+          // Populate the response fields
+          if (it != j.end()) {
+            album = Album {
+              .name = (*it)["name"].get<std::string>(),
+              .artist = (*it)["artist"].get<std::string>(),
+              .year = (*it)["year"].get<unsigned>(),
+              .genre = (*it)["genre"].get<std::string>(),
+              .tracks = (*it)["tracks"].get<std::vector<std::string>>()
+            };
+          }
+
+          // Set response
+          response.set(album);
       });
-  music_tag_component.start();
+  server.start();
 }

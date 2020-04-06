@@ -1,0 +1,69 @@
+[
+    {
+        "catalog": "R2 552927",
+        "name": "Paranoid", 
+        "artist": "Black Sabbath", 
+        "year": 1970, 
+        "genre": "Heavy Metal", 
+        "tracks": [
+            "War Pigs", 
+            "Paranoid", 
+            "Planet Caravan", 
+            "Iron Man", 
+            "Electric Funeral", 
+            "Hand of Doom", 
+            "Jack the Stripper / Fairies Wear Boots"]
+    },
+    {
+        "catalog": "7243 8 35870 2 5",
+        "name": "The Number of the Beast",
+        "artist": "Iron Maiden",
+        "year": 1982,
+        "genre": "Heavy Metal",
+        "tracks": [
+            "Invaders",
+            "Children of the Damned",
+            "The Prisoner",
+            "22 Acacia Avenue",
+            "The Number of the Beast",
+            "Run to the Hills",
+            "Gangland",
+            "Hallowed Be Thy Name"
+        ]
+    },
+    {
+        "catalog": "9 60439-1",
+        "name": "Master of Puppets",
+        "artist": "Metallica",
+        "year": 1986,
+        "genre": "Thrash Metal",
+        "tracks": [
+            "Battery",
+            "Master of Puppets",
+            "The Thing That Should Not Be",
+            "Welcome Home (Sanitarium)",
+            "Disposable Heroes",
+            "Leper Messiah",
+            "Orion",
+            "Damage, Inc."
+        ]
+    },
+    {
+        "catalog": "D111053",
+        "name": "Rust in Peace",
+        "artist": "Megadeth",
+        "year": 1990,
+        "genre": "Thrash Metal",
+        "tracks": [
+            "Holy Wars… The Punishment Due",
+            "Hangar 18",
+            "Take No Prisoners",
+            "Five Magics",
+            "Poison Was the Cure",
+            "Lucretia",
+            "Tornado of Souls",
+            "Dawn Patrol",
+            "Rust in Peace... Polaris"
+        ]
+    }
+]
