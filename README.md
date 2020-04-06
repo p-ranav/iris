@@ -4,6 +4,26 @@
 
 `iris` is a `C++17` header-only library that provides a [component model](https://en.wikipedia.org/wiki/Component-based_software_engineering) and messaging framework based on [ZeroMQ](https://zeromq.org/). 
 
+## Table of Contents
+
+*   [Component Model](#component-model)
+*   [Formatting Options](#formatting-options)
+    *   [Style Inheritance Model](#style-inheritance-model)
+    *   [Word Wrapping](#word-wrapping)
+    *   [Font Alignment](#font-alignment)
+    *   [Font Styles](#font-styles)
+    *   [Cell Colors](#cell-colors)
+    *   [Borders and Corners](#borders-and-corners)
+    *   [Range-based Iteration](#range-based-iteration)
+    *   [Nested Tables](#nested-tables)
+    *   [UTF-8 Support](#utf-8-support)
+*   [Exporters](#exporters)
+    *   [Markdown](#markdown)
+    *   [AsciiDoc](#asciidoc)
+*   [Building Samples](#building-samples)
+*   [Contributing](#contributing)
+*   [License](#license)
+
 ## Component Model
 
 An `iris::Component` is a building block - A reusable piece of software that can be instantiated and connected with other components. Think LEGO. Large and complex software systems can be assembled by composing small, tested component building blocks. 
@@ -363,3 +383,21 @@ Rather than having one client request work from one worker can we get any number
 <p align="center">
   <img height=230 src="img/async_client_server_distributed.png"/>  
 </p>
+
+## Building Samples
+
+There are a number of samples in the `samples/` directory. You can build these samples by running the following commands.
+
+```bash
+mkdir build
+cd build
+cmake -DIRIS_SAMPLES=ON ..
+make
+```
+
+## Contributing
+Contributions are welcome, have a look at the [CONTRIBUTING.md](CONTRIBUTING.md) document for more information.
+
+## License
+The project is available under the [MIT](https://opensource.org/licenses/MIT) license.
+
