@@ -2,6 +2,16 @@
   <img height="150" src="img/logo.png"/>  
 </p>
 
+<p align="center">
+  <a href="https://en.wikipedia.org/wiki/C%2B%2B17">
+    <img src="https://img.shields.io/badge/C%2B%2B-17-blue.svg" alt="standard"/>
+  </a>
+  <a href="https://github.com/p-ranav/tabulate/blob/master/LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="license"/>
+  </a>
+  <img src="https://img.shields.io/badge/version-0.1.0-blue.svg?cacheSeconds=2592000" alt="version"/>
+</p>
+
 `iris` is a `C++17` header-only library that provides a [component model](https://en.wikipedia.org/wiki/Component-based_software_engineering) and messaging framework based on [ZeroMQ](https://zeromq.org/). 
 
 ## Prerequisites
