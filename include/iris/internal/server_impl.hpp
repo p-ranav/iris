@@ -59,6 +59,15 @@ public:
   void recv();
 
   template <typename Response> void send(Response &&response) {
+
+    // If response not set by user, set to empty JSON object
+    if (!response.set_) {
+      std::cout << "Response not set\n";
+      std::string serialized = "{}"; // empty JSON
+      response.payload_.rebuild(serialized.size());
+      memcpy(response.payload_.data(), serialized.c_str(), serialized.size());
+    }
+
     auto success = socket_->send(response.payload_, zmq::send_flags::none);
     while (!success) {
       socket_->send(response.payload_, zmq::send_flags::none);

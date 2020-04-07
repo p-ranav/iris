@@ -52,7 +52,7 @@ int main() {
           }
 
           // Set response
-          response.set(album);
+          // response.set(album);
       });
   server.start();
 }
