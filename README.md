@@ -4,12 +4,10 @@
 
 `iris` is a `C++17` header-only library that provides a [component model](https://en.wikipedia.org/wiki/Component-based_software_engineering) and messaging framework based on [ZeroMQ](https://zeromq.org/). 
 
-## Highlights
+## Prerequisites
 
-* Header-only Library
-* Requires C++17
+* Requires a compiler with C++17 standard compliance
 * Requires an installation of `libzmq`
-* MIT License
 
 ## Table of Contents
 
