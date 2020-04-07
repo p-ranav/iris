@@ -35,7 +35,8 @@ public:
 
   ~SubscriberImpl() {
     if (started_)
-      thread_.join();
+      if (thread_.joinable())
+        thread_.join();
     socket_->close();
     started_ = false;
   }

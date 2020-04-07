@@ -51,7 +51,8 @@ public:
 
   ~BrokerImpl() {
     if (started_)
-      thread_.join();
+      if (thread_.joinable())
+        thread_.join();
     frontend_->close();
     backend_->close();
     started_ = false;

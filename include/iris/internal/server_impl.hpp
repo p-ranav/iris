@@ -38,7 +38,8 @@ public:
 
   ~ServerImpl() {
     if (started_)
-      thread_.join();
+      if (thread_.joinable())
+        thread_.join();
     socket_->close();
     started_ = false;
   }
@@ -67,7 +68,10 @@ public:
 
   void start();
 
-  void stop() { done_ = true; }
+  void stop() { 
+    done_ = true; 
+    ready_.notify_all();
+  }
 };
 
 } // namespace internal

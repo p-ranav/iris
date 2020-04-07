@@ -123,7 +123,8 @@ public:
 
   ~Component() {
     for (auto &thread : executor_.threads_)
-      thread.join();
+      if (thread.joinable())
+        thread.join();
     subscribers_.clear();
     servers_.clear();
     async_servers_.clear();
@@ -132,7 +133,8 @@ public:
     interval_timers_.clear();
     brokers_.clear();
     for (auto &t : oneshot_timer_threads_) {
-      t.join();
+      if (t.joinable())
+        t.join();
     }
     oneshot_timers_.clear();
   }
@@ -167,7 +169,8 @@ public:
 
   void join() {
     for (auto &thread : executor_.threads_)
-      thread.join();
+      if (thread.joinable())
+        thread.join();
   }
 
   void start() {
@@ -221,6 +224,7 @@ void TaskSystem::run(unsigned i) {
   while (!done_) {
     lock_t lock{queue_mutex_};
     ready_.wait(lock);
+    if (done_) break;
     operation_t op;
     for (unsigned n = 0; n != count_; ++n) {
       if (queue_[(i + n) % count_].try_pop(op))

@@ -34,7 +34,7 @@ public:
   ~PeriodicTimerImpl() {
     if (execute_) {
       stop();
-    };
+    }
   }
 
   void start() {
@@ -52,6 +52,7 @@ public:
   }
 
   void stop() {
+    ready_.notify_all();
     execute_ = false;
     if (thread_.joinable())
       thread_.join();
