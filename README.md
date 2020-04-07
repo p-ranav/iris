@@ -6,7 +6,7 @@
 
 ## Prerequisites
 
-* Requires a compiler with C++17 standard compliance
+* Requires a compiler with `C++17` standard compliance
 * Requires an installation of `libzmq`
 
 ## Table of Contents
