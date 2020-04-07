@@ -1,6 +1,6 @@
-#include <iostream>
 #include "numbers.hpp"
 #include "statistics.hpp"
+#include <iostream>
 #include <iris/iris.hpp>
 using namespace iris;
 
@@ -13,12 +13,12 @@ int main() {
 
   c.set_interval(
       period = 2000, on_triggered = [&] {
-        std::cout << "[Sent] numbers = {" << i << ", " << j << ", " << k << "}\n";
+        std::cout << "[Sent] numbers = {" << i << ", " << j << ", " << k
+                  << "}\n";
         auto response = client.send(Numbers{.values = {i, j, k}});
         auto stats = response.get<Statistics>();
-        std::cout << "[Received] mean = " << stats.mean 
-                  << "; stdev = " << stats.stdev
-                  << std::endl;
+        std::cout << "[Received] mean = " << stats.mean
+                  << "; stdev = " << stats.stdev << std::endl;
         i += 0.3;
         j += 0.5;
         k += 0.9;

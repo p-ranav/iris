@@ -68,8 +68,8 @@ public:
 
   void start();
 
-  void stop() { 
-    done_ = true; 
+  void stop() {
+    done_ = true;
     ready_.notify_all();
   }
 };

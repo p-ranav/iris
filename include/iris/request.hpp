@@ -1,14 +1,14 @@
 #pragma once
+#include <iris/cereal/archives/json.hpp>
 #include <iris/cppzmq/zmq.hpp>
 #include <sstream>
-#include <iris/cereal/archives/json.hpp>
 
 namespace iris {
 
 namespace internal {
 class ServerImpl;
 class AsyncServerImpl;
-}
+} // namespace internal
 
 class Request {
   zmq::message_t payload_;

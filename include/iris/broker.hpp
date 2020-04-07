@@ -19,11 +19,12 @@ public:
 };
 
 template <typename E>
-inline Broker Component::create_broker(E &&frontend_endpoints, E &&backend_endpoints) {
+inline Broker Component::create_broker(E &&frontend_endpoints,
+                                       E &&backend_endpoints) {
   lock_t lock{brokers_mutex_};
   auto p = std::make_unique<internal::BrokerImpl>(
-      broker_count_.load(), this, 
-      context_, std::forward<Endpoints>(Endpoints(frontend_endpoints)),
+      broker_count_.load(), this, context_,
+      std::forward<Endpoints>(Endpoints(frontend_endpoints)),
       std::forward<Endpoints>(Endpoints(backend_endpoints)));
   brokers_.insert(std::make_pair(broker_count_.load(), std::move(p)));
   return Broker(broker_count_++, this);

@@ -1,11 +1,11 @@
 #pragma once
 #include <atomic>
+#include <condition_variable>
 #include <iris/notification_queue.hpp>
 #include <iris/operation.hpp>
+#include <mutex>
 #include <thread>
 #include <vector>
-#include <condition_variable>
-#include <mutex>
 
 namespace iris {
 
@@ -56,8 +56,8 @@ public:
     }
   }
 
-  void stop() { 
-    done_ = true; 
+  void stop() {
+    done_ = true;
     ready_.notify_all();
   }
 

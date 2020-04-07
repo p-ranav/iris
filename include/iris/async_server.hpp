@@ -20,25 +20,28 @@ public:
 };
 
 template <typename E, typename T, typename S>
-inline AsyncServer Component::create_async_server(E &&endpoints, T &&timeout, S &&fn) {
+inline AsyncServer Component::create_async_server(E &&endpoints, T &&timeout,
+                                                  S &&fn) {
   lock_t lock{async_servers_mutex_};
   auto s = std::make_unique<internal::AsyncServerImpl>(
       async_server_count_.load(), this, context_,
       std::forward<Endpoints>(Endpoints(endpoints)),
       std::forward<TimeoutMs>(TimeoutMs(timeout)),
       operation::ServerOperation{.fn = ServerFunction(fn).get()}, executor_);
-  async_servers_.insert(std::make_pair(async_server_count_.load(), std::move(s)));
+  async_servers_.insert(
+      std::make_pair(async_server_count_.load(), std::move(s)));
   return AsyncServer(async_server_count_++, this);
 }
 
 template <typename E, typename T, typename S>
-inline internal::AsyncServerImpl::AsyncServerImpl(std::uint8_t id, Component *parent,
-                                        zmq::context_t &context, E &&endpoints,
-                                        T &&timeout, S &&fn,
-                                        TaskSystem &executor)
+inline internal::AsyncServerImpl::AsyncServerImpl(std::uint8_t id,
+                                                  Component *parent,
+                                                  zmq::context_t &context,
+                                                  E &&endpoints, T &&timeout,
+                                                  S &&fn, TaskSystem &executor)
     : id_(id), component_(parent), context_(context),
-      endpoints_(std::move(endpoints)), timeout_(timeout),
-      fn_(fn), executor_(executor) {}
+      endpoints_(std::move(endpoints)), timeout_(timeout), fn_(fn),
+      executor_(executor) {}
 
 inline void internal::AsyncServerImpl::recv() {
   while (!done_) {

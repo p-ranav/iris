@@ -2,13 +2,13 @@
 #include <initializer_list>
 #include <iris/cereal/archives/portable_binary.hpp>
 #include <iris/cppzmq/zmq.hpp>
+#include <iris/internal/async_server_impl.hpp>
 #include <iris/internal/broker_impl.hpp>
 #include <iris/internal/client_impl.hpp>
 #include <iris/internal/oneshot_timer_impl.hpp>
 #include <iris/internal/periodic_timer_impl.hpp>
 #include <iris/internal/publisher_impl.hpp>
 #include <iris/internal/server_impl.hpp>
-#include <iris/internal/async_server_impl.hpp>
 #include <iris/internal/subscriber_impl.hpp>
 #include <iris/kwargs.hpp>
 #include <iris/task_system.hpp>
@@ -222,7 +222,8 @@ void TaskSystem::run(unsigned i) {
   while (!done_) {
     lock_t lock{queue_mutex_};
     ready_.wait(lock);
-    if (done_) break;
+    if (done_)
+      break;
     operation_t op;
     for (unsigned n = 0; n != count_; ++n) {
       if (queue_[(i + n) % count_].try_pop(op))

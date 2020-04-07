@@ -1,6 +1,7 @@
 #pragma once
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
 #include <functional>
 #include <iris/kwargs.hpp>
 #include <iris/operation.hpp>
@@ -8,7 +9,6 @@
 #include <mutex>
 #include <ratio>
 #include <thread>
-#include <condition_variable>
 
 namespace iris {
 

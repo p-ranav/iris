@@ -63,9 +63,7 @@ public:
     set_ = true;
   }
 
-  bool has_value() const {
-    return set_;
-  }
+  bool has_value() const { return set_; }
 };
 
 }; // namespace iris

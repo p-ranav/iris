@@ -1,7 +1,7 @@
 #include "album.hpp"
 #include <iostream>
-#include <optional>
 #include <iris/iris.hpp>
+#include <optional>
 using namespace iris;
 #include <iris/cereal/types/optional.hpp>
 #include <iris/cereal/types/tuple.hpp>
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
     } else {
       std::cout << "Album not found!\n";
     }
-    
+
   } else {
     std::cout << "Response not set by server\n";
   }

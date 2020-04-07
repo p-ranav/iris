@@ -26,9 +26,8 @@ inline Client Component::create_client(E &&endpoints, T &&timeout,
   lock_t lock{clients_mutex_};
   auto p = std::make_unique<internal::ClientImpl>(
       context_, std::forward<Endpoints>(Endpoints(endpoints)),
-      std::forward<TimeoutMs>(TimeoutMs(timeout)), 
-      std::forward<Retries>(Retries(retries)),
-      executor_);
+      std::forward<TimeoutMs>(TimeoutMs(timeout)),
+      std::forward<Retries>(Retries(retries)), executor_);
   clients_.insert(std::make_pair(client_count_.load(), std::move(p)));
   return Client(client_count_++, this);
 }

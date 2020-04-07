@@ -31,7 +31,7 @@ namespace iris {
 static Endpoints endpoints;
 static Endpoints router_endpoints;
 static Endpoints dealer_endpoints;
-}
+} // namespace iris
 
 using TimeoutMs = fluent::NamedType<int, struct TimeoutMsTag>;
 namespace iris {

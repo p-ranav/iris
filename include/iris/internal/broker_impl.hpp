@@ -20,7 +20,7 @@ class BrokerImpl {
   std::uint8_t id_;
   class Component *component_;
   std::reference_wrapper<zmq::context_t> context_;
-  
+
   std::unique_ptr<zmq::socket_t> frontend_;
   Endpoints frontend_endpoints_;
 
@@ -35,17 +35,17 @@ class BrokerImpl {
 public:
   template <typename E>
   BrokerImpl(std::uint8_t id, Component *parent, zmq::context_t &context,
-             E &&frontend_endpoints, E &&backend_endpoints) 
-             : id_(id), component_(parent), context_(context),
-             frontend_endpoints_(std::move(frontend_endpoints)),
-             backend_endpoints_(std::move(backend_endpoints)) {
+             E &&frontend_endpoints, E &&backend_endpoints)
+      : id_(id), component_(parent), context_(context),
+        frontend_endpoints_(std::move(frontend_endpoints)),
+        backend_endpoints_(std::move(backend_endpoints)) {
     frontend_ = std::make_unique<zmq::socket_t>(context_, ZMQ_ROUTER);
     backend_ = std::make_unique<zmq::socket_t>(context_, ZMQ_DEALER);
     for (auto &e : frontend_endpoints_) {
-        frontend_->bind(e);
+      frontend_->bind(e);
     }
     for (auto &e : backend_endpoints_) {
-        backend_->bind(e);
+      backend_->bind(e);
     }
   }
 
@@ -60,43 +60,44 @@ public:
 
   void recv() {
     //  Initialize poll set
-    zmq::pollitem_t items [] = {
-        { static_cast<void*>(*frontend_.get()), 0, ZMQ_POLLIN, 0 },
-        { static_cast<void*>(*backend_.get()), 0, ZMQ_POLLIN, 0 }
-    };
-    
+    zmq::pollitem_t items[] = {
+        {static_cast<void *>(*frontend_.get()), 0, ZMQ_POLLIN, 0},
+        {static_cast<void *>(*backend_.get()), 0, ZMQ_POLLIN, 0}};
+
     //  Switch messages between sockets
     while (!done_) {
-        zmq::message_t message;
-        zmq::poll(&items[0], 2, -1);
-        
-        if (items[0].revents & ZMQ_POLLIN) {
-            while(!done_) {
-                //  Process all parts of the message
-                auto ret = frontend_->recv(message, zmq::recv_flags::none);
-                if (ret) {
-                  //  Multipart detection
-                  auto more = frontend_->get(zmq::sockopt::rcvmore);
-                  backend_->send(message, more? zmq::send_flags::sndmore: zmq::send_flags::none);
-                  
-                  if (!more)
-                      break;
-                }
-            }
+      zmq::message_t message;
+      zmq::poll(&items[0], 2, -1);
+
+      if (items[0].revents & ZMQ_POLLIN) {
+        while (!done_) {
+          //  Process all parts of the message
+          auto ret = frontend_->recv(message, zmq::recv_flags::none);
+          if (ret) {
+            //  Multipart detection
+            auto more = frontend_->get(zmq::sockopt::rcvmore);
+            backend_->send(message, more ? zmq::send_flags::sndmore
+                                         : zmq::send_flags::none);
+
+            if (!more)
+              break;
+          }
         }
-        if (items[1].revents & ZMQ_POLLIN) {
-            while (!done_) {
-                //  Process all parts of the message
-                auto ret = backend_->recv(message, zmq::recv_flags::none);
-                if (ret) {
-                  //  Multipart detection
-                  auto more = backend_->get(zmq::sockopt::rcvmore);
-                  frontend_->send(message, more? zmq::send_flags::sndmore: zmq::send_flags::none);
-                  if (!more)
-                      break;
-                }
-            }
+      }
+      if (items[1].revents & ZMQ_POLLIN) {
+        while (!done_) {
+          //  Process all parts of the message
+          auto ret = backend_->recv(message, zmq::recv_flags::none);
+          if (ret) {
+            //  Multipart detection
+            auto more = backend_->get(zmq::sockopt::rcvmore);
+            frontend_->send(message, more ? zmq::send_flags::sndmore
+                                          : zmq::send_flags::none);
+            if (!more)
+              break;
+          }
         }
+      }
     }
   }
 

@@ -1,5 +1,6 @@
 #pragma once
 #include <atomic>
+#include <condition_variable>
 #include <functional>
 #include <iris/cereal/archives/json.hpp>
 #include <iris/cereal/archives/portable_binary.hpp>
@@ -8,11 +9,10 @@
 #include <iris/operation.hpp>
 #include <iris/task_system.hpp>
 #include <memory>
+#include <mutex>
 #include <queue>
 #include <string>
 #include <vector>
-#include <condition_variable>
-#include <mutex>
 
 namespace iris {
 
@@ -37,7 +37,7 @@ class AsyncServerImpl {
 public:
   template <typename E, typename T, typename S>
   AsyncServerImpl(std::uint8_t id, Component *parent, zmq::context_t &context,
-             E &&endpoints, T &&timeout, S &&fn, TaskSystem &executor);
+                  E &&endpoints, T &&timeout, S &&fn, TaskSystem &executor);
 
   ~AsyncServerImpl() {
     if (started_)
@@ -71,7 +71,7 @@ public:
 
   void start();
 
-  void stop() { 
+  void stop() {
     done_ = true;
     ready_.notify_all();
   }
