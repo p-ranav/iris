@@ -13,7 +13,7 @@
 
 *   [Component Model](#component-model)
 *   [Getting Started](#getting-started)
-    *   [Time-Triggered Oprations](#time-triggered-operations)
+    *   [Time-Triggered Operations](#time-triggered-operations)
     *   [Publish-Subscribe Interactions](#publish-subscribe-interactions)
     *   [Synchronous Request-Reply Interactions](#synchronous-request-reply-interactions)
     *   [Asynchronous Request-Reply Interactions](#asynchronous-request-reply-interactions)
