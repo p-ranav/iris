@@ -467,7 +467,7 @@ Rather than having one client request work from one worker can we get any number
   <img height=230 src="img/async_client_server_distributed.png"/>  
 </p>
 
-For this example, let's assume we have some servers (workers) that can calculate the mean and standard deviation of an array of numbers. 
+For this example ([samples/number_stats_server](https://github.com/p-ranav/iris/tree/master/samples/number_stats_server)), let's assume we have some servers (workers) that can calculate the mean and standard deviation of an array of numbers. 
 The client will send an array of numbers to the broker. The broker will forward this request to one of many async servers. These async servers/workers are connected to the broker and waiting for work. 
 
 Here is the struct we will be passing to the server(s). On the client-side, we will prepare a random array of 3 doubles and pass to the server.
