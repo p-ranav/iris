@@ -13,6 +13,8 @@ class Response {
   zmq::message_t payload_;
   class Component *component_;
   std::uint8_t client_id_;
+  bool set_{false};
+
   friend class internal::ClientImpl;
   friend class internal::ServerImpl;
   friend class internal::AsyncServerImpl;
@@ -24,12 +26,14 @@ public:
     payload_.copy(const_cast<Response &>(rhs).payload_);
     component_ = rhs.component_;
     client_id_ = rhs.client_id_;
+    set_ = rhs.set_;
   }
 
   Response &operator=(Response rhs) {
     std::swap(payload_, rhs.payload_);
     std::swap(component_, rhs.component_);
     std::swap(client_id_, rhs.client_id_);
+    std::swap(set_, rhs.set_);
     return *this;
   }
 
@@ -56,6 +60,11 @@ public:
     auto serialized = stream.str();
     payload_.rebuild(serialized.size());
     memcpy(payload_.data(), serialized.c_str(), serialized.size());
+    set_ = true;
+  }
+
+  bool has_value() const {
+    return set_;
   }
 };
 

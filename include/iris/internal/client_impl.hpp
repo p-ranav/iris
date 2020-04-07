@@ -73,6 +73,8 @@ public:
             result.payload_ = std::move(reply);
             result.client_id_ = id_;
             result.component_ = component_;
+            if (result.payload_.size())
+              result.set_ = true;
             return std::move(result);
           }
           // TODO: Handle coming here
@@ -111,6 +113,8 @@ public:
       result.payload_ = std::move(reply);
       result.client_id_ = id_;
       result.component_ = component_;
+      if (result.payload_.size())
+        result.set_ = true;
       return std::move(result);
     } else {
       // TODO Handle this better

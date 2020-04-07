@@ -25,21 +25,29 @@ int main(int argc, char *argv[]) {
   // Send request to server
   auto response = client.send(request);
 
-  // Parse response and print result if available
-  auto album = response.get<std::optional<Album>>();
-  if (album.has_value()) {
-    auto metadata = album.value();
-    std::cout << "- Received album:\n";
-    std::cout << "    Name: " << metadata.name << "\n";
-    std::cout << "    Artist: " << metadata.artist << "\n";
-    std::cout << "    Year: " << metadata.year << "\n";
-    std::cout << "    Genre: " << metadata.genre << "\n";
-    std::cout << "    Tracks:\n";
-    for (size_t i = 0; i < metadata.tracks.size(); ++i) {
-      std::cout << "      " << i << ". " << metadata.tracks[i] << "\n";
+  // Check that the server has called `Response.set()`
+  if (response.has_value()) {
+
+    // Parse response and print result if available
+    auto album = response.get<std::optional<Album>>();
+    if (album.has_value()) {
+      auto metadata = album.value();
+      std::cout << "- Received album:\n";
+      std::cout << "    Name: " << metadata.name << "\n";
+      std::cout << "    Artist: " << metadata.artist << "\n";
+      std::cout << "    Year: " << metadata.year << "\n";
+      std::cout << "    Genre: " << metadata.genre << "\n";
+      std::cout << "    Tracks:\n";
+      for (size_t i = 0; i < metadata.tracks.size(); ++i) {
+        std::cout << "      " << i << ". " << metadata.tracks[i] << "\n";
+      }
+    } else {
+      std::cout << "Album not found!\n";
     }
+    
   } else {
-    std::cout << "Album not found!\n";
+    std::cout << "Response not set by server\n";
   }
+
   c.stop();
 }
