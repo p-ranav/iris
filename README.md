@@ -192,7 +192,7 @@ Now, for the publisher. When managing state, it is cleaner to inherit from `iris
 * Call `join()` on the class destructor to join on the task system executor threads
 
 ```cpp
-// publisher
+// publisher.cpp
 #include <iostream>
 #include <iris/iris.hpp>
 using namespace iris;
@@ -257,9 +257,36 @@ The client-server model is another basic interaction pattern. Client sends a req
   <img height=230 src="img/client_server.png"/>  
 </p>
 
-In this example, we will create a music "database" server that can be queried for album metadata. Clients can request for album metadata using a catalog ID. Servers will respond with the album metadata. 
+In this example ([samples/music_tag_server](https://github.com/p-ranav/iris/tree/master/samples/music_tag_server)), we will create a music database server that can be queried for album metadata. Clients can request for album metadata using a key-value pair, e.g., `{"name", "Dark Side of the Moon"}`. The server will respond with an `std::optional<Album>` - If the album is found in its database, it will return it, else it will return `std::nullopt`. 
 
-Let's start with the server response - the `Album` struct.
+Our JSON database looks like this:
+
+```bash
+[
+    {
+        "catalog": "R2 552927",
+        "name": "Paranoid", 
+        "artist": "Black Sabbath", 
+        "year": 1970, 
+        "genre": "Heavy Metal", 
+        "tracks": [
+            "War Pigs", 
+            "Paranoid", 
+            "Planet Caravan", 
+            "Iron Man", 
+            "Electric Funeral", 
+            "Hand of Doom", 
+            "Jack the Stripper / Fairies Wear Boots"]
+    },
+    {
+        "catalog": "7243 8 35870 2 5",
+        "name": "The Number of the Beast",
+...
+...
+...
+```
+
+Let's start with the expected server response - the `Album` struct. 
 
 ```cpp
 // album.hpp
@@ -284,8 +311,13 @@ struct Album {
 To create a server port, call `component.create_server`. 
 
 * Server callbacks have the signature `std::function<void(Request, Response&)>`
-* Simply deserialize the request, perform the server task, and use `response.set()` to set the server response
 * The server port timeout is how long the server's `recv()` call will wait before timing out and checking again. Timeouts are essential to keeping the component reactive to commands like `component.stop()`. See `ZMQ_RCVTIMEO` for more details.
+* OK so what's happening here?
+  * The server receives a request that is actually an `std::tuple<std::string, std::string>`
+  * We deserialize this request using `request.get<T>` 
+  * Then we search in our JSON database if this key-value pair exists.
+  * If yes, we construct an `Album` object and set the server callback response
+  * If not, we set the server callback response to `std::nullopt`
 
 ```cpp
 // server.cpp
@@ -294,31 +326,58 @@ To create a server port, call `component.create_server`.
 using namespace iris;
 #include <iostream>
 #include <map>
+#include "json.hpp"
+#include <fstream>
+#include <iris/cereal/types/optional.hpp>
+#include <iris/cereal/types/tuple.hpp>
 
 int main() {
 
-  // This is our "database"
-  std::map<std::string, Album> albums;
-  albums["R2 552927"] = Album{
-      .name = "Paranoid",
-      .artist = "Black Sabbath",
-      .year = 1970,
-      .genre = "Heavy metal",
-      .tracks = {"War Pigs", "Paranoid", "Planet Caravan", "Iron Man",
-                 "Electric Funeral", "Hand of Doom",
-                 "Jack the Stripper / Fairies Wear Boots"}};
+  // Load JSON database
+  nlohmann::json j;
+  std::ifstream stream("database.json");
+  stream >> j;
 
-  // Server component
-  Component music_tag_component;
-  music_tag_component.create_server(
+  Component server;
+  server.create_server(
       endpoints = {"tcp://*:5510"}, 
       timeout = 500,
       on_request = [&](Request request, Response &response) {
-          auto catalog_id = request.get<std::string>();
-          std::cout << "Received request for catalog # " << catalog_id << "\n";
-          response.set(albums[catalog_id]);
+          // Request from client
+          auto kvpair = request.get<std::tuple<std::string, std::string>>();
+          auto key = std::get<0>(kvpair);
+          auto value = std::get<1>(kvpair);
+          std::cout << "Received request {key: " 
+                    << key << ", value: " << value << "}\n";
+
+          // Response to be filled and sent back 
+          // Either a valid album struct or empty
+          std::optional<Album> album{};
+
+          // Find the album in the JSON database
+          auto it = std::find_if(j.begin(), j.end(), 
+            [&key, &value](const auto& element) {
+              if (key == "year")
+                return element[key] == std::stoi(value);
+              else
+                return element[key] == value;
+          });
+
+          // Populate the response fields
+          if (it != j.end()) {
+            album = Album {
+              .name = (*it)["name"].get<std::string>(),
+              .artist = (*it)["artist"].get<std::string>(),
+              .year = (*it)["year"].get<unsigned>(),
+              .genre = (*it)["genre"].get<std::string>(),
+              .tracks = (*it)["tracks"].get<std::vector<std::string>>()
+            };
+          }
+
+          // Set response
+          response.set(album);
       });
-  music_tag_component.start();
+  server.start();
 }
 ```
 
@@ -337,36 +396,55 @@ So, `iris::Clients` require a _timeout_ (waiting on server response) and a total
 // client.cpp
 #include "album.hpp"
 #include <iostream>
+#include <optional>
 #include <iris/iris.hpp>
 using namespace iris;
+#include <iris/cereal/types/optional.hpp>
+#include <iris/cereal/types/tuple.hpp>
 
-int main() {
+int main(int argc, char *argv[]) {
+
+  std::tuple<std::string, std::string> request;
+
+  if (argc != 3) {
+    std::cout << "Usage: ./<executable> key value\n";
+    return 0;
+  } else {
+    request = {argv[1], argv[2]};
+  }
+
   Component c(threads = 1);
   c.start();
   auto client = c.create_client(endpoints = {"tcp://127.0.0.1:5510"},
                                 timeout = 2500, 
                                 retries = 3);
-                                
-  std::string request = "R2 552927";
-  std::cout << "Sending request with catalog# " << request << std::endl;
-  
-  // Client-server call
+
+  // Send request to server
   auto response = client.send(request);
-  
-  // Parse server response
-  auto album = response.get<Album>();
-  std::cout << "- Received album:\n";
-  std::cout << "    Name: " << album.name << "\n";
-  std::cout << "    Artist: " << album.artist << "\n";
-  std::cout << "    Year: " << album.year << "\n";
-  std::cout << "    Genre: " << album.genre << "\n";
-  std::cout << "    Tracks:\n";
-  for (size_t i = 0; i < album.tracks.size(); ++i) {
-    std::cout << "      " << i << ". " << album.tracks[i] << "\n";
+
+  // Parse response and print result if available
+  auto album = response.get<std::optional<Album>>();
+  if (album.has_value()) {
+    auto metadata = album.value();
+    std::cout << "- Received album:\n";
+    std::cout << "    Name: " << metadata.name << "\n";
+    std::cout << "    Artist: " << metadata.artist << "\n";
+    std::cout << "    Year: " << metadata.year << "\n";
+    std::cout << "    Genre: " << metadata.genre << "\n";
+    std::cout << "    Tracks:\n";
+    for (size_t i = 0; i < metadata.tracks.size(); ++i) {
+      std::cout << "      " << i << ". " << metadata.tracks[i] << "\n";
+    }
+  } else {
+    std::cout << "Album not found!\n";
   }
   c.stop();
 }
 ```
+
+<p align="center">
+  <img src="img/music_tag_server.gif"/>  
+</p>
 
 ## Asynchronous Request-Reply Interactions
 
