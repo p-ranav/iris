@@ -29,7 +29,17 @@ public:
     return *this;
   }
 
-  template <typename T> T get();
+  template <typename T> T get() {
+    T result;
+    std::stringstream stream;
+    stream.write(reinterpret_cast<const char *>(payload_.data()),
+                 payload_.size());
+    {
+      cereal::JSONInputArchive archive(stream);
+      archive(result);
+    }
+    return std::move(result);
+  }
 };
 
 }; // namespace iris

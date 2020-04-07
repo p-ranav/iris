@@ -66,13 +66,6 @@ class Component {
     subscribers_[subscriber_id]->stop();
   }
 
-  friend class Message;
-  template <typename T, typename U>
-  T get_message(std::uint8_t subscriber_id, U &&message) {
-    lock_t lock{subscribers_mutex_};
-    return subscribers_[subscriber_id]->get<T>(std::forward<U>(message));
-  }
-
   friend class Client;
   std::atomic_uint8_t client_count_{0};
   template <typename R> Response request(std::uint8_t client_id, R &&request) {
@@ -179,19 +172,24 @@ public:
       oneshot_timer_threads_.push_back(t->start());
     }
     for (auto &[_, v] : subscribers_) {
-      v->start();
+      if (v)
+        v->start();
     }
     for (auto &[_, v] : servers_) {
-      v->start();
+      if (v)
+        v->start();
     }
     for (auto &[_, v] : brokers_) {
-      v->start();
+      if (v)
+        v->start();
     }
     for (auto &[_, v] : async_servers_) {
-      v->start();
+      if (v)
+        v->start();
     }
     for (auto &[_, v] : interval_timers_) {
-      v->start();
+      if (v)
+        v->start();
     }
   }
 
