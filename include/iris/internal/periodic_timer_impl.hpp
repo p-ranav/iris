@@ -8,6 +8,7 @@
 #include <mutex>
 #include <ratio>
 #include <thread>
+#include <condition_variable>
 
 namespace iris {
 
@@ -21,6 +22,9 @@ class PeriodicTimerImpl {
   std::atomic<bool> execute_{false};
   std::thread thread_;
 
+  std::mutex ready_mutex_;
+  std::condition_variable ready_;
+
 public:
   template <typename P, typename T>
   PeriodicTimerImpl(P &&period_ms, T &&fn, TaskSystem &executor)
@@ -33,19 +37,6 @@ public:
     };
   }
 
-  typedef std::chrono::high_resolution_clock clock;
-  typedef std::chrono::milliseconds milliseconds;
-
-  static void sleep_for(double delta) {
-    static constexpr milliseconds min_sleep_duration(0);
-    auto start = clock::now();
-    while (
-        std::chrono::duration_cast<milliseconds>(clock::now() - start).count() <
-        delta) {
-      std::this_thread::sleep_for(min_sleep_duration);
-    }
-  }
-
   void start() {
     if (execute_) {
       stop();
@@ -54,7 +45,8 @@ public:
     thread_ = std::thread([this]() {
       while (execute_) {
         executor_.get().async_(fn_);
-        sleep_for(period_ms_.get());
+        lock_t lock{ready_mutex_};
+        ready_.wait_for(lock, std::chrono::milliseconds(period_ms_.get()));
       }
     });
   }

@@ -11,6 +11,8 @@
 #include <queue>
 #include <string>
 #include <vector>
+#include <condition_variable>
+#include <mutex>
 
 namespace iris {
 
@@ -28,7 +30,9 @@ class AsyncServerImpl {
   std::thread thread_;
   std::atomic_bool started_{false};
   std::atomic_bool done_{false};
-  std::atomic_bool ready_{false};
+
+  std::mutex ready_mutex_;
+  std::condition_variable ready_;
 
 public:
   template <typename E, typename T, typename S>
@@ -61,7 +65,7 @@ public:
     while (!success) {
       socket_->send(response.payload_, zmq::send_flags::none);
     }
-    ready_ = true;
+    ready_.notify_one();
   }
 
   void start();

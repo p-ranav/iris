@@ -47,12 +47,9 @@ inline internal::ServerImpl::ServerImpl(std::uint8_t id, Component *parent,
 
 inline void internal::ServerImpl::recv() {
   while (!done_) {
-    while (!ready_) {
-    }
     zmq::message_t message;
     auto ret = socket_->recv(message);
     if (ret.has_value()) {
-      ready_ = false;
       Request payload;
       payload.payload_ = std::move(message);
       payload.server_id_ = id_;
@@ -60,6 +57,8 @@ inline void internal::ServerImpl::recv() {
       payload.async_ = false;
       fn_.arg = payload;
       executor_.get().async_(fn_);
+      lock_t lock{ready_mutex_};
+      ready_.wait(lock);
     }
   }
 }
@@ -67,7 +66,6 @@ inline void internal::ServerImpl::recv() {
 inline void internal::ServerImpl::start() {
   thread_ = std::thread(&ServerImpl::recv, this);
   started_ = true;
-  ready_ = true;
 }
 
 } // namespace iris

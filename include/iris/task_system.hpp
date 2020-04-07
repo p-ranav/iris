@@ -4,6 +4,8 @@
 #include <iris/operation.hpp>
 #include <thread>
 #include <vector>
+#include <condition_variable>
+#include <mutex>
 
 namespace iris {
 
@@ -15,7 +17,6 @@ class TaskSystem {
   std::atomic_bool done_{0};
   std::mutex queue_mutex_;
   std::condition_variable ready_;
-  std::atomic_bool queue_empty_{true};
 
   friend class Component;
 
