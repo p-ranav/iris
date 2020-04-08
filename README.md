@@ -74,7 +74,7 @@ int main() {
 
 ### One-shot Timers
 
-Use `component.set_timeout` to create a one-shit timer that triggers the component after a set delay. 
+Use `component.set_timeout` to create a one-shot timer that triggers the component after a set delay. 
 
 ```cpp
 // oneshot_timers.cpp
