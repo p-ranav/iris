@@ -19,6 +19,13 @@
 
 namespace iris {
 
+  class Publisher;
+  class Subscriber;
+  class Client;
+  class Server;
+  class AsyncServer;
+  class Broker;
+
 class Component {
   friend TaskSystem;
   TaskSystem executor_;
@@ -143,22 +150,22 @@ public:
     oneshot_timers_.push_back(std::move(t));
   }
 
-  template <typename E> class Publisher create_publisher(E &&endpoints);
+  template <typename E> Publisher create_publisher(E &&endpoints);
 
   template <typename E, typename T, typename S>
-  class Subscriber create_subscriber(E &&endpoints, T &&timeout, S &&fn);
+  Subscriber create_subscriber(E &&endpoints, T &&timeout, S &&fn);
 
   template <typename E, typename T, typename R>
-  class Client create_client(E &&endpoints, T &&timeout, R &&retries);
+  Client create_client(E &&endpoints, T &&timeout, R &&retries);
 
   template <typename E, typename T, typename S>
-  class Server create_server(E &&endpoints, T &&timeout, S &&fn);
+  Server create_server(E &&endpoints, T &&timeout, S &&fn);
 
   template <typename E, typename T, typename S>
-  class AsyncServer create_async_server(E &&endpoints, T &&timeout, S &&fn);
+  AsyncServer create_async_server(E &&endpoints, T &&timeout, S &&fn);
 
   template <typename E>
-  class Broker create_broker(E &&frontend_endpoints, E &&backend_endpoints);
+  Broker create_broker(E &&frontend_endpoints, E &&backend_endpoints);
 
   void join() {
     for (auto &thread : executor_.threads_)
