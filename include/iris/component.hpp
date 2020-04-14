@@ -218,6 +218,7 @@ public:
   }
 };
 
+inline
 void TaskSystem::run(unsigned i) {
   while (!done_) {
     lock_t lock{queue_mutex_};
