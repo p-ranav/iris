@@ -19,12 +19,13 @@
 
 namespace iris {
 
-  class Publisher;
-  class Subscriber;
-  class Client;
-  class Server;
-  class AsyncServer;
-  class Broker;
+class PeriodicTimer;
+class Publisher;
+class Subscriber;
+class Client;
+class Server;
+class AsyncServer;
+class Broker;
 
 class Component {
   friend TaskSystem;
@@ -140,7 +141,7 @@ public:
   }
 
   template <typename P, typename T>
-  class PeriodicTimer set_interval(P &&period_ms, T &&fn);
+  PeriodicTimer set_interval(P &&period_ms, T &&fn);
 
   template <typename P, typename T> void set_timeout(P &&delay_ms, T &&fn) {
     lock_t lock{oneshot_timers_mutex_};
