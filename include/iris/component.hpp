@@ -133,7 +133,7 @@ public:
   }
 
   template <typename P, typename T>
-  class PeriodicTimer set_interval(P &&period_ms, T &&fn);
+  PeriodicTimer set_interval(P &&period_ms, T &&fn);
 
   template <typename P, typename T> void set_timeout(P &&delay_ms, T &&fn) {
     lock_t lock{oneshot_timers_mutex_};
@@ -143,22 +143,22 @@ public:
     oneshot_timers_.push_back(std::move(t));
   }
 
-  template <typename E> class Publisher create_publisher(E &&endpoints);
+  template <typename E> Publisher create_publisher(E &&endpoints);
 
   template <typename E, typename T, typename S>
-  class Subscriber create_subscriber(E &&endpoints, T &&timeout, S &&fn);
+  Subscriber create_subscriber(E &&endpoints, T &&timeout, S &&fn);
 
   template <typename E, typename T, typename R>
-  class Client create_client(E &&endpoints, T &&timeout, R &&retries);
+  Client create_client(E &&endpoints, T &&timeout, R &&retries);
 
   template <typename E, typename T, typename S>
-  class Server create_server(E &&endpoints, T &&timeout, S &&fn);
+  Server create_server(E &&endpoints, T &&timeout, S &&fn);
 
   template <typename E, typename T, typename S>
-  class AsyncServer create_async_server(E &&endpoints, T &&timeout, S &&fn);
+  AsyncServer create_async_server(E &&endpoints, T &&timeout, S &&fn);
 
   template <typename E>
-  class Broker create_broker(E &&frontend_endpoints, E &&backend_endpoints);
+  Broker create_broker(E &&frontend_endpoints, E &&backend_endpoints);
 
   void join() {
     for (auto &thread : executor_.threads_)
